@@ -1,0 +1,33 @@
+---
+import { getTranslations } from "../../../lib/i18n/utils"
+import PageSEO from "../../seo/PageSEO.astro"
+import { BUSINESS_DATA } from "../../../data/site-config"
+
+const { lang, pageKey } = Astro.props
+const t = getTranslations(lang)
+---
+
+<PageSEO currentPage={pageKey} lang={lang} slot="seo" />
+
+<section class="mx-auto max-w-6xl px-4 py-16">
+  <h1 class="text-4xl font-bold text-gray-900">{t("pages.about.title")}</h1>
+
+  <div class="mt-8 grid gap-12 lg:grid-cols-2">
+    <div>
+      <p class="text-lg text-gray-600 leading-relaxed">{t("pages.about.description")}</p>
+      <p class="mt-4 text-gray-600 leading-relaxed">{t("pages.about.mission")}</p>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-6">
+      <h2 class="text-lg font-semibold text-gray-900">{t("pages.about.contact")}</h2>
+      <dl class="mt-4 space-y-3 text-sm">
+        {BUSINESS_DATA.contact.email && (
+          <div class="flex gap-2">
+            <dt class="font-medium text-gray-500">Email:</dt>
+            <dd class="text-gray-700">{BUSINESS_DATA.contact.email}</dd>
+          </div>
+        )}
+      </dl>
+    </div>
+  </div>
+</section>

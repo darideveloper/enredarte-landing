@@ -1,0 +1,84 @@
+---
+import { BUSINESS_DATA } from "../../../data/site-config"
+import { SITE_TITLE, SITE_DESCRIPTION, LOCALE_MAP } from "../../../consts"
+import { getLocalizedPath, getTranslations } from "../../../lib/i18n/utils"
+
+export interface Props {
+  currentPage?: string
+  lang?: string
+  title?: string
+  description?: string
+  keywords?: string
+  jsonType?: string
+  extraJson?: Record<string, any>
+  ogImage?: string
+  useTagLine?: boolean
+  noIndex?: boolean
+}
+
+const {
+  currentPage,
+  lang = "en",
+  title,
+  description,
+  keywords,
+  jsonType = "LocalBusiness",
+  extraJson = {},
+  ogImage,
+  useTagLine = true,
+  noIndex,
+} = Astro.props
+
+const t = getTranslations(lang)
+const i18nTitle = currentPage ? t(`pages.${currentPage}.title`) : undefined
+const i18nDesc = currentPage ? t(`pages.${currentPage}.description`) : undefined
+const i18nKeywords = currentPage ? t(`pages.${currentPage}.keywords`) : undefined
+
+const resolvedTitle = title || i18nTitle || SITE_TITLE
+const resolvedDescription = description || i18nDesc || SITE_DESCRIPTION
+const resolvedKeywords = keywords || i18nKeywords
+const pageTitle = useTagLine && resolvedTitle !== BUSINESS_DATA.name && currentPage !== "home"
+  ? `${resolvedTitle} | ${BUSINESS_DATA.name}`
+  : resolvedTitle
+
+const canonicalPath = currentPage ? getLocalizedPath(currentPage, lang) : Astro.url.pathname
+const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
+
+const socialImageUrl = ogImage ? `${BUSINESS_DATA.url}${ogImage}` : `${BUSINESS_DATA.url}${BUSINESS_DATA.ogImage}`
+
+const alternateUrls = currentPage
+  ? {
+      en: `${BUSINESS_DATA.url}${getLocalizedPath(currentPage, "en")}`,
+      es: `${BUSINESS_DATA.url}${getLocalizedPath(currentPage, "es")}`,
+    }
+  : undefined
+---
+<title>{pageTitle}</title>
+<meta name="description" content={resolvedDescription} />
+{resolvedKeywords && <meta name="keywords" content={resolvedKeywords} />}
+<link rel="canonical" href={canonicalUrl} />
+{alternateUrls && <link rel="alternate" hreflang="en" href={alternateUrls.en} />}
+{alternateUrls && <link rel="alternate" hreflang="es" href={alternateUrls.es} />}
+<meta property="og:type" content="website" />
+<meta property="og:locale" content={LOCALE_MAP[lang]} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={resolvedDescription} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={socialImageUrl} />
+<meta name="twitter:card" content="summary_large_image" />
+{!import.meta.env.PROD && <meta name="robots" content="noindex, nofollow" />}
+{noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": jsonType,
+  name: BUSINESS_DATA.name,
+  url: canonicalUrl,
+  image: socialImageUrl,
+  ...(jsonType === "LocalBusiness" ? {
+    telephone: BUSINESS_DATA.contact.phone,
+    address: BUSINESS_DATA.contact.address,
+    sameAs: Object.values(BUSINESS_DATA.social).filter(Boolean),
+  } : {}),
+  ...extraJson,
+})} />

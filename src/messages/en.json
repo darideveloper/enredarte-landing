@@ -1,0 +1,39 @@
+{
+  "global": {
+    "nav": {
+      "home": "Home",
+      "services": "Services",
+      "about": "About"
+    },
+    "footer": {
+      "links": "Links",
+      "contact": "Contact"
+    },
+    "learnMore": "Learn more"
+  },
+  "pages": {
+    "home": {
+      "title": "EnredArte",
+      "description": "Discover art in every corner",
+      "keywords": "art, gallery, culture"
+    },
+    "services": {
+      "title": "Our Services",
+      "description": "Explore our art offerings and cultural experiences",
+      "items": {
+        "exhibitions": "Art Exhibitions",
+        "exhibitionsDesc": "Curated exhibitions featuring local and international artists",
+        "workshops": "Workshops",
+        "workshopsDesc": "Hands-on art workshops for all skill levels",
+        "tours": "Guided Tours",
+        "toursDesc": "Expert-led tours through our galleries and cultural spaces"
+      }
+    },
+    "about": {
+      "title": "About Us",
+      "description": "We are a cultural space dedicated to connecting people through art",
+      "mission": "Our mission is to make art accessible to everyone, fostering creativity and cultural exchange in our community.",
+      "contact": "Get in Touch"
+    }
+  }
+}

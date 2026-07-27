@@ -1,0 +1,34 @@
+---
+import Layout from "../layouts/Layout.astro"
+import { routes, type PageKey } from "../lib/i18n/routes"
+import Home from "../components/pages/landing/Home.astro"
+import Services from "../components/pages/services/Services.astro"
+import About from "../components/pages/about/About.astro"
+
+export async function getStaticPaths() {
+  const paths = []
+  for (const [key, langPaths] of Object.entries(routes)) {
+    paths.push({
+      params: { path: langPaths.en === "" ? undefined : langPaths.en },
+      props: { pageKey: key, lang: "en" },
+    })
+    paths.push({
+      params: { path: langPaths.es },
+      props: { pageKey: key, lang: "es" },
+    })
+  }
+  return paths
+}
+
+const COMPONENT_MAP: Record<string, any> = {
+  home: Home,
+  services: Services,
+  about: About,
+}
+
+const { pageKey, lang } = Astro.props
+const PageComponent = COMPONENT_MAP[pageKey as PageKey]
+---
+<Layout lang={lang} pageKey={pageKey}>
+  {PageComponent && <PageComponent lang={lang} pageKey={pageKey} />}
+</Layout>

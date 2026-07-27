@@ -1,23 +1,30 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import "../styles/global.css"
+import Header from "../components/organisms/Header.astro"
+import Footer from "../components/organisms/Footer.astro"
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+export interface Props {
+  lang?: string
+  pageKey?: string
+  preloadImage?: string
+}
+
+const { lang = "en", pageKey = "home", preloadImage } = Astro.props
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <slot name="seo" />
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+  </head>
+  <body class="flex min-h-screen flex-col font-sans">
+    <Header lang={lang} pageKey={pageKey} />
+    <slot />
+    <Footer lang={lang} pageKey={pageKey} />
+  </body>
+</html>
