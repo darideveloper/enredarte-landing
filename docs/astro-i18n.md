@@ -1,0 +1,520 @@
+---
+created: 2026-04-17
+updated: 2026-07-26
+tags:
+  - astro
+  - i18n
+  - validation
+  - documentation
+type: resource
+status: active
+---
+
+# Internationalization (i18n) System Documentation
+
+This document describes the custom i18n system used in this project, designed for Astro with localized routing and centralized translation management.
+
+**Build-time validation is mandatory within this system** — see section 9.
+
+## 1. Directory Structure
+
+- `src/messages/`: Contains JSON translation files (e.g., `en.json`, `es.json`).
+- `src/lib/i18n/`: Core logic and configuration.
+  - `ui.ts`: Language definitions and message loading.
+  - `utils.ts`: Utility functions for translation and routing.
+  - `routes.ts`: Localized path mapping.
+- `src/pages/[...path].astro`: Central dynamic router for localized pages.
+- `scripts/validate-i18n.ts`: **Mandatory** build-time validation script.
+- `package.json`: Scripts wiring `validate-i18n` into the build pipeline.
+
+## 2. Translation Files (`src/messages/`)
+
+Translations are stored in JSON files, organized by nested keys. One file per language.
+
+Example (`en.json`):
+```json
+{
+  "global": {
+    "nav": {
+      "services": "Services"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Home",
+      "description": "Official business services.",
+      "keywords": "service, area, business"
+    }
+  }
+}
+```
+
+## 3. Configuration (`src/lib/i18n/ui.ts`)
+
+Defines supported languages and the default language. Imports JSON files directly.
+
+```typescript
+import en from '../../messages/en.json';
+import es from '../../messages/es.json';
+
+export const languages = {
+  en: 'English',
+  es: 'Español',
+};
+
+export const defaultLang = 'en';
+
+export const ui = {
+  en,
+  es,
+} as const;
+```
+
+## 4. Localized Routing (`src/lib/i18n/routes.ts`)
+
+Instead of creating separate folders for each language, we map "Page Keys" to localized slugs using a single object.
+
+```typescript
+export const routes = {
+  home: {
+    en: "",
+    es: "es",
+  },
+  services: {
+    en: "services",
+    es: "es/servicios",
+  },
+  destinations: {
+    en: "destinations",
+    es: "es/destinos",
+  },
+  about: {
+    en: "about-us",
+    es: "es/sobre-nosotros",
+  },
+  reservation: {
+    en: "my-reservation",
+    es: "es/mi-reservacion",
+  },
+  blog: {
+    en: "blog",
+    es: "es/blog",
+  },
+  // ... more routes
+} as const;
+
+export type PageKey = keyof typeof routes;
+```
+
+Key pattern: English paths have **no language prefix** (`/services`), Spanish paths have the `/es/` prefix (`/es/servicios`). The home page English path is `""` (root).
+
+### 4.1 Legacy Redirects
+
+When switching from prefixed English URLs (`/en/path`) to unprefixed (`/path`), add redirects to preserve SEO authority:
+
+```ts
+// astro.config.ts
+const legacyRedirects = Object.values(routes).reduce<Record<string, string>>((acc, route) => {
+  if (route.en === "") {
+    acc['/en'] = '/';
+  } else {
+    acc[`/en/${route.en}`] = `/${route.en}`;
+  }
+  return acc;
+}, {});
+
+export default defineConfig({
+  redirects: { ...legacyRedirects }
+})
+```
+
+This maps `/en/services` → `/services` for every route automatically.
+
+## 5. Dynamic Router (`src/pages/[...path].astro`)
+
+A single catch-all file handles all localized routes using `getStaticPaths`.
+
+```astro
+---
+import { routes } from '../lib/i18n/routes'
+// Import all page components
+import Home from '../components/pages/landing/Home.astro'
+import Taxi from '../components/pages/services/Taxi.astro'
+import Tulum from '../components/pages/destinations/Tulum.astro'
+import Reservation from '../components/pages/store/Reservation.astro'
+// ... more page imports
+
+export async function getStaticPaths() {
+  const paths = []
+  for (const [key, langPaths] of Object.entries(routes)) {
+    // English: path is undefined for home, the slug otherwise
+    paths.push({
+      params: { path: langPaths.en === '' ? undefined : langPaths.en },
+      props: { pageKey: key, lang: 'en' },
+    })
+    // Spanish: path always has the slug
+    paths.push({
+      params: { path: langPaths.es },
+      props: { pageKey: key, lang: 'es' },
+    })
+  }
+  return paths
+}
+
+// COMPONENT_MAP — maps page keys to page components
+const COMPONENT_MAP = {
+  home: Home,
+  taxi: Taxi,
+  tulum: Tulum,
+  reservation: Reservation,
+  // ... one entry per route
+}
+
+const { pageKey, lang } = Astro.props
+const PageComponent = COMPONENT_MAP[pageKey as keyof typeof COMPONENT_MAP]
+---
+
+{PageComponent && <PageComponent lang={lang} pageKey={pageKey} />}
+```
+
+This generates 2 × N pages, where N is the number of route entries. Every page receives `lang` and `pageKey` as props.
+
+## 6. Utility Functions (`src/lib/i18n/utils.ts`)
+
+The core i18n logic — URL parsing, path resolution, and the translation function.
+
+### getLangFromUrl
+```typescript
+export function getLangFromUrl(url: URL) {
+  const [, firstSegment] = url.pathname.split("/");
+  if (firstSegment === "es") return "es";
+  return "en";
+}
+```
+
+Simple rule: if the URL starts with `/es`, it's Spanish. Everything else is English. Works because English paths have no prefix.
+
+### getLocalizedPath
+```typescript
+export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
+  const path = routes[pageKey as keyof typeof routes]?.[lang];
+  return path === undefined ? "/" : `/${path}`;
+}
+```
+
+Looks up the route for the given page and language. Returns `"/"` for undefined paths (the English home page).
+
+### getTranslations — The `t()` Function
+```typescript
+export function getTranslations(lang: keyof typeof ui) {
+  return function t(key: string, vars?: Record<string, string>) {
+    const keys = key.split(".");
+    let value: any = ui[lang];
+
+    // Walk the nested JSON structure
+    for (const k of keys) {
+      value = value?.[k];
+      if (value === undefined) break;
+    }
+
+    // Fallback to default language
+    if (value === undefined) {
+      let fallbackValue: any = ui[defaultLang];
+      for (const k of keys) {
+        fallbackValue = fallbackValue?.[k];
+        if (fallbackValue === undefined) break;
+      }
+      value = fallbackValue;
+
+      if (value === undefined) {
+        if (import.meta.env.DEV) {
+          console.error(`[i18n] Missing translation key: "${key}"`);
+          return `MISSING: ${key}`;
+        }
+      }
+    }
+
+    // Variable interpolation: replaces {name} with provided values
+    if (typeof value === "string" && vars) {
+      Object.entries(vars).forEach(([k, v]) => {
+        value = value.replace(new RegExp(`{${k}}`, "g"), v);
+      });
+    }
+
+    return value;
+  };
+}
+```
+
+### Reusable Helper for Static Paths
+
+For pages outside the catch-all router (e.g., blog pages, API routes):
+
+```typescript
+// src/lib/utils.ts
+export async function getStaticPathsLangs() {
+  return [{ params: { lang: "es" } }, { params: { lang: "en" } }];
+}
+```
+
+## 7. Usage in Components
+
+### Astro Components
+```astro
+---
+import { getTranslations } from '../../../lib/i18n/utils'
+const { lang } = Astro.props
+const t = getTranslations(lang)
+---
+<h1>{t('pages.home.title')}</h1>
+<p>{t('pages.home.description')}</p>
+```
+
+### React Components
+
+Translations are passed as props from the parent Astro component. React never imports the i18n system directly.
+
+**Astro page passes translations:**
+```astro
+---
+const t = getTranslations(lang)
+---
+<BookingForm translations={t('global.booking')} client:idle />
+```
+
+**React component receives them:**
+```tsx
+interface Props {
+  translations: any;
+}
+export default function BookingForm({ translations }: Props) {
+  return (
+    <div>
+      <h2>{translations.title}</h2>
+      <label>{translations.labels.leavingFrom}</label>
+    </div>
+  );
+}
+```
+
+This keeps React components pure — no dependency on the i18n system, simpler testing, and less JS shipped.
+
+### Language Switcher
+The language switcher toggles between the current language and its alternate using `getLocalizedPath`:
+
+```astro
+---
+const targetLang = lang === 'en' ? 'es' : 'en'
+const targetUrl = getLocalizedPath(pageKey, targetLang)
+---
+<a href={targetUrl}>{languages[targetLang]}</a>
+```
+
+## 8. SEO Localization (`BaseSEO.astro`)
+
+The SEO component (see [[astro-seo]]) automatically resolves metadata based on `pageKey` and `lang`:
+
+```astro
+---
+const t = getTranslations(lang)
+const i18nTitle = currentPage ? t(`pages.${currentPage}.title`) : undefined
+const i18nDesc = currentPage ? t(`pages.${currentPage}.description`) : undefined
+const i18nKeywords = currentPage ? t(`pages.${currentPage}.keywords`) : undefined
+const canonicalPath = getLocalizedPath(currentPage, lang)
+const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
+---
+```
+
+It also auto-generates `<link rel="alternate" hreflang="..." href="...">` tags using `getLocalizedPath(currentPage, "en")` and `getLocalizedPath(currentPage, "es")`.
+
+## 9. Build-Time Validation (Mandatory)
+
+Catches missing translation keys before deployment. Runs as part of the build pipeline — if translation files are out of sync, the build fails.
+
+### Architecture
+
+```
+npm run build
+  └── npm run validate-i18n
+        └── tsx scripts/validate-i18n.ts
+              ├── reads src/messages/en.json
+              ├── reads src/messages/es.json
+              ├── flattenKeys() — recursively extracts all dotted keys
+              ├── compares sets (enKeys vs esKeys)
+              ├── match? → exit 0, continue to astro build
+              └── mismatch? → exit 1, fail build with report
+```
+
+### The Validation Script
+
+```ts
+// scripts/validate-i18n.ts
+import fs from "node:fs";
+import path from "node:path";
+
+const messagesDir = path.resolve("src/messages");
+
+const readMessages = (lang: string) => {
+  const filePath = path.join(messagesDir, `${lang}.json`);
+  if (!fs.existsSync(filePath)) {
+    console.error(`❌ Message file not found: ${filePath}`);
+    process.exit(1);
+  }
+  const content = fs.readFileSync(filePath, "utf-8");
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    console.error(`❌ Invalid JSON in ${filePath}`);
+    process.exit(1);
+  }
+};
+
+const flattenKeys = (obj: any, prefix = ""): string[] => {
+  return Object.keys(obj).reduce((acc: string[], key: string) => {
+    const value = obj[key];
+    const newKey = prefix ? `${prefix}.${key}` : key;
+    if (typeof value === "object" && value !== null) {
+      return [...acc, ...flattenKeys(value, newKey)];
+    }
+    return [...acc, newKey];
+  }, []);
+};
+
+const en = readMessages("en");
+const es = readMessages("es");
+
+const enKeys = new Set(flattenKeys(en));
+const esKeys = new Set(flattenKeys(es));
+
+const missingInEs = [...enKeys].filter((k) => !esKeys.has(k));
+const missingInEn = [...esKeys].filter((k) => !enKeys.has(k));
+
+if (missingInEs.length > 0 || missingInEn.length > 0) {
+  console.error("❌ i18n validation failed! Translation files are out of sync.");
+
+  if (missingInEs.length > 0) {
+    console.error("\nMissing in es.json:");
+    missingInEs.forEach((k) => console.error(`  - ${k}`));
+  }
+
+  if (missingInEn.length > 0) {
+    console.error("\nMissing in en.json:");
+    missingInEn.forEach((k) => console.error(`  - ${k}`));
+  }
+
+  process.exit(1);
+}
+
+console.log("✅ i18n validation passed!");
+```
+
+### What it checks
+- **Structural match**: Every dotted key in `en.json` must exist in `es.json` and vice versa
+- **JSON validity**: Invalid JSON causes immediate failure
+- **File existence**: Missing message file causes immediate failure
+
+### What it does NOT check
+- Content accuracy (automatic translation quality)
+- Placeholder variable consistency (`{name}` in source, `{nombre}` in target — up to you)
+- Runtime behavior (the fallback to default language still works at runtime)
+
+### Build Pipeline Integration
+
+```json
+// package.json
+{
+  "scripts": {
+    "dev": "astro dev",
+    "build": "npm run validate-i18n && astro build",
+    "validate-i18n": "tsx scripts/validate-i18n.ts",
+    "preview": "astro preview"
+  }
+}
+```
+
+The `build` command runs validation **before** the Astro build. This means:
+- No partial build output if translations are broken
+- CI/CD pipelines fail fast with a clear error
+- Developers discover issues on `npm run build`, not in production
+
+### Example Output
+
+**Success:**
+```
+✅ i18n validation passed!
+```
+
+**Failure:**
+```
+❌ i18n validation failed! Translation files are out of sync.
+
+Missing in es.json:
+  - pages.home.bannerTitle
+  - global.footer.columns.destinations.links.5.text
+
+Missing in en.json:
+  - pages.home.bannerSubtitle
+```
+
+### CI/CD Integration
+
+```yaml
+# .github/workflows/deploy.yml
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm validate-i18n  # explicit check
+      - run: pnpm build           # will also run validate-i18n
+```
+
+## 10. New Project Setup
+
+```bash
+# 1. Create directory structure
+mkdir -p src/messages
+mkdir -p src/lib/i18n
+mkdir -p scripts
+
+# 2. Create translation files
+touch src/messages/en.json
+touch src/messages/es.json
+
+# 3. Create core files
+touch src/lib/i18n/ui.ts
+touch src/lib/i18n/routes.ts
+touch src/lib/i18n/utils.ts
+
+# 4. Create catch-all router
+touch src/pages/\[...path\].astro
+
+# 5. Create validation script (mandatory)
+touch scripts/validate-i18n.ts
+pnpm add -D tsx
+```
+
+Then:
+1. Write translation files with identical key structure across languages (section 2)
+2. Configure languages in `ui.ts` (section 3)
+3. Define routes in `routes.ts` (section 4)
+4. Implement utilities in `utils.ts` (section 6)
+5. Set up catch-all router with `COMPONENT_MAP` (section 5)
+6. Add the validation script from section 9
+7. Wire into `package.json`: `"build": "npm run validate-i18n && astro build"`
+
+## 11. Key Rules
+
+- English paths have **no prefix** (`/services`), Spanish has `/es/` prefix (`/es/servicios`)
+- Home page English path is `""` (root), Spanish is `"es"`
+- Every route gets a `pageKey` — used for SEO, navigation, and translation lookups
+- React components receive translations as **props**, never import i18n directly
+- Build-time validation is **mandatory** — wire it into the build pipeline on day one
+- Legacy redirects handle old `/en/...` URL patterns
+
+## 12. Connection to Other Patterns
+
+- SEO metadata uses i18n keys for page titles/descriptions/keywords → see [[astro-seo]]
+- React islands receive translations as props → see [[astro-react-islands]]
+- Language-specific business data (e.g. vehicle features) follows the same pattern → see [[astro-site-config]]
