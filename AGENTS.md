@@ -1,12 +1,68 @@
 ## Development
 
-When starting the dev server, use background mode:
+### Prerequisites
+
+Install portless globally:
+
+```bash
+npm install -g portless
+```
+
+### Running the dev server
+
+```bash
+pnpm run dev
+```
+
+The site is served at **`https://enredarte-landing.localhost`** with automatic HTTPS.
+
+The portless proxy auto-starts on first run (port 443, falls back to 1355 without sudo).
+
+### How it works
+
+Portless replaces hardcoded port numbers with stable, named `.localhost` URLs. It runs a local HTTPS/2 proxy that routes requests to the Astro dev server on an ephemeral port:
 
 ```
-astro dev --background
+Browser ──> https://enredarte-landing.localhost
+                   │
+          Portless Proxy (port 443 / 1355)
+          Local CA + auto-HTTPS
+                   │
+          Astro Dev Server (ephemeral port, e.g. 4737)
 ```
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+Portless injects a `PORT` environment variable into the Astro dev server. The `astro.config.mjs` reads it:
+
+```js
+server: {
+  port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
+}
+```
+
+The `.env` file sets `SITE_URL=https://enredarte-landing.localhost` so the app knows its dev URL (used for redirects, canonical links, etc.).
+
+### Stopping
+
+```bash
+portless stop enredarte-landing
+```
+
+### Checking status
+
+```bash
+portless status
+```
+
+Lists all running portless apps and their proxy state.
+
+### Troubleshooting
+
+| Issue | Fix |
+|---|---|
+| `command not found: portless` | Run `npm install -g portless` |
+| `.localhost` doesn't resolve (Safari, Firefox) | Run `portless hosts sync` to add entries to `/etc/hosts` |
+| Port conflict on 443 | Portless falls back to 1355; check `portless status` |
+| Dev server won't start | Ensure no other process is on the assigned port; `portless stop enredarte-landing` then retry |
 
 ## Documentation
 

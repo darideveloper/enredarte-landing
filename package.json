@@ -8,7 +8,7 @@
     "pnpm": ">=10.18.3"
   },
   "scripts": {
-    "dev": "astro dev",
+    "dev": "portless enredarte-landing pnpm astro dev",
     "build": "pnpm validate-i18n && astro build",
     "preview": "astro preview",
     "astro": "astro",
