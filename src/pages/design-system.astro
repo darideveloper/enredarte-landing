@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css"
 import { Btn } from "../components/atoms/Btn"
+import Logo from "../components/atoms/Logo.astro"
 ---
 
 <!doctype html>
@@ -46,6 +47,42 @@ import { Btn } from "../components/atoms/Btn"
               <div class="space-y-2">
                 <span class="block text-[10px] uppercase text-muted font-mono">variant="regular" size="sm"</span>
                 <Btn variant="regular" size="sm" href="#">Boton Pequeño</Btn>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logo Showcase -->
+          <div>
+            <h3 class="text-sm font-semibold mb-4 text-ink">Logo Component (`src/components/atoms/Logo.astro`)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Default Variant -->
+              <div class="p-4 bg-paper border border-border-theme rounded space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="default" (logo.png)</span>
+                <Logo variant="default" />
+              </div>
+
+              <!-- Dark Variant -->
+              <div class="p-4 bg-paper border border-border-theme rounded space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="dark" (logo-dark.png)</span>
+                <Logo variant="dark" />
+              </div>
+
+              <!-- Light Variant -->
+              <div class="p-4 bg-ink text-paper border border-border-theme rounded space-y-2">
+                <span class="block text-[10px] uppercase text-muted/60 font-mono">variant="light" (logo-light.png)</span>
+                <Logo variant="light" />
+              </div>
+
+              <!-- Red BG Variant -->
+              <div class="p-4 bg-paper border border-border-theme rounded space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="bg-red" (logo-bg-red.png)</span>
+                <Logo variant="bg-red" />
+              </div>
+
+              <!-- Icon Variant -->
+              <div class="p-4 bg-paper border border-border-theme rounded space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="icon" (favicon.svg)</span>
+                <Logo variant="icon" />
               </div>
             </div>
           </div>

@@ -1,0 +1,36 @@
+---
+import { cn } from "@/lib/utils"
+
+export interface Props {
+  variant?: "default" | "dark" | "light" | "bg-red" | "icon"
+  alt?: string
+  href?: string
+  class?: string
+}
+
+const logoVariants = {
+  default: "/logo.png",
+  dark: "/logo-dark.png",
+  light: "/logo-light.png",
+  "bg-red": "/logo-bg-red.png",
+  icon: "/favicon.svg",
+}
+
+const {
+  variant = "default",
+  alt = "enredarte logo",
+  href = "/",
+  class: className,
+} = Astro.props
+
+const imageSrc = logoVariants[variant]
+---
+
+<a href={href} class={cn("inline-block transition-opacity hover:opacity-90", className)}>
+  <img
+    src={imageSrc}
+    alt={alt}
+    class="h-8 w-auto object-contain"
+    loading="eager"
+  />
+</a>
