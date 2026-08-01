@@ -1,0 +1,80 @@
+---
+import "../styles/global.css"
+import { Btn } from "../components/atoms/Btn"
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Design System — enredarte</title>
+  </head>
+  <body class="bg-paper text-ink min-h-screen p-8 md:p-16 font-sans">
+    <header class="max-w-5xl mx-auto border-b border-border-theme pb-6 mb-12">
+      <h1 class="text-3xl font-serif font-normal mb-2">enredarte — Design System</h1>
+      <p class="text-sm text-muted">Centralized library showcase for Atoms, Molecules, and Organisms.</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto space-y-16">
+      <!-- ATOMS -->
+      <section class="space-y-6">
+        <div class="border-b border-border-theme pb-2">
+          <h2 class="text-xl font-serif text-crimson">1. Atoms</h2>
+          <p class="text-xs text-muted uppercase tracking-wider mt-1">Smallest standalone UI components</p>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme space-y-8">
+          <!-- Btn Showcase -->
+          <div>
+            <h3 class="text-sm font-semibold mb-4 text-ink">Btn Component (`src/components/atoms/Btn.tsx`)</h3>
+            <div class="flex flex-wrap items-center gap-6 p-4 bg-paper border border-border-theme rounded">
+              <!-- Regular Variant -->
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="regular" (hero CTA)</span>
+                <Btn href="#">Entrar a la Sala</Btn>
+              </div>
+
+              <!-- Ghost Variant -->
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="ghost" (nav CTA)</span>
+                <Btn variant="ghost" href="#">Solicitar Acceso</Btn>
+              </div>
+
+              <!-- Explicit Sizes -->
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="regular" size="sm"</span>
+                <Btn variant="regular" size="sm" href="#">Boton Pequeño</Btn>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MOLECULES -->
+      <section class="space-y-6">
+        <div class="border-b border-border-theme pb-2">
+          <h2 class="text-xl font-serif text-crimson">2. Molecules</h2>
+          <p class="text-xs text-muted uppercase tracking-wider mt-1">Combinations of atoms working together</p>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <p class="text-sm text-muted italic">No molecules registered yet.</p>
+        </div>
+      </section>
+
+      <!-- ORGANISMS -->
+      <section class="space-y-6">
+        <div class="border-b border-border-theme pb-2">
+          <h2 class="text-xl font-serif text-crimson">3. Organisms</h2>
+          <p class="text-xs text-muted uppercase tracking-wider mt-1">Complex sections mapping to screen regions</p>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <p class="text-sm text-muted italic">No organisms registered yet.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

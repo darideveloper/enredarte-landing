@@ -4,4 +4,11 @@
 @theme inline {
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --color-brand-500: oklch(0.62 0.18 20);
+
+  /* Enredarte Global Palette */
+  --color-paper: #F2EDE4;
+  --color-ink: #1A1A1A;
+  --color-crimson: #C41E3A;
+  --color-muted: #8A8478;
+  --color-border-theme: #E0DDD8;
 }
