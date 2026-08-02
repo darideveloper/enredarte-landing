@@ -21,3 +21,13 @@ The `Btn` component SHALL support `regular` and `ghost` color/border variants ma
 - **WHEN** `variant="ghost"` is specified
 - **THEN** the button renders with a transparent background, ink text, ink border, and transitions to crimson background/border with paper text on hover
 
+#### Scenario: OutlineMuted variant rendering
+- **WHEN** `variant="outlineMuted"` is specified
+- **THEN** the button renders with a transparent background, muted text, theme border, and transitions to ink text/border on hover
+
+### Requirement: Disabled State
+The `Btn` component SHALL support a `disabled` state that prevents interaction and applies visually distinct styling.
+
+#### Scenario: Disabled rendering
+- **WHEN** `disabled={true}` is specified
+- **THEN** the button is rendered without an `href` attribute, has `pointer-events-none`, and is styled with a solid ink border and text.

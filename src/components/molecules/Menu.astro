@@ -1,0 +1,21 @@
+---
+import Link from "../atoms/Link.astro"
+import { cn } from "../../lib/utils"
+
+export interface Props {
+  links: Array<{ label: string, href: string }>
+  class?: string
+  id?: string
+}
+
+const { links, class: className, id = "main-menu" } = Astro.props
+---
+
+<nav id={id} class={cn("flex fixed inset-0 top-[73px] flex-col items-center bg-paper px-6 py-8 translate-x-full transition-transform duration-300 z-40 md:static md:flex-row md:translate-x-0 md:bg-transparent md:p-0 md:items-center md:gap-8", className)}>
+  {links.map((link) => (
+    <Link variant="nav" href={link.href}>
+      {link.label}
+    </Link>
+  ))}
+  <slot />
+</nav>

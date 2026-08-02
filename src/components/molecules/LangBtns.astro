@@ -1,0 +1,35 @@
+---
+import { getLocalizedPath } from "../../lib/i18n/utils"
+import { Btn } from "../atoms/Btn"
+import { cn } from "../../lib/utils"
+
+export interface Props {
+  lang?: string
+  pageKey?: string
+  class?: string
+}
+
+const { lang = "en", pageKey = "home", class: className } = Astro.props
+
+const esUrl = getLocalizedPath(pageKey, "es")
+const enUrl = getLocalizedPath(pageKey, "en")
+---
+
+<div class={cn("flex items-center gap-1", className)}>
+  <Btn
+    href={esUrl}
+    variant="outlineMuted"
+    size="xs"
+    disabled={lang === "es"}
+  >
+    ES
+  </Btn>
+  <Btn
+    href={enUrl}
+    variant="outlineMuted"
+    size="xs"
+    disabled={lang === "en"}
+  >
+    EN
+  </Btn>
+</div>

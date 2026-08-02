@@ -2,6 +2,10 @@
 import "../styles/global.css"
 import { Btn } from "../components/atoms/Btn"
 import Logo from "../components/atoms/Logo.astro"
+import Link from "../components/atoms/Link.astro"
+import Menu from "../components/molecules/Menu.astro"
+import Header from "../components/organisms/Header.astro"
+import LangBtns from "../components/molecules/LangBtns.astro"
 ---
 
 <!doctype html>
@@ -86,6 +90,32 @@ import Logo from "../components/atoms/Logo.astro"
               </div>
             </div>
           </div>
+
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">Link Component (`src/components/atoms/Link.astro`)</h3>
+          
+          <div class="space-y-6">
+            <!-- Default Variant -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">variant="default"</span>
+              <div class="flex flex-wrap gap-6 items-center p-4 bg-paper border border-border-theme rounded">
+                <Link href="#internal">Internal Link</Link>
+                <Link href="https://example.com" target="_blank" rel="noopener noreferrer">External Link</Link>
+                <Link href="#" class="font-bold text-crimson">Custom Styled Link</Link>
+              </div>
+            </div>
+
+            <!-- Nav Variant -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">variant="nav"</span>
+              <div class="flex flex-wrap gap-6 items-center p-4 bg-paper border border-border-theme rounded">
+                <Link variant="nav" href="#home">Home</Link>
+                <Link variant="nav" href="#about">About</Link>
+                <Link variant="nav" href="#contact">Contact</Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -97,7 +127,31 @@ import Logo from "../components/atoms/Logo.astro"
         </div>
 
         <div class="bg-white/50 p-6 rounded border border-border-theme">
-          <p class="text-sm text-muted italic">No molecules registered yet.</p>
+          <h3 class="text-sm font-semibold mb-4 text-ink">LangBtns Component (`src/components/molecules/LangBtns.astro`)</h3>
+          <div class="flex items-center gap-6 p-4 bg-paper border border-border-theme rounded">
+            <!-- Simulated English page -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">lang="en" (EN active)</span>
+              <LangBtns lang="en" />
+            </div>
+
+            <!-- Simulated Spanish page -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">lang="es" (ES active)</span>
+              <LangBtns lang="es" />
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">Menu Component (`src/components/molecules/Menu.astro`)</h3>
+          <div class="p-8 bg-paper border border-border-theme rounded">
+            <Menu links={[
+              { label: "Salas", href: "#salas" },
+              { label: "Artistas", href: "#artistas" },
+              { label: "Curadores", href: "#curadores" }
+            ]} />
+          </div>
         </div>
       </section>
 
@@ -108,8 +162,11 @@ import Logo from "../components/atoms/Logo.astro"
           <p class="text-xs text-muted uppercase tracking-wider mt-1">Complex sections mapping to screen regions</p>
         </div>
 
-        <div class="bg-white/50 p-6 rounded border border-border-theme">
-          <p class="text-sm text-muted italic">No organisms registered yet.</p>
+        <div class="bg-white/50 p-6 rounded border border-border-theme space-y-4">
+          <h3 class="text-sm font-semibold text-ink">Header Component (`src/components/organisms/Header.astro`)</h3>
+          <div class="border border-border-theme rounded overflow-hidden">
+            <Header class="static" />
+          </div>
         </div>
       </section>
     </main>

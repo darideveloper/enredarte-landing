@@ -1,42 +1,95 @@
 ---
-import LanguageSwitcher from "../molecules/LanguageSwitcher.astro"
+import Logo from "../atoms/Logo.astro"
+import { Btn } from "../atoms/Btn"
+import LangBtns from "../molecules/LangBtns.astro"
+import Menu from "../molecules/Menu.astro"
 import { cn } from "../../lib/utils"
-import { getLocalizedPath, getTranslations } from "../../lib/i18n/utils"
+import { getLocalizedPath } from "../../lib/i18n/utils"
 
-const { lang, pageKey } = Astro.props
-const t = getTranslations(lang)
+export interface Props {
+  lang?: string
+  pageKey?: string
+  class?: string
+}
 
-const navItems = [
-  { key: "home", label: t("global.nav.home") },
-  { key: "services", label: t("global.nav.services") },
-  { key: "about", label: t("global.nav.about") },
-] as const
+const { lang = "en", pageKey = "home", class: className } = Astro.props
+
+const navLinks = [
+  { label: "Salas", href: "#salas" },
+  { label: "Artistas", href: "#artistas" },
+  { label: "Curadores", href: "#curadores" },
+  { label: "Gaceta", href: "#gaceta" },
+  { label: "Eventos", href: "#eventos" },
+  { label: "Trade", href: "#trade" },
+]
 ---
 
-<header class="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-  <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-    <a href={getLocalizedPath("home", lang)} class="text-xl font-bold text-brand-500">
-      EnredArte
-    </a>
+<header class={cn("sticky top-0 z-50 bg-paper border-b border-border-theme px-6 md:px-14 py-4.5", className)}>
+  <div class="flex items-center justify-between">
+    <!-- Left: Logo Atom -->
+    <Logo variant="default" href={getLocalizedPath("home", lang)} class="h-10" />
 
-    <div class="flex items-center gap-6">
-      <ul class="hidden items-center gap-6 sm:flex">
-        {navItems.map((item) => (
-          <li>
-            <a
-              href={getLocalizedPath(item.key, lang)}
-              class={cn(
-                "text-sm font-medium transition-colors hover:text-brand-500",
-                item.key === pageKey ? "text-brand-500" : "text-gray-600",
-              )}
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+    <!-- Center: Navigation Links (Responsive Drawer / Row) -->
+    <Menu id="main-menu" links={navLinks}>
+      <Btn variant="ghost" size="sm" href="#acceso" className="mt-8 md:hidden w-full justify-center">
+        Solicitar Acceso
+      </Btn>
+    </Menu>
 
-      <LanguageSwitcher lang={lang} pageKey={pageKey} />
+    <!-- Right: Language Switcher, Desktop CTA, & Hamburger Toggle -->
+    <div class="flex items-center gap-4.5">
+      <LangBtns lang={lang} pageKey={pageKey} />
+
+      <div class="hidden md:block">
+        <Btn variant="ghost" size="sm" href="#acceso">
+          Solicitar Acceso
+        </Btn>
+      </div>
+
+      <button id="mobile-menu-btn" class="md:hidden flex flex-col justify-center gap-1.5 w-6 h-6 z-50 relative" aria-label="Toggle menu">
+        <span class="block w-full h-[2px] bg-ink transition-transform duration-300 origin-center"></span>
+        <span class="block w-full h-[2px] bg-ink transition-opacity duration-300"></span>
+        <span class="block w-full h-[2px] bg-ink transition-transform duration-300 origin-center"></span>
+      </button>
     </div>
-  </nav>
+  </div>
 </header>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('main-menu');
+    
+    if (btn && menu) {
+      const spans = btn.querySelectorAll('span');
+      
+      btn.addEventListener('click', () => {
+        const isClosed = menu.classList.contains('translate-x-full');
+        
+        if (isClosed) {
+          // Open menu
+          menu.classList.remove('translate-x-full');
+          menu.classList.add('translate-x-0');
+          
+          // Animate to X
+          if (spans.length === 3) {
+            spans[0]?.classList.add('rotate-45', 'translate-y-[8px]');
+            spans[1]?.classList.add('opacity-0');
+            spans[2]?.classList.add('-rotate-45', '-translate-y-[8px]');
+          }
+        } else {
+          // Close menu
+          menu.classList.remove('translate-x-0');
+          menu.classList.add('translate-x-full');
+          
+          // Animate to hamburger
+          if (spans.length === 3) {
+            spans[0]?.classList.remove('rotate-45', 'translate-y-[8px]');
+            spans[1]?.classList.remove('opacity-0');
+            spans[2]?.classList.remove('-rotate-45', '-translate-y-[8px]');
+          }
+        }
+      });
+    }
+  });
+</script>

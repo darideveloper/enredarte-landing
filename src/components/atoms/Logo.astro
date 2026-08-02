@@ -26,11 +26,11 @@ const {
 const imageSrc = logoVariants[variant]
 ---
 
-<a href={href} class={cn("inline-block transition-opacity hover:opacity-90", className)}>
+<a href={href} class={"inline-block transition-opacity hover:opacity-90"}>
   <img
     src={imageSrc}
     alt={alt}
-    class="h-8 w-auto object-contain"
+    class={cn("w-auto object-contain", className)}
     loading="eager"
   />
 </a>
