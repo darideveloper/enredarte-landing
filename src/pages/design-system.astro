@@ -3,9 +3,14 @@ import "../styles/global.css"
 import { Btn } from "../components/atoms/Btn"
 import Logo from "../components/atoms/Logo.astro"
 import Link from "../components/atoms/Link.astro"
+import Headline from "../components/atoms/Headline.astro"
+import Image from "../components/atoms/Image.astro"
+import H1 from "../components/molecules/H1.astro"
 import Menu from "../components/molecules/Menu.astro"
 import Header from "../components/organisms/Header.astro"
 import LangBtns from "../components/molecules/LangBtns.astro"
+import CardSummary from "../components/molecules/CardSummary.astro"
+import ImageBanner from "../components/molecules/ImageBanner.astro"
 ---
 
 <!doctype html>
@@ -90,7 +95,44 @@ import LangBtns from "../components/molecules/LangBtns.astro"
               </div>
             </div>
           </div>
+        </div>
 
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">Image Component (`src/components/atoms/Image.astro`)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-paper border border-border-theme rounded">
+            <!-- Default (Auto) -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">aspectRatio="auto" (default)</span>
+              <div class="border border-dashed border-border-theme h-32 w-full">
+                <Image src="/images/hero-1.png" alt="Test image auto" />
+              </div>
+            </div>
+
+            <!-- Video (16:9) -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">aspectRatio="video"</span>
+              <div class="border border-dashed border-border-theme w-full">
+                <Image src="/images/hero-2.png" alt="Test image video" aspectRatio="video" />
+              </div>
+            </div>
+
+            <!-- Square (1:1) -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">aspectRatio="square"</span>
+              <div class="border border-dashed border-border-theme w-32">
+                <Image src="/images/hero-3.png" alt="Test image square" aspectRatio="square" />
+              </div>
+            </div>
+
+            <!-- 4/5 Aspect -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">aspectRatio="4/5"</span>
+              <div class="border border-dashed border-border-theme w-32">
+                <Image src="/images/hero-1.png" alt="Test image 4/5" aspectRatio="4/5" />
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="bg-white/50 p-6 rounded border border-border-theme">
           <h3 class="text-sm font-semibold mb-4 text-ink">Link Component (`src/components/atoms/Link.astro`)</h3>
@@ -117,6 +159,33 @@ import LangBtns from "../components/molecules/LangBtns.astro"
             </div>
           </div>
         </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">Headline Component (`src/components/atoms/Headline.astro`)</h3>
+          
+          <div class="space-y-6">
+            <div class="flex flex-wrap gap-6 items-center p-4 bg-paper border border-border-theme rounded">
+              <!-- Red Variant -->
+              <div class="space-y-2 text-center">
+                <span class="block text-[10px] uppercase text-muted font-mono">color="red" (default)</span>
+                <Headline>Exhibición del mes</Headline>
+              </div>
+
+              <!-- Muted Variant -->
+              <div class="space-y-2 text-center">
+                <span class="block text-[10px] uppercase text-muted font-mono">color="muted"</span>
+                <Headline color="muted">Categoría secundaria</Headline>
+              </div>
+
+              <!-- Default Ink Variant -->
+              <div class="space-y-2 text-center">
+                <span class="block text-[10px] uppercase text-muted font-mono">color="default"</span>
+                <Headline color="default">Texto regular</Headline>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- MOLECULES -->
@@ -124,6 +193,30 @@ import LangBtns from "../components/molecules/LangBtns.astro"
         <div class="border-b border-border-theme pb-2">
           <h2 class="text-xl font-serif text-crimson">2. Molecules</h2>
           <p class="text-xs text-muted uppercase tracking-wider mt-1">Combinations of atoms working together</p>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">H1 Component (`src/components/molecules/H1.astro`)</h3>
+          <div class="space-y-8 p-6 bg-paper border border-border-theme rounded">
+            <!-- With Headline -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">With slotted Headline</span>
+              <div class="border border-dashed border-border-theme p-4">
+                <H1>
+                  <Headline color="muted">Exhibición del mes</Headline>
+                  Tierra, mundo<br/>y memoria
+                </H1>
+              </div>
+            </div>
+
+            <!-- Without Headline -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Without Headline</span>
+              <div class="border border-dashed border-border-theme p-4">
+                <H1>Artistas<br/>invitados</H1>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="bg-white/50 p-6 rounded border border-border-theme">
@@ -151,6 +244,70 @@ import LangBtns from "../components/molecules/LangBtns.astro"
               { label: "Artistas", href: "#artistas" },
               { label: "Curadores", href: "#curadores" }
             ]} />
+          </div>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">CardSummary Component (`src/components/molecules/CardSummary.astro`)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-paper border border-border-theme rounded">
+            <!-- Full props -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Full props (title, artist, price, href)</span>
+              <div class="p-6 bg-[url('/images/hero-1.png')] bg-cover bg-center rounded">
+                <CardSummary 
+                  title="El silencio de la tierra" 
+                  artist="Martín Chirino" 
+                  price="12,500 €" 
+                  href="/obras/1"
+                />
+              </div>
+            </div>
+
+            <!-- Title only -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Title and href only</span>
+              <div class="p-6 bg-[url('/images/hero-2.png')] bg-cover bg-center rounded">
+                <CardSummary 
+                  title="Construcción en el espacio" 
+                  href="/obras/2"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme mt-8">
+          <h3 class="text-sm font-semibold mb-4 text-ink">ImageBanner Component (`src/components/molecules/ImageBanner.astro`)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-paper border border-border-theme rounded">
+            <!-- Full data -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Full data</span>
+              <div class="border border-dashed border-border-theme overflow-hidden">
+                <ImageBanner 
+                  src="/images/hero-1.png"
+                  alt="Artwork 1"
+                  aspectRatio="square"
+                  title="El silencio de la tierra" 
+                  artist="Martín Chirino" 
+                  price="12,500 €" 
+                  href="/obras/1"
+                />
+              </div>
+            </div>
+
+            <!-- Partial data -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Partial data (No artist/price)</span>
+              <div class="border border-dashed border-border-theme overflow-hidden">
+                <ImageBanner 
+                  src="/images/hero-2.png"
+                  alt="Artwork 2"
+                  aspectRatio="square"
+                  title="Construcción en el espacio" 
+                  href="/obras/2"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>

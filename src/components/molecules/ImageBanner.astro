@@ -1,0 +1,52 @@
+---
+import Image from '../atoms/Image.astro';
+import CardSummary from './CardSummary.astro';
+import { cn } from "../../lib/utils"
+
+export interface Props {
+  // Image props
+  src: string;
+  alt: string;
+  aspectRatio?: 'square' | 'video' | 'portrait' | 'auto';
+  
+  // Card summary props
+  title: string;
+  href: string;
+  artist?: string;
+  price?: string;
+  
+  // Container props
+  class?: string;
+}
+
+const { 
+  src, 
+  alt, 
+  aspectRatio = 'auto',
+  title, 
+  href, 
+  artist, 
+  price,
+  class: className,
+  ...props 
+} = Astro.props;
+---
+
+<div class={cn("relative overflow-hidden group", className)} {...props}>
+  <Image 
+    src={src} 
+    alt={alt} 
+    title={alt}
+    aspectRatio={aspectRatio}
+    class="w-full h-full object-cover"
+  />
+  
+  <div class="absolute bottom-0 left-0 p-4 md:p-6 lg:p-8 w-full flex items-end">
+    <CardSummary 
+      title={title}
+      href={href}
+      artist={artist}
+      price={price}
+    />
+  </div>
+</div>

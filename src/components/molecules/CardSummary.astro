@@ -1,0 +1,32 @@
+---
+import { cn } from "../../lib/utils";
+
+export interface Props {
+    title: string;
+    href: string;
+    artist?: string;
+    price?: string;
+    class?: string;
+}
+
+const { title, href, artist, price, class: className, ...props } = Astro.props;
+---
+
+<a
+    href={href}
+    class={cn(
+        "block bg-black/88 backdrop-blur-sm p-4 md:p-5 max-w-[260px] group transition-all hover:bg-black/95",
+        className,
+    )}
+    {...props}
+>
+    <h2 class="font-serif text-base text-paper mb-1 leading-snug">{title}</h2>
+    {
+        artist && (
+            <p class="text-[10px] text-muted tracking-wider uppercase mb-2.5 font-sans">
+                {artist}
+            </p>
+        )
+    }
+    {price && <p class="text-sm text-crimson font-sans font-medium">{price}</p>}
+</a>
