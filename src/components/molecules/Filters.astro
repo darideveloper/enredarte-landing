@@ -1,0 +1,32 @@
+---
+import { cn } from "../../lib/utils";
+import FilterBtn from "../atoms/FilterBtn.astro";
+
+export interface FilterItem {
+  text: string;
+  value: string;
+}
+
+export interface Props {
+  items: FilterItem[];
+  activeValue?: string;
+  class?: string;
+}
+
+const { items, activeValue, class: className, ...props } = Astro.props;
+
+// Default active item to the first one if activeValue is not explicitly provided
+const currentActive = activeValue ?? (items.length > 0 ? items[0].value : "");
+---
+
+<div class={cn("flex flex-wrap gap-2 mb-9", className)} {...props}>
+  {
+    items.map((item) => (
+      <FilterBtn
+        text={item.text}
+        value={item.value}
+        active={item.value === currentActive}
+      />
+    ))
+  }
+</div>

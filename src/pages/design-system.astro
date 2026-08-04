@@ -14,6 +14,7 @@ import CardSummary from "../components/molecules/CardSummary.astro"
 import ImageBanner from "../components/molecules/ImageBanner.astro"
 import Title from "../components/molecules/Title.astro"
 import CardInfo from "../components/molecules/CardInfo.astro"
+import Filters from "../components/molecules/Filters.astro"
 import Gallery from "../components/organisms/Gallery.astro"
 
 const salasData = [
@@ -261,6 +262,37 @@ const salasData = [
         <div class="border-b border-border-theme pb-2">
           <h2 class="text-xl font-serif text-crimson">2. Molecules</h2>
           <p class="text-xs text-muted uppercase tracking-wider mt-1">Combinations of atoms working together</p>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme">
+          <h3 class="text-sm font-semibold mb-4 text-ink">Filters Component (`src/components/molecules/Filters.astro`)</h3>
+          <div class="space-y-4 p-6 bg-paper border border-border-theme rounded">
+            <div>
+              <span class="block text-[10px] uppercase text-muted font-mono mb-2">Default Active (First Item)</span>
+              <Filters
+                items={[
+                  { text: "Todas las obras", value: "all" },
+                  { text: "Por artista", value: "artist" },
+                  { text: "Por región", value: "region" },
+                  { text: "Por técnica", value: "technique" },
+                  { text: "Por precio", value: "price" }
+                ]}
+              />
+            </div>
+            <div>
+              <span class="block text-[10px] uppercase text-muted font-mono mb-2">Explicit Active ("region")</span>
+              <Filters
+                activeValue="region"
+                items={[
+                  { text: "Todas las obras", value: "all" },
+                  { text: "Por artista", value: "artist" },
+                  { text: "Por región", value: "region" },
+                  { text: "Por técnica", value: "technique" },
+                  { text: "Por precio", value: "price" }
+                ]}
+              />
+            </div>
+          </div>
         </div>
 
         <div class="bg-white/50 p-6 rounded border border-border-theme">
