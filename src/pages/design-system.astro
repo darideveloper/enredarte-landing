@@ -16,6 +16,7 @@ import Title from "../components/molecules/Title.astro"
 import CardInfo from "../components/molecules/CardInfo.astro"
 import Filters from "../components/molecules/Filters.astro"
 import Gallery from "../components/organisms/Gallery.astro"
+import Artworks from "../components/organisms/Artworks.astro"
 
 const salasData = [
   {
@@ -484,6 +485,47 @@ const salasData = [
           <h3 class="text-sm font-semibold text-ink">Gallery Component (`src/components/organisms/Gallery.astro`)</h3>
           <div class="border border-border-theme bg-paper rounded overflow-hidden">
             <Gallery salas={salasData} />
+          </div>
+        </div>
+        <div class="bg-white/50 p-6 rounded border border-border-theme space-y-4 mt-8">
+          <h3 class="text-sm font-semibold text-ink">Artworks Component (`src/components/organisms/Artworks.astro`)</h3>
+          <div class="border border-border-theme bg-paper p-4 rounded overflow-hidden">
+            <Artworks
+              artworks={[
+                {
+                  src: "/images/abstract-landscape-oil.jpg",
+                  alt: "Horizonte en tres tiempos",
+                  title: "Horizonte en tres tiempos",
+                  href: "#",
+                  meta: "Álvaro Macias",
+                  curator: "Consultar",
+                },
+                {
+                  src: "/images/painting-abstract-details.jpg",
+                  alt: "Raíz",
+                  title: "Raíz",
+                  href: "#",
+                  meta: "Daniel Ortega",
+                  curator: "Consultar",
+                },
+                {
+                  src: "/images/cityscape-madrid-gran-via.jpg",
+                  alt: "Concreto y Memoria",
+                  title: "Concreto y Memoria",
+                  href: "#",
+                  meta: "Regina Ibarra",
+                  curator: "Consultar",
+                },
+                {
+                  src: "/images/artist-street-exhibition.jpg",
+                  alt: "Costa Interior",
+                  title: "Costa Interior",
+                  href: "#",
+                  meta: "Mariana Solís",
+                  curator: "Consultar",
+                }
+              ]}
+            />
           </div>
         </div>
       </section>
