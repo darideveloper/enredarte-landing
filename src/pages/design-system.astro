@@ -11,6 +11,54 @@ import Header from "../components/organisms/Header.astro"
 import LangBtns from "../components/molecules/LangBtns.astro"
 import CardSummary from "../components/molecules/CardSummary.astro"
 import ImageBanner from "../components/molecules/ImageBanner.astro"
+import Title from "../components/molecules/Title.astro"
+import CardInfo from "../components/molecules/CardInfo.astro"
+import Gallery from "../components/organisms/Gallery.astro"
+
+const salasData = [
+  {
+    src: "/images/hero-1.png",
+    alt: "Sala Tierra Mundo Memoria",
+    title: "Tierra, Mundo y Memoria",
+    href: "#",
+    isLarge: true,
+    subtitle: "Sala 01 · Activa",
+    meta: "6 Artistas · Los Cabos / GDL",
+    curator: "Curaduría: Álvaro Macias",
+  },
+  {
+    src: "/images/hero-2.png",
+    alt: "Sala Plástica Oaxaqueña",
+    title: "Plástica Oaxaqueña",
+    href: "#",
+    subtitle: "Sala 02 · Activa",
+    meta: "4 Artistas · Oaxaca",
+  },
+  {
+    src: "/images/hero-3.png",
+    alt: "Sala Nuevas Voces",
+    title: "Nuevas Voces CDMX",
+    href: "#",
+    subtitle: "Sala 03 · Activa",
+    meta: "5 Artistas · Ciudad de México",
+  },
+  {
+    src: "/images/hero-1.png",
+    alt: "Sala San Miguel de Allende",
+    title: "San Miguel de Allende",
+    href: "#",
+    subtitle: "Sala 04 · Próximamente",
+    meta: "Curaduría: Regina Ibarra",
+  },
+  {
+    src: "/images/hero-2.png",
+    alt: "Sala Puerto Vallarta",
+    title: "Puerto Vallarta",
+    href: "#",
+    subtitle: "Sala 05 · Próximamente",
+    meta: "Territorio de Álvaro",
+  }
+];
 ---
 
 <!doctype html>
@@ -310,6 +358,61 @@ import ImageBanner from "../components/molecules/ImageBanner.astro"
             </div>
           </div>
         </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme mt-8">
+          <h3 class="text-sm font-semibold mb-4 text-ink">Title Component (`src/components/molecules/Title.astro`)</h3>
+          <div class="space-y-6 p-6 bg-paper border border-border-theme rounded">
+            <!-- With Link -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">With Link</span>
+              <div class="border border-dashed border-border-theme p-4">
+                <Title linkText="VER TODO" linkHref="/salas">
+                  <Headline color="red">Pabellón de Salas</Headline>
+                </Title>
+              </div>
+            </div>
+
+            <!-- Without Link -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Without Link</span>
+              <div class="border border-dashed border-border-theme p-4">
+                <Title>
+                  <Headline color="red">Artistas</Headline>
+                </Title>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white/50 p-6 rounded border border-border-theme mt-8">
+          <h3 class="text-sm font-semibold mb-4 text-ink">CardInfo Component (`src/components/molecules/CardInfo.astro`)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-paper border border-border-theme rounded">
+            <!-- Full data -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Full data</span>
+              <div class="border border-dashed border-border-theme bg-ink h-64 relative overflow-hidden">
+                <CardInfo 
+                  title="Sala de la luz"
+                  href="/salas/1"
+                  subtitle="EXHIBICIÓN ACTUAL"
+                  meta="12 OBRAS / PINTURA"
+                  curator="Curaduría: Elena Blanco"
+                />
+              </div>
+            </div>
+
+            <!-- Partial data -->
+            <div class="space-y-2">
+              <span class="block text-[10px] uppercase text-muted font-mono">Title only</span>
+              <div class="border border-dashed border-border-theme bg-ink h-64 relative overflow-hidden">
+                <CardInfo 
+                  title="Formas del vacío"
+                  href="/salas/2"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ORGANISMS -->
@@ -323,6 +426,12 @@ import ImageBanner from "../components/molecules/ImageBanner.astro"
           <h3 class="text-sm font-semibold text-ink">Header Component (`src/components/organisms/Header.astro`)</h3>
           <div class="border border-border-theme rounded overflow-hidden">
             <Header class="static" />
+          </div>
+        </div>
+        <div class="bg-white/50 p-6 rounded border border-border-theme space-y-4 mt-8">
+          <h3 class="text-sm font-semibold text-ink">Gallery Component (`src/components/organisms/Gallery.astro`)</h3>
+          <div class="border border-border-theme bg-paper rounded overflow-hidden">
+            <Gallery salas={salasData} />
           </div>
         </div>
       </section>
