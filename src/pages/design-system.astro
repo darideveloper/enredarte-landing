@@ -6,6 +6,7 @@ import Link from "../components/atoms/Link.astro"
 import Headline from "../components/atoms/Headline.astro"
 import Image from "../components/atoms/Image.astro"
 import FilterBtn from "../components/atoms/FilterBtn.astro"
+import BannerText from "../components/atoms/BannerText.astro"
 import H1 from "../components/molecules/H1.astro"
 import Menu from "../components/molecules/Menu.astro"
 import Header from "../components/organisms/Header.astro"
@@ -127,6 +128,16 @@ const salasData = [
                 <span class="block text-[10px] uppercase text-muted font-mono">active={false}</span>
                 <FilterBtn text="Por región" value="region" />
               </div>
+            </div>
+          </div>
+
+          <!-- BannerText Showcase -->
+          <div>
+            <h3 class="text-sm font-semibold mb-4 text-ink">BannerText Component (`src/components/atoms/BannerText.astro`)</h3>
+            <div class="flex flex-wrap items-center gap-8 p-4 bg-paper border border-border-theme rounded">
+              <BannerText><b>COA</b> firmado en cada obra</BannerText>
+              <BannerText><b>Envío asegurado</b> DHL / FedEx</BannerText>
+              <BannerText>El artista recibe el <b>65%</b></BannerText>
             </div>
           </div>
 
