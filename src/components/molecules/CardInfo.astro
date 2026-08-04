@@ -1,0 +1,45 @@
+---
+import { cn } from "../../lib/utils";
+
+export interface Props {
+  title: string;
+  href: string;
+  subtitle?: string;
+  meta?: string;
+  curator?: string;
+  class?: string;
+}
+
+const { title, href, subtitle, meta, curator, class: className, ...props } = Astro.props;
+---
+
+<a 
+  href={href} 
+  class={cn("absolute inset-0 flex flex-col justify-end p-7 z-10", className)} 
+  {...props}
+>
+  {
+    subtitle && (
+      <p class="text-[10px] uppercase text-crimson tracking-[0.18em] mb-2.5">
+        {subtitle}
+      </p>
+    )
+  }
+  <h2 class="font-serif text-paper leading-[1.15] mb-2 text-[26px]">
+    {title}
+  </h2>
+  {
+    meta && (
+      <p class="text-[10px] text-[#CCC] tracking-[0.06em] uppercase">
+        {meta}
+      </p>
+    )
+  }
+  {
+    curator && (
+      <p class="text-[10px] text-[#999] italic mt-1.5">
+        {curator}
+      </p>
+    )
+  }
+</a>
