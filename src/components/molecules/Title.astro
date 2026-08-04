@@ -1,0 +1,27 @@
+---
+import { cn } from "../../lib/utils";
+
+export interface Props {
+  linkText?: string;
+  linkHref?: string;
+  class?: string;
+}
+
+const { linkText, linkHref, class: className, ...props } = Astro.props;
+---
+
+<div class={cn("flex justify-between items-baseline mb-10", className)} {...props}>
+  <h2 class="font-serif text-3xl text-ink">
+    <slot />
+  </h2>
+  {
+    linkText && linkHref && (
+      <a 
+        href={linkHref} 
+        class="text-[11px] text-crimson tracking-[0.06em] hover:underline"
+      >
+        {linkText}
+      </a>
+    )
+  }
+</div>
