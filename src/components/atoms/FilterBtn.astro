@@ -1,0 +1,27 @@
+---
+import { cn } from "../../lib/utils";
+
+export interface Props {
+  text: string;
+  value: string;
+  active?: boolean;
+  class?: string;
+}
+
+const { text, value, active = false, class: className, ...props } = Astro.props;
+---
+
+<button
+  type="button"
+  data-value={value}
+  class={cn(
+    "text-[10px] tracking-[0.06em] uppercase px-[18px] py-[9px] cursor-pointer transition-all duration-200 font-sans border",
+    active
+      ? "border-crimson text-ink bg-white"
+      : "border-border-theme text-muted bg-transparent hover:border-crimson hover:text-ink hover:bg-white",
+    className
+  )}
+  {...props}
+>
+  {text}
+</button>

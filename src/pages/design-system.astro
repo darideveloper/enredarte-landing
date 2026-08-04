@@ -5,6 +5,7 @@ import Logo from "../components/atoms/Logo.astro"
 import Link from "../components/atoms/Link.astro"
 import Headline from "../components/atoms/Headline.astro"
 import Image from "../components/atoms/Image.astro"
+import FilterBtn from "../components/atoms/FilterBtn.astro"
 import H1 from "../components/molecules/H1.astro"
 import Menu from "../components/molecules/Menu.astro"
 import Header from "../components/organisms/Header.astro"
@@ -104,6 +105,25 @@ const salasData = [
               <div class="space-y-2">
                 <span class="block text-[10px] uppercase text-muted font-mono">variant="regular" size="sm"</span>
                 <Btn variant="regular" size="sm" href="#">Boton Pequeño</Btn>
+              </div>
+            </div>
+          </div>
+
+          <!-- FilterBtn Showcase -->
+          <div>
+            <h3 class="text-sm font-semibold mb-4 text-ink">FilterBtn Component (`src/components/atoms/FilterBtn.astro`)</h3>
+            <div class="flex flex-wrap items-center gap-4 p-4 bg-paper border border-border-theme rounded">
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">active={true}</span>
+                <FilterBtn text="Todas las obras" value="all" active={true} />
+              </div>
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">active={false}</span>
+                <FilterBtn text="Por artista" value="artist" />
+              </div>
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">active={false}</span>
+                <FilterBtn text="Por región" value="region" />
               </div>
             </div>
           </div>
