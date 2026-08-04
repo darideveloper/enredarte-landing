@@ -10,7 +10,7 @@ export interface Props {
 const { linkText, linkHref, class: className, ...props } = Astro.props;
 ---
 
-<div class={cn("flex justify-between items-baseline mb-10", className)} {...props}>
+<div class={cn("flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2 sm:gap-0 mb-10", className)} {...props}>
   <h2 class="font-serif text-3xl text-ink">
     <slot />
   </h2>

@@ -2,6 +2,52 @@
 import { getTranslations } from "../../../lib/i18n/utils"
 import PageSEO from "../../seo/PageSEO.astro"
 import Hero from "../../organisms/Hero.astro"
+import Gallery from "../../organisms/Gallery.astro"
+
+const salasData = [
+  {
+    src: "/images/abstract-landscape-oil.jpg",
+    alt: "Sala Tierra Mundo Memoria",
+    title: "Tierra, Mundo y Memoria",
+    href: "#",
+    isLarge: true,
+    subtitle: "Sala 01 · Activa",
+    meta: "6 Artistas · Los Cabos / GDL",
+    curator: "Curaduría: Álvaro Macias",
+  },
+  {
+    src: "/images/painting-abstract-details.jpg",
+    alt: "Sala Plástica Oaxaqueña",
+    title: "Plástica Oaxaqueña",
+    href: "#",
+    subtitle: "Sala 02 · Activa",
+    meta: "4 Artistas · Oaxaca",
+  },
+  {
+    src: "/images/cityscape-madrid-gran-via.jpg",
+    alt: "Sala Nuevas Voces",
+    title: "Nuevas Voces CDMX",
+    href: "#",
+    subtitle: "Sala 03 · Activa",
+    meta: "5 Artistas · Ciudad de México",
+  },
+  {
+    src: "/images/artist-street-exhibition.jpg",
+    alt: "Sala San Miguel de Allende",
+    title: "San Miguel de Allende",
+    href: "#",
+    subtitle: "Sala 04 · Próximamente",
+    meta: "Curaduría: Regina Ibarra",
+  },
+  {
+    src: "/images/abstract-mosaic-woman.jpg",
+    alt: "Sala Puerto Vallarta",
+    title: "Puerto Vallarta",
+    href: "#",
+    subtitle: "Sala 05 · Próximamente",
+    meta: "Territorio de Álvaro",
+  }
+]
 
 const { lang } = Astro.props
 const t = getTranslations(lang)
@@ -9,3 +55,5 @@ const t = getTranslations(lang)
 <PageSEO currentPage="home" lang={lang} slot="seo" />
 
 <Hero />
+
+<Gallery salas={salasData} />

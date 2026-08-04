@@ -20,7 +20,7 @@ const { src, alt, title, href, isLarge = false, subtitle, meta, curator, class: 
 
 <div class={cn(
   "relative overflow-hidden cursor-pointer bg-[#0D0D0D] group",
-  isLarge && "col-span-1 row-span-2",
+  isLarge && "md:col-span-2 md:row-span-2 lg:col-span-1",
   className
 )} {...props}>
   <Image 
