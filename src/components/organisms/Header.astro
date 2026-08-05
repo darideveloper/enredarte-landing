@@ -4,15 +4,14 @@ import { Btn } from "../atoms/Btn"
 import LangBtns from "../molecules/LangBtns.astro"
 import Menu from "../molecules/Menu.astro"
 import { cn } from "../../lib/utils"
-import { getLocalizedPath } from "../../lib/i18n/utils"
+import { getLangFromUrl, getLocalizedPath } from "../../lib/i18n/utils"
 
 export interface Props {
-  lang?: string
-  pageKey?: string
   class?: string
 }
 
-const { lang = "en", pageKey = "home", class: className } = Astro.props
+const { class: className } = Astro.props
+const lang = getLangFromUrl(Astro.url)
 
 const navLinks = [
   { label: "Salas", href: "#salas" },
@@ -38,7 +37,7 @@ const navLinks = [
 
     <!-- Right: Language Switcher, Desktop CTA, & Hamburger Toggle -->
     <div class="flex items-center gap-4.5">
-      <LangBtns lang={lang} pageKey={pageKey} />
+      <LangBtns />
 
       <div class="hidden md:block">
         <Btn variant="ghost" size="sm" href="#acceso">

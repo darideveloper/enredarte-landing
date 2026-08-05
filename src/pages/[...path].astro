@@ -25,6 +25,6 @@ const COMPONENT_MAP: Record<string, any> = {
 const { pageKey, lang } = Astro.props
 const PageComponent = COMPONENT_MAP[pageKey as PageKey]
 ---
-<Layout lang={lang} pageKey={pageKey}>
+<Layout>
   {PageComponent && <PageComponent lang={lang} pageKey={pageKey} />}
 </Layout>

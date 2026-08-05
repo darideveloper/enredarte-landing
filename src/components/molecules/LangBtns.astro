@@ -1,5 +1,5 @@
 ---
-import { getLocalizedPath } from "../../lib/i18n/utils"
+import { getLangFromUrl, getLocalizedPath, getPageKeyFromUrl } from "../../lib/i18n/utils"
 import { Btn } from "../atoms/Btn"
 import { cn } from "../../lib/utils"
 
@@ -9,7 +9,9 @@ export interface Props {
   class?: string
 }
 
-const { lang = "en", pageKey = "home", class: className } = Astro.props
+const { class: className } = Astro.props
+const lang = Astro.props.lang ?? getLangFromUrl(Astro.url)
+const pageKey = Astro.props.pageKey ?? getPageKeyFromUrl(Astro.url)
 
 const esUrl = getLocalizedPath(pageKey, "es")
 const enUrl = getLocalizedPath(pageKey, "en")

@@ -1,5 +1,5 @@
 import { ui, defaultLang } from "./ui"
-import { routes } from "./routes"
+import { routes, type PageKey } from "./routes"
 
 export function getLangFromUrl(url: URL) {
   const [, firstSegment] = url.pathname.split("/")
@@ -10,6 +10,16 @@ export function getLangFromUrl(url: URL) {
 export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
   const path = routes[pageKey as keyof typeof routes]?.[lang]
   return path === undefined ? "/" : `/${path}`
+}
+
+export function getPageKeyFromUrl(url: URL): PageKey {
+  const lang = getLangFromUrl(url)
+  const pathname = url.pathname.length > 1 ? url.pathname.replace(/\/$/, "") : url.pathname
+  const keys = Object.keys(routes) as PageKey[]
+  for (const key of keys) {
+    if (getLocalizedPath(key, lang) === pathname) return key
+  }
+  return "home"
 }
 
 export function getTranslations(lang: keyof typeof ui) {

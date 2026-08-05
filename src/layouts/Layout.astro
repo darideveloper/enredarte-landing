@@ -2,14 +2,14 @@
 import "../styles/global.css"
 import Header from "../components/organisms/Header.astro"
 import Footer from "../components/organisms/Footer.astro"
+import { getLangFromUrl } from "../lib/i18n/utils"
 
 export interface Props {
-  lang?: string
-  pageKey?: string
   preloadImage?: string
 }
 
-const { lang = "en", pageKey = "home", preloadImage } = Astro.props
+const { preloadImage } = Astro.props
+const lang = getLangFromUrl(Astro.url)
 ---
 <!doctype html>
 <html lang={lang}>
@@ -23,8 +23,8 @@ const { lang = "en", pageKey = "home", preloadImage } = Astro.props
     {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
   </head>
   <body class="flex min-h-screen flex-col font-sans">
-    <Header lang={lang} pageKey={pageKey} />
+    <Header />
     <slot />
-    <Footer lang={lang} pageKey={pageKey} />
+    <Footer />
   </body>
 </html>

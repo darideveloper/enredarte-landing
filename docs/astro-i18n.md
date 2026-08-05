@@ -280,14 +280,31 @@ export default function BookingForm({ translations }: Props) {
 This keeps React components pure — no dependency on the i18n system, simpler testing, and less JS shipped.
 
 ### Language Switcher
-The language switcher toggles between the current language and its alternate using `getLocalizedPath`:
+The language switcher toggles between the current language and its alternate. `LangBtns` is self-sufficient: it derives `lang` and `pageKey` from the current URL, so it needs no props forwarded from the page, layout, or header. Explicit props (e.g. on the design-system showcase) still override derivation:
 
 ```astro
 ---
-const targetLang = lang === 'en' ? 'es' : 'en'
-const targetUrl = getLocalizedPath(pageKey, targetLang)
+import { getLangFromUrl, getLocalizedPath, getPageKeyFromUrl } from '../../lib/i18n/utils'
+
+const lang = Astro.props.lang ?? getLangFromUrl(Astro.url)
+const pageKey = Astro.props.pageKey ?? getPageKeyFromUrl(Astro.url)
+const esUrl = getLocalizedPath(pageKey, 'es')
+const enUrl = getLocalizedPath(pageKey, 'en')
 ---
-<a href={targetUrl}>{languages[targetLang]}</a>
+```
+
+### URL-Derived Page Context
+`getPageKeyFromUrl(url)` in `src/lib/i18n/utils.ts` reverse-maps the current URL to its `pageKey` by iterating the `routes` table (data-driven, so new pages resolve with no code change). `Layout`, `Header`, `Footer`, and `LangBtns` receive no i18n props: each derives `lang` from `getLangFromUrl(Astro.url)` (and `LangBtns` also derives `pageKey`), so no page context flows through the `[...path].astro` → `Layout` → component prop chain. Only `[...path].astro` keeps `lang`/`pageKey` internally, passing them to the page component (`Home`) for translations and SEO.
+
+```typescript
+export function getPageKeyFromUrl(url: URL): PageKey {
+  const lang = getLangFromUrl(url);
+  const pathname = url.pathname.length > 1 ? url.pathname.replace(/\/$/, '') : url.pathname;
+  for (const [key, localized] of Object.entries(routes)) {
+    if (getLocalizedPath(key, lang) === pathname) return key as PageKey;
+  }
+  return 'home'; // fallback (e.g. /design-system, unknown URLs)
+}
 ```
 
 ## 8. SEO Localization (`BaseSEO.astro`)
@@ -488,7 +505,8 @@ Then:
 
 - English paths have **no prefix** (home is root), Spanish has `/es/` prefix (e.g. `/es`)
 - Home page English path is `""` (root), Spanish is `"es"`
-- Every route gets a `pageKey` — used for SEO, navigation, and translation lookups
+- `Layout`, `Header`, `Footer`, and `LangBtns` derive page context from the URL (`getLangFromUrl`, `getPageKeyFromUrl`) — no i18n props flow through the `[...path].astro` → `Layout` → component chain
+- `lang`/`pageKey` are passed only from `[...path].astro` to the page component (`Home`) for translations and SEO; the standalone page component is the translation boundary
 - React components receive translations as **props**, never import i18n directly
 - Build-time validation is **mandatory** — wire it into the build pipeline on day one
 - Legacy redirects handle old `/en/...` URL patterns
