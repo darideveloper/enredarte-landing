@@ -1,15 +1,21 @@
-// DUMMY COMPONENT
-// Placeholder mirroring docs/astro-atomic-components.md (vanilla atom example).
-// Not used by any page or feature. Recreate the real Input only when a form is built.
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useField as defaultUseField } from "@/store/useField"
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  field: string
+  useField?: (field: string) => {
+    value: unknown
+    error?: string
+    setValue: (v: unknown) => void
+    mounted: boolean
+  }
   label?: string
-  error?: string
 }
 
-export function Input({ label, error, className, ...props }: InputProps) {
+export function Input({ field, useField = defaultUseField, label, className, ...props }: InputProps) {
+  const { value, error, setValue, mounted } = useField(field)
+
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
@@ -25,6 +31,8 @@ export function Input({ label, error, className, ...props }: InputProps) {
           className,
         )}
         {...props}
+        value={mounted ? (value as string) || "" : ""}
+        onChange={(e) => setValue(e.target.value)}
       />
       {error && <span className="text-xs text-red-500">{error}</span>}
     </div>

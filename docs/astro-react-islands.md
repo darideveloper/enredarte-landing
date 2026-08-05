@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-08-05
 tags:
   - astro
   - react
@@ -14,6 +14,12 @@ status: active
 # Astro + React Islands + Tailwind CSS
 
 Astro's island architecture lets you use React for interactive widgets while keeping the rest of the page as static HTML. Tailwind CSS v4 handles all styling via the Vite plugin.
+
+> **⚠️ READER / AI AGENT.** React islands here are the **vanilla self-bound atoms** of this project
+> (e.g. `Input` binds the Zustand store directly). If you scaffold a new project that uses a
+> **UI library** (shadcn, Radix), the island example would instead hydrate a `Validated*` wrapper
+> atom. The two approaches are mutually exclusive — pick one per project, and ask the user if unsure
+> (see [[astro-atomic-components]]).
 
 ## How It Works
 
@@ -108,7 +114,7 @@ import '../styles/global.css'
 ---
 // pages/index.astro — static content + React islands
 import Layout from '../layouts/Layout.astro'
-import { ValidatedInput } from '../components/atoms/ValidatedInput'
+import { Input } from '../components/atoms/Input'
 
 const title = "Welcome"
 ---
@@ -117,7 +123,7 @@ const title = "Welcome"
     <h1>{title}</h1>                      <!-- Static HTML -->
     <p>Fill in your details below.</p>     <!-- Static HTML -->
 
-    <ValidatedInput                        <!-- React island -->
+    <Input                             <!-- React island -->
       field="user_name"
       label="Your name"
       placeholder="e.g. Sarah"
@@ -127,7 +133,7 @@ const title = "Welcome"
 </Layout>
 ```
 
-Key point: the `<h1>` and `<p>` are pure HTML. Only the `ValidatedInput` ships React JS. This keeps bundles tiny for content-heavy pages.
+Key point: the `<h1>` and `<p>` are pure HTML. Only the `Input` ships React JS. This keeps bundles tiny for content-heavy pages.
 
 ## 6. New Project Setup
 

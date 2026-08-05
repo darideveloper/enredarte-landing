@@ -90,7 +90,7 @@ Layout.astro
 ├── <slot/> = page content (Home.astro)
 └── Footer.astro
     ├── data/site-config.ts
-    └── lib/i18n (routes, utils)
+    └── lib/i18n/utils (getLangFromUrl, getLocalizedPath, getTranslations)
 ```
 
 ### design-system.astro tree (showcase, imports the component library directly)
@@ -132,6 +132,7 @@ Everything below is a terminal dependency imported by multiple components:
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **Orphaned / not reachable from any page** (candidates for cleanup):
-  - `atoms/Input.tsx`, `atoms/ValidatedInput.tsx`, `molecules/GlobalLoader.tsx`
-  - `store/` (`form.ts`, `useField.ts` — zustand + zod form machinery)
+  - `molecules/GlobalLoader.tsx`
   - `lib/api/` (`client.ts`, `types.ts`, `constants.ts`)
+- **Reference stateful atom**: `atoms/Input.tsx` is the store-bound form atom (vanilla, self-bound via `useField`, injectable hook prop). `atoms/ValidatedInput.tsx` no longer exists — its responsibilities folded into `Input`.
+- **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work.

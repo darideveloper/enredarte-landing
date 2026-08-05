@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-08-05
 tags:
   - astro
   - zustand
@@ -15,6 +15,17 @@ status: active
 # Zustand + Persist + Zod
 
 Zustand is the **primary state sharing layer** for all React islands in the project. Every component connects directly to Zustand — no prop drilling, no React context, no Redux. Zod handles all validation at the field level. `persist` middleware writes to localStorage so data survives page reloads and across Astro page navigations.
+
+> **⚠️ READER / AI AGENT — two component approaches.** This doc describes the **store** (shared
+> everywhere). The **components** that read it come in two mutually exclusive forms — see
+> [[astro-atomic-components]]:
+> 1. **Vanilla self-bound atoms** (this project): `Input` binds `useField()` directly; the hook is
+>    injectable via props. This is the default here — `src/components/atoms/Input.tsx`.
+> 2. **UI-library wrapper atoms** (`ui/` projects): a presentation re-export + a `Validated*` atom
+>    wraps the store hook.
+>
+> Pick ONE per project (UI library installed → 2; vanilla only → 1). If you are an AI agent
+> setting up a new project and unsure which applies, ask the user before choosing.
 
 ## Architecture
 
@@ -141,7 +152,7 @@ Field names are **automatically enforced as unique** across all schemas. If `nam
 
 ## 2. The `useField()` Hook
 
-Every validated atom uses this hook to connect to the store. It handles:
+Every store-bound atom uses this hook by default to connect to the store. It handles:
 - Reading the current value
 - Reading validation errors
 - Setting new values
@@ -182,20 +193,26 @@ export function useField(field: string) {
 
 ## 3. Using in Components
 
-**Stateful atom:**
+**Store-bound atom (vanilla default):**
 ```tsx
-export function ValidatedInput({ field, label }: { field: string; label: string }) {
+export function Input({ field, useField = defaultUseField, label }: {
+  field: string
+  useField?: (field: string) => { value: unknown; error?: string; setValue: (v: unknown) => void; mounted: boolean }
+  label: string
+}) {
   const { value, error, setValue, mounted } = useField(field)
 
   return (
     <div>
       <Label>{label}</Label>
-      <Input value={mounted ? (value as string) || "" : ""} onChange={e => setValue(e.target.value)} />
+      <input value={mounted ? (value as string) || "" : ""} onChange={e => setValue(e.target.value)} />
       {error && <span className="text-red-500 text-xs">{error}</span>}
     </div>
   )
 }
 ```
+
+The `useField` prop defaults to the project hook (see `src/store/useField.ts`) but may be overridden by a consumer to bind a different store — for example a prefs/filters store that follows the same single-hook-per-store pattern. The hook is always called unconditionally at the top level, so passing a custom hook reference is React-safe.
 
 **Non-validated component** (reads store directly):
 ```tsx
@@ -272,14 +289,15 @@ Define separate stores for separate concerns:
 ## 8. Key Rules
 
 - Components read store directly — no prop drilling, no React context wrappers
-- Use `useField()` for validated form fields; `useFormStore()` directly for non-validated reads
+- Vanilla atoms are store-bound by default and use `useField()`; use `useFormStore()` directly for non-validated reads
+- The `useField` prop is injectable: a consumer may pass a custom hook/store, provided it keeps the same shape and is always called unconditionally
 - Never re-implement hydration safety — `useField()` handles it
 - `partialize` in persist config strips transient state (errors, loading flags) from localStorage
-- Multiple stores for separate concerns, but keep form data in one store for coherence
+- Multiple stores for separate concerns (form, prefs/filters, session) — each store exposes one shared hook; keep form data in one store for coherence
 - Every `PUBLIC_*` field gets a Zod schema — validation is built into the store, not scattered across components
 
 ## 9. Connection to Other Patterns
 
-- Validated atoms use `useField()` → see [[astro-atomic-components]]
+- Store-bound atoms use `useField()` by default → see [[astro-atomic-components]]
 - Fetch data in store actions using `safeFetch` → see [[astro-fetch-wrapper]]
 - Astro pages host React islands that read from this store → see [[astro-react-islands]]

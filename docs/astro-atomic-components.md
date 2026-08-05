@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-08-05
 tags:
   - astro
   - react
@@ -17,6 +17,27 @@ status: active
 Organise components in a 4-tier atomic hierarchy. Each tier has strict import rules that prevent circular dependencies and keep the architecture predictable.
 
 The hierarchy works whether you use **vanilla components** (plain Astro/React + Tailwind) or a **UI library** (shadcn, Radix, etc.).
+
+> ## ⚠️ AI AGENT / READER — READ THIS FIRST (two mutually exclusive approaches)
+>
+> This document describes **TWO different, mutually exclusive ways** to build atoms.
+> You MUST select **exactly one** for a project and use it consistently. Do **not** mix
+> them, and do **not** treat one as the default for the other's case.
+>
+> 1. **Vanilla atoms (self-bound)** — hand-written components with Tailwind that bind the
+>    Zustand store directly (see `src/components/atoms/Input.tsx`). No `ui/` dir, no wrapper tier.
+> 2. **UI-library atoms (wrapper tier)** — generated primitives in `ui/` (shadcn, Radix) that
+>    must not be edited, wrapped by presentation re-exports + stateful `Validated*` atoms.
+>
+> **Decision rule:**
+> - If the project **uses a UI library that installs generated components** (`ui/` present) → use **approach 2**.
+> - If the project is **vanilla only** (hand-written Tailwind atoms, no `ui/`) → use **approach 1**.
+>
+> **If you are an AI agent setting up a new project and it is NOT obvious which applies,
+> STOP and ask the user before choosing.** Guessing wrong produces duplicated components
+> (`Input` + `ValidatedInput`) and an architecture that contradicts this doc.
+>
+> **This repository is vanilla-only → approach 1 (self-bound atoms).**
 
 ## The Hierarchy
 
@@ -110,21 +131,34 @@ Same pattern — put their re-exported/adapted primitives in `ui/`:
 
 ## 2. `atoms/` — Two Approaches
 
-### Vanilla Atoms (no UI library)
+> **⚠️ PICK ONE.** The two approaches below are mutually exclusive. Choose based on the
+> decision rule at the top of this doc (UI library installed → wrapper tier; vanilla only →
+> self-bound). When in doubt, ask the user. Never scaffold both.
 
-Self-contained components that use Tailwind directly. No wrapper layer needed — the atom IS the primitive.
+### Vanilla Atoms (no UI library) — self-bound by default
+
+Self-contained components that use Tailwind directly and manage their own Zustand data. No wrapper layer needed — the atom IS the primitive and binds the store itself. The store hook is injectable via props so a consumer can point the atom at whichever store it needs.
 
 ```tsx
-// src/components/atoms/Input.tsx
+// src/components/atoms/Input.tsx (vanilla, store-bound)
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useField as defaultUseField } from "@/store/useField"
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  field: string
+  useField?: (field: string) => {
+    value: unknown
+    error?: string
+    setValue: (v: unknown) => void
+    mounted: boolean
+  }
   label?: string
-  error?: string
 }
 
-export function Input({ label, error, className, ...props }: InputProps) {
+export function Input({ field, useField = defaultUseField, label, className, ...props }: InputProps) {
+  const { value, error, setValue, mounted } = useField(field)
+
   return (
     <div className="flex flex-col gap-2 p-2">
       {label && (
@@ -140,6 +174,8 @@ export function Input({ label, error, className, ...props }: InputProps) {
           className
         )}
         {...props}
+        value={mounted ? (value as string) || "" : ""}
+        onChange={(e) => setValue(e.target.value)}
       />
       {error && <span className="text-xs text-red-500 font-medium italic">{error}</span>}
     </div>
@@ -147,33 +183,17 @@ export function Input({ label, error, className, ...props }: InputProps) {
 }
 ```
 
+Consumed directly — no separate stateful wrapper:
+
 ```tsx
-// src/components/atoms/ValidatedInput.tsx (vanilla)
-import * as React from "react"
-import { Input } from "@/components/atoms/Input"  // the vanilla Input above
-import { useField } from "@/store/useField"
-
-interface ValidatedInputProps {
-  field: string
-  label: string
-}
-
-export function ValidatedInput({ field, label }: ValidatedInputProps) {
-  const { value, error, setValue, mounted } = useField(field)
-  return (
-    <Input
-      label={label}
-      value={mounted ? (value as string) || "" : ""}
-      error={error}
-      onChange={(e) => setValue(e.target.value)}
-    />
-  )
-}
+<Input field="email" label="Email" />
 ```
+
+The `useField` prop defaults to the project hook but may be overridden to bind a different store (e.g. prefs/filters), as long as the provided hook keeps the same shape.
 
 ### UI Library Atoms (with `ui/`)
 
-Two sub-tiers: **presentation wrappers** (thin re-exports from `ui/`) and **stateful atoms** (bind wrappers + store).
+In projects that install generated local UI-library primitives (shadcn, Radix), the primitives in `ui/` are reinstalled and never edited directly. Two sub-tiers are required: **presentation wrappers** (thin re-exports from `ui/`) and **stateful atoms** (bind wrappers + store).
 
 **Presentation wrapper** — creates a stable import path so molecules never touch `ui/` directly:
 
@@ -184,7 +204,7 @@ export { Input } from "@/components/ui/input"
 
 One-liners. Every `ui/` component gets a matching wrapper in `atoms/`.
 
-**Stateful atom** — wraps a presentation wrapper + Zustand binding:
+**Stateful atom** — wraps a presentation wrapper + Zustand binding (UI-library projects only):
 
 ```tsx
 // src/components/atoms/ValidatedInput.tsx (with shadcn)
@@ -212,18 +232,18 @@ export function ValidatedInput({ field, label, className, ...props }: ValidatedI
 }
 ```
 
-Common stateful atoms: `ValidatedInput`, `ValidatedRadioGroup`, `ValidatedSelect`, `ValidatedTextarea`, `ValidatedCheckboxGroup`, `ContinueButton`, `ProgressBar`, `DisclaimerCheckbox`.
+Common stateful atoms in UI-library projects: `ValidatedInput`, `ValidatedRadioGroup`, `ValidatedSelect`, `ValidatedTextarea`, `ValidatedCheckboxGroup`, `ContinueButton`, `ProgressBar`, `DisclaimerCheckbox`.
 
 ### Which approach to pick?
 
-| Vanilla atoms | UI library atoms |
+| Vanilla atoms (self-bound) | UI library atoms (wrapper) |
 |---|---|
 | No extra dependency | Richer primitives (accessible by default) |
 | Full control over markup | Faster to build complex UIs |
-| More boilerplate per component | Swap themes via library config |
+| Atom manages its own Zustand data | Wrapper tier required (primitives are reinstalled) |
 | Best for small projects or custom design | Best for large projects with design systems |
 
-You can also **mix** — use shadcn for complex inputs (select, radio, checkbox) and vanilla for simple ones.
+**The golden rule:** vanilla projects bind atoms directly to the store — no `Validated*` wrapper tier. The wrapper tier exists only for projects with a `ui/` directory (generated primitives that must not be edited). You can also **mix** — use shadcn for complex inputs (select, radio, checkbox) and vanilla for simple ones.
 
 ## 3. `molecules/` — Combinations of Atoms
 
@@ -280,12 +300,18 @@ Common molecules: `AuthGuard`, `DynamicLabelRadioGroup`, `SupportCircleRepeater`
 
 Used for screen regions that compose multiple molecules. Only when a page needs more structure than a single molecule provides.
 
+> **⚠️ READER NOTE on this example:** `Input` is the vanilla **self-bound** atom (approach 1).
+> The `ValidatedRadioGroup` / `ValidatedCheckboxGroup` atoms shown alongside it are **UI-library
+> wrapper atoms (approach 2)** — they exist in a project that has the `ui/` wrapper tier.
+> In a **vanilla-only** project these would be self-bound equivalents (e.g. `RadioGroup`, `CheckboxGroup`)
+> following the same pattern as `Input`. Pick ONE approach per project; do not mix them.
+
 ```tsx
 // src/components/organisms/Step3Form.tsx
 import * as React from "react"
 import { ValidatedRadioGroup } from "@/components/atoms/ValidatedRadioGroup"
 import { ValidatedCheckboxGroup } from "@/components/atoms/ValidatedCheckboxGroup"
-import { ValidatedInput } from "@/components/atoms/ValidatedInput"
+import { Input } from "@/components/atoms/Input"
 import { useFormStore } from "@/store/form"
 
 export function Step3Form() {
@@ -298,7 +324,7 @@ export function Step3Form() {
       {ourlensCompleted === "yes" && (
         <ValidatedCheckboxGroup field="hazard_flags" label="Hazards found?" options={hazardOptions} />
       )}
-      <ValidatedInput field="hobbies_social" label="Hobbies?" placeholder="e.g., gardening, church" />
+      <Input field="hobbies_social" label="Hobbies?" placeholder="e.g., gardening, church" />
     </div>
   )
 }
@@ -312,7 +338,7 @@ export function Step3Form() {
 mkdir -p src/components/{atoms,molecules,organisms}
 ```
 
-Each atom is a self-contained component with Tailwind styles. No `ui/` directory needed.
+Each atom is a self-contained component with Tailwind styles that binds the Zustand store directly via `useField`. No `ui/` directory and no `Validated*` wrapper tier needed.
 
 ### With shadcn
 
@@ -326,7 +352,8 @@ For each shadcn component, create a matching presentation wrapper in `atoms/`.
 
 ## 6. Consistency Rules
 
-- Atoms in `atoms/*` MAY import from `store/*` and `lib/*`
+- Vanilla atoms in `atoms/*` are self-bound: they MAY import from `store/*` and `lib/*` and manage their own Zustand data via `useField`
+- In a vanilla project there is no `Validated*` wrapper tier — the atom binds the store directly
 - Molecules MUST NOT import from `ui/*` — only from `atoms/*`
 - Organisms MUST NOT import from `ui/*` — only from `molecules/*` and `atoms/*`
 - `ui/*` imports nothing from `components/` — it's the bottom of the dependency tree
@@ -334,5 +361,5 @@ For each shadcn component, create a matching presentation wrapper in `atoms/`.
 
 ## 7. Connection to Other Patterns
 
-- Atoms use `useField()` from Zustand store → see [[astro-zustand-zod]]
+- Vanilla atoms use `useField()` from the Zustand store → see [[astro-zustand-zod]]
 - Astro pages host organisms → see [[astro-react-islands]]
