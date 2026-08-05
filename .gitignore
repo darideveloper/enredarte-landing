@@ -1,4 +1,4 @@
-# build output
+build output
 dist/
 
 # generated types
@@ -25,3 +25,13 @@ pnpm-debug.log*
 
 # raw Design files
 .designs
+
+# Ignore proposals
+openspec/changes/*
+
+# Do not ignore archived proposals
+!openspec/changes/archive/
+
+# ignore by default all hiden folders (like agents folders)
+.*/
+

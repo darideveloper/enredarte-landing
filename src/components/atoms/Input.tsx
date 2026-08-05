@@ -1,3 +1,6 @@
+// DUMMY COMPONENT
+// Placeholder mirroring docs/astro-atomic-components.md (vanilla atom example).
+// Not used by any page or feature. Recreate the real Input only when a form is built.
 import * as React from "react"
 import { cn } from "@/lib/utils"
 

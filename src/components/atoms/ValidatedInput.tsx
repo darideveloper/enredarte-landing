@@ -1,3 +1,6 @@
+// DUMMY COMPONENT
+// Placeholder mirroring docs/astro-atomic-components.md (stateful atom example).
+// Not used by any page or feature. Only relevant when a real form needs store binding (useField).
 import * as React from "react"
 import { Input } from "@/components/atoms/Input"
 import { useField } from "@/store/useField"

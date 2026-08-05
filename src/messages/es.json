@@ -1,39 +1,18 @@
 {
   "global": {
     "nav": {
-      "home": "Inicio",
-      "services": "Servicios",
-      "about": "Nosotros"
+      "home": "Inicio"
     },
     "footer": {
       "links": "Enlaces",
       "contact": "Contacto"
-    },
-    "learnMore": "Más información"
+    }
   },
   "pages": {
     "home": {
       "title": "EnredArte",
       "description": "Descubre el arte en cada rincón",
       "keywords": "arte, galería, cultura"
-    },
-    "services": {
-      "title": "Nuestros Servicios",
-      "description": "Explora nuestra oferta artística y experiencias culturales",
-      "items": {
-        "exhibitions": "Exposiciones",
-        "exhibitionsDesc": "Exposiciones curadas con artistas locales e internacionales",
-        "workshops": "Talleres",
-        "workshopsDesc": "Talleres prácticos para todos los niveles",
-        "tours": "Visitas Guiadas",
-        "toursDesc": "Recorridos guiados por nuestras galerías y espacios culturales"
-      }
-    },
-    "about": {
-      "title": "Sobre Nosotros",
-      "description": "Somos un espacio cultural dedicado a conectar personas a través del arte",
-      "mission": "Nuestra misión es hacer el arte accesible para todos, fomentando la creatividad y el intercambio cultural en nuestra comunidad.",
-      "contact": "Ponte en Contacto"
     }
   }
 }

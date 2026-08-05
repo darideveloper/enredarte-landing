@@ -80,33 +80,13 @@ export const routes = {
     en: "",
     es: "es",
   },
-  services: {
-    en: "services",
-    es: "es/servicios",
-  },
-  destinations: {
-    en: "destinations",
-    es: "es/destinos",
-  },
-  about: {
-    en: "about-us",
-    es: "es/sobre-nosotros",
-  },
-  reservation: {
-    en: "my-reservation",
-    es: "es/mi-reservacion",
-  },
-  blog: {
-    en: "blog",
-    es: "es/blog",
-  },
   // ... more routes
 } as const;
 
 export type PageKey = keyof typeof routes;
 ```
 
-Key pattern: English paths have **no language prefix** (`/services`), Spanish paths have the `/es/` prefix (`/es/servicios`). The home page English path is `""` (root).
+Key pattern: English paths have **no language prefix** (the home page is `""` → root), Spanish paths use the `/es/` prefix (`es` → `/es`). The home page English path is `""` (root).
 
 ### 4.1 Legacy Redirects
 
@@ -128,7 +108,7 @@ export default defineConfig({
 })
 ```
 
-This maps `/en/services` → `/services` for every route automatically.
+This maps `/en/<path>` → `/<path>` for every route automatically.
 
 ## 5. Dynamic Router (`src/pages/[...path].astro`)
 
@@ -506,7 +486,7 @@ Then:
 
 ## 11. Key Rules
 
-- English paths have **no prefix** (`/services`), Spanish has `/es/` prefix (`/es/servicios`)
+- English paths have **no prefix** (home is root), Spanish has `/es/` prefix (e.g. `/es`)
 - Home page English path is `""` (root), Spanish is `"es"`
 - Every route gets a `pageKey` — used for SEO, navigation, and translation lookups
 - React components receive translations as **props**, never import i18n directly

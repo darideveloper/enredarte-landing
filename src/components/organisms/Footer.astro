@@ -22,7 +22,7 @@ const t = getTranslations(lang)
           {t("global.footer.links")}
         </h3>
         <ul class="space-y-2">
-          {["home", "services", "about"].map((key) => (
+          {["home"].map((key) => (
             <li>
               <a
                 href={getLocalizedPath(key, lang)}

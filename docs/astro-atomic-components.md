@@ -148,34 +148,6 @@ export function Input({ label, error, className, ...props }: InputProps) {
 ```
 
 ```tsx
-// src/components/atoms/Button.tsx
-import * as React from "react"
-import { cn } from "@/lib/utils"
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost"
-}
-
-export function Button({ variant = "primary", className, ...props }: ButtonProps) {
-  return (
-    <button
-      className={cn(
-        "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-        "disabled:pointer-events-none disabled:opacity-50",
-        variant === "primary" && "bg-primary text-primary-foreground hover:bg-primary/90",
-        variant === "secondary" && "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        variant === "ghost" && "hover:bg-accent hover:text-accent-foreground",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-```
-
-Vanilla atoms can also be stateful (binding to store):
-
-```tsx
 // src/components/atoms/ValidatedInput.tsx (vanilla)
 import * as React from "react"
 import { Input } from "@/components/atoms/Input"  // the vanilla Input above
@@ -204,11 +176,6 @@ export function ValidatedInput({ field, label }: ValidatedInputProps) {
 Two sub-tiers: **presentation wrappers** (thin re-exports from `ui/`) and **stateful atoms** (bind wrappers + store).
 
 **Presentation wrapper** — creates a stable import path so molecules never touch `ui/` directly:
-
-```tsx
-// src/components/atoms/Button.tsx
-export { Button } from "@/components/ui/button"
-```
 
 ```tsx
 // src/components/atoms/Input.tsx
