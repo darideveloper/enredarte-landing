@@ -64,6 +64,12 @@ Lists all running portless apps and their proxy state.
 | Port conflict on 443 | Portless falls back to 1355; check `portless status` |
 | Dev server won't start | Ensure no other process is on the assigned port; `portless stop enredarte-landing` then retry |
 
+## Component dependency map
+
+`docs/component-dependencies.md` is a living diagram of pages → components → subcomponents → shared libs.
+
+**Keep it in sync.** Whenever you add, remove, or rename a page or component, or change how components import each other (including `Layout`, `Header`, or `Footer`), update `docs/component-dependencies.md` to match the new dependency structure, and refresh the Notes section (e.g. the orphaned-components list) if relevant.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
