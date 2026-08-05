@@ -91,7 +91,7 @@ Create `src/pages/offline.astro` — shown when the user has no connection and t
 
 ```astro
 ---
-import OfflineLayout from '../layouts/OfflineLayout.astro'
+import OfflineLayout from '@/layouts/OfflineLayout.astro'
 ---
 <OfflineLayout>
   <div class="min-h-dvh flex flex-col items-center justify-center px-4 text-center">
@@ -113,7 +113,7 @@ Create a minimal `OfflineLayout.astro` (no service worker, no heavy scripts):
 
 ```astro
 ---
-import '../styles/global.css'
+import '@/styles/global.css'
 ---
 <!doctype html>
 <html lang="en">

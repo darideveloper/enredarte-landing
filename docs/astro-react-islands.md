@@ -92,7 +92,7 @@ Import it in your layout:
 
 ```astro
 ---
-import '../styles/global.css'
+import '@/styles/global.css'
 ---
 ```
 
@@ -113,8 +113,8 @@ import '../styles/global.css'
 ```astro
 ---
 // pages/index.astro — static content + React islands
-import Layout from '../layouts/Layout.astro'
-import { Input } from '../components/atoms/Input'
+import Layout from '@/layouts/Layout.astro'
+import { Input } from '@/components/atoms/Input'
 
 const title = "Welcome"
 ---

@@ -54,8 +54,8 @@ Example (`en.json`):
 Defines supported languages and the default language. Imports JSON files directly.
 
 ```typescript
-import en from '../../messages/en.json';
-import es from '../../messages/es.json';
+import en from '@/messages/en.json';
+import es from '@/messages/es.json';
 
 export const languages = {
   en: 'English',
@@ -116,12 +116,12 @@ A single catch-all file handles all localized routes using `getStaticPaths`.
 
 ```astro
 ---
-import { routes } from '../lib/i18n/routes'
+import { routes } from '@/lib/i18n/routes'
 // Import all page components
-import Home from '../components/pages/landing/Home.astro'
-import Taxi from '../components/pages/services/Taxi.astro'
-import Tulum from '../components/pages/destinations/Tulum.astro'
-import Reservation from '../components/pages/store/Reservation.astro'
+import Home from '@/components/pages/landing/Home.astro'
+import Taxi from '@/components/pages/services/Taxi.astro'
+import Tulum from '@/components/pages/destinations/Tulum.astro'
+import Reservation from '@/components/pages/store/Reservation.astro'
 // ... more page imports
 
 export async function getStaticPaths() {
@@ -242,7 +242,7 @@ export async function getStaticPathsLangs() {
 ### Astro Components
 ```astro
 ---
-import { getTranslations } from '../../../lib/i18n/utils'
+import { getTranslations } from '@/lib/i18n/utils'
 const { lang } = Astro.props
 const t = getTranslations(lang)
 ---
@@ -284,7 +284,7 @@ The language switcher toggles between the current language and its alternate. `L
 
 ```astro
 ---
-import { getLangFromUrl, getLocalizedPath, getPageKeyFromUrl } from '../../lib/i18n/utils'
+import { getLangFromUrl, getLocalizedPath, getPageKeyFromUrl } from '@/lib/i18n/utils'
 
 const lang = Astro.props.lang ?? getLangFromUrl(Astro.url)
 const pageKey = Astro.props.pageKey ?? getPageKeyFromUrl(Astro.url)

@@ -1,6 +1,6 @@
 ---
-import { BUSINESS_DATA } from "../../data/site-config"
-import { getLangFromUrl, getLocalizedPath, getTranslations } from "../../lib/i18n/utils"
+import { BUSINESS_DATA } from "@/data/site-config"
+import { getLangFromUrl, getLocalizedPath, getTranslations } from "@/lib/i18n/utils"
 
 const lang = getLangFromUrl(Astro.url)
 const t = getTranslations(lang)

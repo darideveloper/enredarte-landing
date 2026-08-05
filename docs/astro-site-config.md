@@ -157,8 +157,8 @@ export const LOCALE_MAP: Record<string, string> = {
 ### Layout.astro
 ```astro
 ---
-import { BUSINESS_DATA } from '../data/site-config'
-import { SITE_TITLE } from '../consts'
+import { BUSINESS_DATA } from '@/data/site-config'
+import { SITE_TITLE } from '@/consts'
 ---
 <html lang={lang}>
   <head>
@@ -170,7 +170,7 @@ import { SITE_TITLE } from '../consts'
 ### BaseSEO.astro (JSON-LD generation)
 ```astro
 ---
-import { BUSINESS_DATA } from '../data/site-config'
+import { BUSINESS_DATA } from '@/data/site-config'
 ---
 <script type="application/ld+json" set:html={JSON.stringify({
   "@context": "https://schema.org",
@@ -186,7 +186,7 @@ import { BUSINESS_DATA } from '../data/site-config'
 ### Header / Footer
 ```astro
 ---
-import { PHONES } from '../data/site-config'
+import { PHONES } from '@/data/site-config'
 ---
 <a href={PHONES.main.href}>{PHONES.main.formatted}</a>
 ```

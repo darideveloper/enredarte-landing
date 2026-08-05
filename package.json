@@ -9,10 +9,11 @@
   },
   "scripts": {
     "dev": "portless enredarte-landing pnpm astro dev",
-    "build": "pnpm validate-i18n && astro build",
+    "build": "pnpm validate-i18n && pnpm validate-imports && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "validate-i18n": "tsx scripts/validate-i18n.ts"
+    "validate-i18n": "tsx scripts/validate-i18n.ts",
+    "validate-imports": "tsx scripts/validate-imports.ts"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",
