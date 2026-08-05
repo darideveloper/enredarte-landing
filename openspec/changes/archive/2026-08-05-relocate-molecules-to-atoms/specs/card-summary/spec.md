@@ -1,7 +1,8 @@
-## Purpose
-Defines the behavior and presentation constraints for the CardSummary atom, which is used as an overlaid badge on artworks.
+# card-summary Specification (delta)
 
-## ADDED Requirements
+Reclassifies the CardSummary capability from a molecule to an atom. The component is now located in `src/components/atoms/`; its props, rendering, and public API are unchanged.
+
+## MODIFIED Requirements
 
 ### Requirement: Display artwork metadata and link
 The `CardSummary` atom SHALL accept and display a title, an optional artist name, an optional price, and a required `href` link.

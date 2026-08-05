@@ -89,11 +89,11 @@ src/components/
 
 | Tier | Can import from |
 |---|---|
-| `atoms/*` | `store/*`, `lib/*` |
+| `atoms/*` | `atoms/*`, `store/*`, `lib/*` |
 | `molecules/*` | `atoms/*`, `store/*`, `lib/*` |
 | `organisms/*` | `molecules/*`, `atoms/*`, `store/*`, `lib/*` |
 
-Atoms are self-contained — they import from store/lib directly and build their own markup with Tailwind.
+Atoms are self-contained — they import from store/lib directly and build their own markup with Tailwind. Vanilla atoms MAY also import sibling atoms (e.g. `LangBtns` reuses the `Btn` atom); imports between atoms must stay acyclic.
 
 **With UI library (`ui/` present):**
 

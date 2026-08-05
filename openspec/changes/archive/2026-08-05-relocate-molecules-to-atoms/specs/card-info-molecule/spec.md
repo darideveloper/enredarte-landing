@@ -1,8 +1,9 @@
-# card-info-molecule Specification
+# card-info-molecule Specification (delta)
 
-## Purpose
-Lets developers render a consistent text overlay (title, subtitle, meta, and curator) as a clickable link over a card's background.
-## Requirements
+Reclassifies the card-info capability from a molecule to an atom. The component is now located in `src/components/atoms/`; its props, rendering, and public API are unchanged.
+
+## MODIFIED Requirements
+
 ### Requirement: Render card information as a link
 The system SHALL render the card information atom as an HTML `<a>` tag pointing to the provided `href`.
 
@@ -20,4 +21,3 @@ The system SHALL display the mandatory title and any provided optional text prop
 #### Scenario: Render full detailed information
 - **WHEN** `title`, `subtitle`, `meta`, and `curator` props are provided
 - **THEN** the component displays the title in an `<h2>` tag, and the subtitle, meta, and curator texts in distinct stylized paragraphs.
-
