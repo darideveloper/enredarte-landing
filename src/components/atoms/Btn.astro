@@ -21,7 +21,7 @@ const {
 } = Astro.props;
 
 const variantStyles = {
-  primary: "bg-crimson text-paper border-transparent hover:opacity-90",
+  primary: "bg-crimson text-paper border-crimson hover:bg-transparent hover:text-crimson hover:border-crimson",
   ghost: "bg-transparent text-ink border-ink hover:bg-crimson hover:border-crimson hover:text-paper",
   outline: "bg-transparent text-muted border-border-theme hover:border-ink hover:text-ink",
 };
@@ -32,7 +32,7 @@ const sizeStyles = {
   lg: "text-[12px] py-[18px] px-[36px]",
 };
 
-const baseStyles = "inline-flex items-center justify-center border uppercase tracking-[0.1em] font-sans font-medium transition-all duration-300 cursor-pointer select-none";
+const baseStyles = "inline-flex items-center justify-center border uppercase tracking-[0.1em] font-sans font-medium transition-all duration-300 ease-in-out cursor-pointer select-none";
 const Component = href && !disabled ? "a" : "button";
 ---
 
