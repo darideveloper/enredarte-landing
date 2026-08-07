@@ -15,6 +15,10 @@ export interface Props {
   artist?: string;
   price?: string;
   
+  // Overlay props
+  overlay?: 'hover' | 'darker' | 'always' | 'none';
+  darkenOnHover?: boolean;
+
   // Container props
   class?: string;
 }
@@ -27,9 +31,20 @@ const {
   href, 
   artist, 
   price,
+  overlay = 'hover',
+  darkenOnHover,
   class: className,
   ...props 
 } = Astro.props;
+
+const overlayMode = darkenOnHover !== undefined ? (darkenOnHover ? 'hover' : 'none') : overlay;
+
+const overlayStyles = {
+  hover: "bg-gradient-to-t from-black/65 via-black/25 to-transparent group-hover:from-black/90 group-hover:via-black/50 transition-all duration-300",
+  darker: "bg-gradient-to-t from-black/85 via-black/50 to-black/20 transition-all duration-300",
+  always: "bg-black/40 transition-all duration-300",
+  none: "",
+};
 ---
 
 <div class={cn("relative overflow-hidden group", className)} {...props}>
@@ -41,7 +56,11 @@ const {
     class="w-full h-full object-cover"
   />
   
-  <div class="absolute bottom-0 left-0 p-4 md:p-6 lg:p-8 w-full flex items-end">
+  {overlayMode !== 'none' && (
+    <div class={cn("absolute inset-0 pointer-events-none z-[1]", overlayStyles[overlayMode])} />
+  )}
+  
+  <div class="absolute bottom-0 left-0 p-4 md:p-6 lg:p-8 w-full flex items-end z-10">
     <CardSummary 
       title={title}
       href={href}
