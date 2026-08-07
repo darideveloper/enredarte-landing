@@ -52,9 +52,10 @@ Home.astro
 ├── Hero.astro
 │   ├── H1.astro ──────────────► lib/utils (cn)
 │   ├── Headline.astro ────────► lib/utils
-│   └── ImageBanner.astro
-│       ├── Image.astro ────────► lib/utils
-│       └── CardSummary.astro ──► lib/utils
+│   ├── ImageBanner.astro
+│   │   ├── Image.astro ────────► lib/utils
+│   │   └── CardSummary.astro ──► lib/utils
+│   └── Btn.astro ─────────────► lib/utils
 ├── BannerBar.astro
 │   └── BannerText.astro ───────► lib/utils
 ├── Gallery.astro
@@ -78,13 +79,12 @@ Layout.astro
 ├── styles/global.css
 ├── Header.astro
 │   ├── Logo.astro ─────────────► lib/utils (cn)
-│   ├── Btn.tsx (React) ────────► lib/utils
+│   ├── Btn.astro ──────────────► lib/utils
 │   ├── LangBtns.astro
-│   │   ├── Btn.tsx
 │   │   └── lib/i18n/utils (getLocalizedPath)
 │   ├── Menu.astro
 │   │   ├── Link.astro ─────────► lib/utils
-│   │   └── <slot/> = Btn.tsx (CTA)
+│   │   └── <slot/> = Btn.astro (CTA)
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
@@ -97,7 +97,7 @@ Layout.astro
 
 ```
 design-system.astro
-├── Btn, Logo, Link, Headline, Image, FilterBtn, BannerText (atoms)
+├── Btn.astro, Logo, Link, Headline, Image, FilterBtn, BannerText (atoms)
 ├── H1, Menu, LangBtns, CardSummary, ImageBanner, Title, CardInfo, Filters (molecules)
 ├── Header, Gallery, Artworks (organisms)
 └── styles/global.css
