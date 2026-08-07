@@ -2,6 +2,7 @@
 import H1 from '../molecules/H1.astro';
 import Headline from '../atoms/Headline.astro';
 import ImageBanner from '../molecules/ImageBanner.astro';
+import Btn from '../atoms/Btn.astro';
 
 export interface Props {
   // We can pass props later if needed, but for now we'll hardcode the content 
@@ -22,12 +23,12 @@ export interface Props {
     </p>
     
     <div class="flex flex-wrap gap-3.5 mb-11">
-      <button class="bg-crimson text-paper border-none px-8 py-[15px] text-[11px] tracking-[0.1em] uppercase cursor-pointer transition-opacity hover:opacity-85 font-sans">
+      <Btn variant="primary">
         Entrar a la Sala
-      </button>
-      <button class="bg-transparent text-[#7A7568] border border-[#D8D2C6] px-8 py-[15px] text-[11px] tracking-[0.1em] uppercase cursor-pointer transition-colors hover:border-ink hover:text-ink font-sans">
+      </Btn>
+      <Btn variant="outline">
         Ver Manifiesto
-      </button>
+      </Btn>
     </div>
     
     <div class="text-[11px] text-muted tracking-[0.04em] pt-6 border-t border-border-theme max-w-[420px] font-sans">

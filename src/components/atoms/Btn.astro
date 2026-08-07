@@ -1,0 +1,53 @@
+---
+import { cn } from "../../lib/utils";
+
+export interface Props {
+  variant?: "primary" | "ghost" | "outline";
+  size?: "sm" | "md" | "lg";
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  variant = "primary",
+  size = "md",
+  href,
+  type = "button",
+  disabled = false,
+  class: className,
+  ...props
+} = Astro.props;
+
+const variantStyles = {
+  primary: "bg-crimson text-paper border-transparent hover:opacity-90",
+  ghost: "bg-transparent text-ink border-ink hover:bg-crimson hover:border-crimson hover:text-paper",
+  outline: "bg-transparent text-muted border-border-theme hover:border-ink hover:text-ink",
+};
+
+const sizeStyles = {
+  sm: "text-[10px] py-[11px] px-[22px]",
+  md: "text-[11px] py-[15px] px-[32px]",
+  lg: "text-[12px] py-[18px] px-[36px]",
+};
+
+const baseStyles = "inline-flex items-center justify-center border uppercase tracking-[0.1em] font-sans font-medium transition-all duration-300 cursor-pointer select-none";
+const Component = href && !disabled ? "a" : "button";
+---
+
+<Component
+  href={href && !disabled ? href : undefined}
+  type={Component === "button" ? type : undefined}
+  disabled={Component === "button" ? disabled : undefined}
+  class={cn(
+    baseStyles,
+    variantStyles[variant],
+    sizeStyles[size],
+    disabled && "opacity-50 pointer-events-none cursor-not-allowed",
+    className
+  )}
+  {...props}
+>
+  <slot />
+</Component>
