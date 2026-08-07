@@ -15,7 +15,7 @@ const { title, href, artist, price, class: className, ...props } = Astro.props;
 <a
     href={href}
     class={cn(
-        "block bg-black/88 backdrop-blur-sm p-4 md:p-5 max-w-[260px] group transition-all hover:bg-black/95",
+        "block bg-black/88 backdrop-blur-sm p-4 md:p-5 max-w-[260px] group transition-all duration-300 ease-out hover:bg-black/95 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl",
         className,
     )}
     {...props}
