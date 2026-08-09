@@ -1,9 +1,7 @@
-# filters-molecule Specification
+# filters-molecule Specification (Delta)
 
-## Purpose
-Defines the requirement for the `Filters` molecule component.
+## MODIFIED Requirements
 
-## Requirements
 ### Requirement: Faceted Filters Rendering
 The system SHALL provide a React `Filters` molecule component that renders one facet row per filter group. Each row SHALL display the group's localized label at the left and its option chips filling the remaining width, with horizontal overflow and a hidden scrollbar. On viewports below `md`, the label SHALL stack above the chips and the chips SHALL span the full row width. The component SHALL receive the localized facet group definitions as a prop from the Astro caller and render a self-bound `FilterBtn` per option.
 

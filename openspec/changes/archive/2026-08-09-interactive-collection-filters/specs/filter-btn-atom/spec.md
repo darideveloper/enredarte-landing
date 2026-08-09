@@ -1,9 +1,7 @@
-# filter-btn-atom Specification
+# filter-btn-atom Specification (Delta)
 
-## Purpose
-Defines the requirement for the `FilterBtn` atom component.
+## MODIFIED Requirements
 
-## Requirements
 ### Requirement: Filter Button Rendering
 The system SHALL provide a React `FilterBtn` component that renders a filter chip button with uppercase text, tracking, and distinct active vs inactive visual states. The component SHALL be a self-bound vanilla atom that reads its active state from the catalog store and toggles its selection on click.
 

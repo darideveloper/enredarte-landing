@@ -1,9 +1,7 @@
-# artworks-organism Specification
+# artworks-organism Specification (Delta)
 
-## Purpose
-Defines the requirement for the `Artworks` organism component.
+## MODIFIED Requirements
 
-## Requirements
 ### Requirement: Artworks Grid Rendering
 The system SHALL provide a React `Artworks` organism component that renders a responsive 4-column grid container, receives Astro `ImageCard` slot children stamped with `data-*` facet attributes, and toggles each card's visibility based on the catalog store's selections and loading state.
 

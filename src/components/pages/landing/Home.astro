@@ -6,8 +6,10 @@ import BannerBar from "@/components/organisms/BannerBar.astro"
 import Gallery from "@/components/organisms/Gallery.astro"
 import Title from "@/components/atoms/Title.astro"
 import Headline from "@/components/atoms/Headline.astro"
-import Filters from "@/components/molecules/Filters.astro"
-import Artworks from "@/components/organisms/Artworks.astro"
+import { Filters } from "@/components/molecules/Filters"
+import { Artworks } from "@/components/organisms/Artworks"
+import ImageCard from "@/components/molecules/ImageCard.astro"
+import { artworks, filterGroups } from "@/data/catalog"
 
 const salasData = [
   {
@@ -54,83 +56,17 @@ const salasData = [
   }
 ]
 
-const filterOptions = [
-  { text: "Todas las obras", value: "all" },
-  { text: "Por artista", value: "artist" },
-  { text: "Por región", value: "region" },
-  { text: "Por técnica", value: "technique" },
-  { text: "Por precio", value: "price" },
-]
-
-const artworksData = [
-  {
-    src: "/images/abstract-landscape-oil.jpg",
-    alt: "Horizonte en tres tiempos",
-    title: "Horizonte en tres tiempos",
-    href: "#",
-    meta: "Álvaro Macias",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/painting-abstract-details.jpg",
-    alt: "Raíz",
-    title: "Raíz",
-    href: "#",
-    meta: "Daniel Ortega",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/cityscape-madrid-gran-via.jpg",
-    alt: "Concreto y Memoria",
-    title: "Concreto y Memoria",
-    href: "#",
-    meta: "Regina Ibarra",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/artist-street-exhibition.jpg",
-    alt: "Costa Interior",
-    title: "Costa Interior",
-    href: "#",
-    meta: "Mariana Solís",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/abstract-mosaic-woman.jpg",
-    alt: "Sin título 04",
-    title: "Sin título 04",
-    href: "#",
-    meta: "Artista invitado",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/painting-cityline-reflections.jpg",
-    alt: "Cempasúchil",
-    title: "Cempasúchil",
-    href: "#",
-    meta: "Daniel Ortega",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/abstract-blue-acrylic-texture.jpg",
-    alt: "Río Interior",
-    title: "Río Interior",
-    href: "#",
-    meta: "Álvaro Macias",
-    curator: "Consultar",
-  },
-  {
-    src: "/images/architecture-spiral-staircase.jpg",
-    alt: "Trazo Urbano",
-    title: "Trazo Urbano",
-    href: "#",
-    meta: "Regina Ibarra",
-    curator: "Consultar",
-  },
-]
-
 const { lang } = Astro.props
 const t = getTranslations(lang)
+
+const localizedGroups = filterGroups.map((group) => ({
+  key: group.key,
+  label: group[lang],
+  options: group.options.map((option) => ({
+    value: option.slug,
+    label: option[lang],
+  })),
+}))
 ---
 <PageSEO currentPage="home" lang={lang} slot="seo" />
 
@@ -146,7 +82,25 @@ const t = getTranslations(lang)
     Colección completa
   </Title>
 
-  <Filters items={filterOptions} />
+  <Filters client:load groups={localizedGroups} />
 
-  <Artworks artworks={artworksData} />
+  <Artworks client:load loadingLabel={t("global.loading")}>
+    {artworks.map((artwork) => (
+      <ImageCard
+        src={artwork.src}
+        alt={artwork.alt}
+        title={artwork.title}
+        href={artwork.href}
+        meta={artwork.meta}
+        curator={artwork.curator}
+        class="aspect-[4/5]"
+        data-artist={artwork.artist}
+        data-discipline={artwork.discipline}
+        data-technique={artwork.technique}
+        data-theme={artwork.theme}
+        data-format={artwork.format}
+        data-scale={artwork.scale}
+      />
+    ))}
+  </Artworks>
 </section>

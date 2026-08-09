@@ -5,7 +5,7 @@ import Logo from "@/components/atoms/Logo.astro"
 import Link from "@/components/atoms/Link.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import Image from "@/components/atoms/Image.astro"
-import FilterBtn from "@/components/atoms/FilterBtn.astro"
+import { FilterBtn } from "@/components/atoms/FilterBtn"
 import BannerText from "@/components/atoms/BannerText.astro"
 import H1 from "@/components/molecules/H1.astro"
 import Menu from "@/components/molecules/Menu.astro"
@@ -15,9 +15,10 @@ import CardSummary from "@/components/atoms/CardSummary.astro"
 import ImageBanner from "@/components/molecules/ImageBanner.astro"
 import Title from "@/components/atoms/Title.astro"
 import CardInfo from "@/components/atoms/CardInfo.astro"
-import Filters from "@/components/molecules/Filters.astro"
+import { Filters } from "@/components/molecules/Filters"
 import Gallery from "@/components/organisms/Gallery.astro"
-import Artworks from "@/components/organisms/Artworks.astro"
+import { Artworks } from "@/components/organisms/Artworks"
+import ImageCard from "@/components/molecules/ImageCard.astro"
 
 const salasData = [
   {
@@ -114,19 +115,19 @@ const salasData = [
 
           <!-- FilterBtn Showcase -->
           <div>
-            <h3 class="text-sm font-semibold mb-4 text-ink">FilterBtn Component (`src/components/atoms/FilterBtn.astro`)</h3>
+            <h3 class="text-sm font-semibold mb-4 text-ink">FilterBtn Component (`src/components/atoms/FilterBtn.tsx`)</h3>
             <div class="flex flex-wrap items-center gap-4 p-4 bg-paper border border-border-theme rounded">
               <div class="space-y-2">
-                <span class="block text-[10px] uppercase text-muted font-mono">active={true}</span>
-                <FilterBtn text="Todas las obras" value="all" active={true} />
+                <span class="block text-[10px] uppercase text-muted font-mono">group="artist" value="alvaro-macias"</span>
+                <FilterBtn group="artist" value="alvaro-macias" label="Álvaro Macias" client:load />
               </div>
               <div class="space-y-2">
-                <span class="block text-[10px] uppercase text-muted font-mono">active={false}</span>
-                <FilterBtn text="Por artista" value="artist" />
+                <span class="block text-[10px] uppercase text-muted font-mono">group="artist" value="daniel-ortega"</span>
+                <FilterBtn group="artist" value="daniel-ortega" label="Daniel Ortega" client:load />
               </div>
               <div class="space-y-2">
-                <span class="block text-[10px] uppercase text-muted font-mono">active={false}</span>
-                <FilterBtn text="Por región" value="region" />
+                <span class="block text-[10px] uppercase text-muted font-mono">group="discipline" value="pintura"</span>
+                <FilterBtn group="discipline" value="pintura" label="Pintura" client:load />
               </div>
             </div>
           </div>
@@ -277,30 +278,33 @@ const salasData = [
         </div>
 
         <div class="bg-white/50 p-6 rounded border border-border-theme">
-          <h3 class="text-sm font-semibold mb-4 text-ink">Filters Component (`src/components/molecules/Filters.astro`)</h3>
+          <h3 class="text-sm font-semibold mb-4 text-ink">Filters Component (`src/components/molecules/Filters.tsx`)</h3>
           <div class="space-y-4 p-6 bg-paper border border-border-theme rounded">
             <div>
-              <span class="block text-[10px] uppercase text-muted font-mono mb-2">Default Active (First Item)</span>
+              <span class="block text-[10px] uppercase text-muted font-mono mb-2">Localized facet groups</span>
               <Filters
-                items={[
-                  { text: "Todas las obras", value: "all" },
-                  { text: "Por artista", value: "artist" },
-                  { text: "Por región", value: "region" },
-                  { text: "Por técnica", value: "technique" },
-                  { text: "Por precio", value: "price" }
-                ]}
-              />
-            </div>
-            <div>
-              <span class="block text-[10px] uppercase text-muted font-mono mb-2">Explicit Active ("region")</span>
-              <Filters
-                activeValue="region"
-                items={[
-                  { text: "Todas las obras", value: "all" },
-                  { text: "Por artista", value: "artist" },
-                  { text: "Por región", value: "region" },
-                  { text: "Por técnica", value: "technique" },
-                  { text: "Por precio", value: "price" }
+                client:load
+                groups={[
+                  {
+                    key: "artist",
+                    label: "Por artista",
+                    options: [
+                      { value: "alvaro-macias", label: "Álvaro Macias" },
+                      { value: "daniel-ortega", label: "Daniel Ortega" },
+                      { value: "regina-ibarra", label: "Regina Ibarra" },
+                    ],
+                  },
+                  {
+                    key: "technique",
+                    label: "Por técnica",
+                    options: [
+                      { value: "acrilico", label: "Acrílico" },
+                      { value: "oleo", label: "Óleo" },
+                      { value: "acuarela", label: "Acuarela" },
+                      { value: "mixta", label: "Mixta" },
+                      { value: "tinta", label: "Tinta" },
+                    ],
+                  },
                 ]}
               />
             </div>
@@ -499,10 +503,10 @@ const salasData = [
           </div>
         </div>
         <div class="bg-white/50 p-6 rounded border border-border-theme space-y-4 mt-8">
-          <h3 class="text-sm font-semibold text-ink">Artworks Component (`src/components/organisms/Artworks.astro`)</h3>
+          <h3 class="text-sm font-semibold text-ink">Artworks Component (`src/components/organisms/Artworks.tsx`)</h3>
           <div class="border border-border-theme bg-paper p-4 rounded overflow-hidden">
-            <Artworks
-              artworks={[
+            <Artworks client:load loadingLabel="Cargando…">
+              {[
                 {
                   src: "/images/abstract-landscape-oil.jpg",
                   alt: "Horizonte en tres tiempos",
@@ -510,6 +514,12 @@ const salasData = [
                   href: "#",
                   meta: "Álvaro Macias",
                   curator: "Consultar",
+                  artist: "alvaro-macias",
+                  discipline: "pintura",
+                  technique: "oleo",
+                  theme: "paisaje",
+                  format: "obra-original",
+                  scale: "gran-formato",
                 },
                 {
                   src: "/images/painting-abstract-details.jpg",
@@ -518,6 +528,12 @@ const salasData = [
                   href: "#",
                   meta: "Daniel Ortega",
                   curator: "Consultar",
+                  artist: "daniel-ortega",
+                  discipline: "pintura",
+                  technique: "acrilico",
+                  theme: "abstracto",
+                  format: "obra-original",
+                  scale: "mini-obras",
                 },
                 {
                   src: "/images/cityscape-madrid-gran-via.jpg",
@@ -526,6 +542,12 @@ const salasData = [
                   href: "#",
                   meta: "Regina Ibarra",
                   curator: "Consultar",
+                  artist: "regina-ibarra",
+                  discipline: "pintura",
+                  technique: "mixta",
+                  theme: "urbano",
+                  format: "obra-original",
+                  scale: "gran-formato",
                 },
                 {
                   src: "/images/artist-street-exhibition.jpg",
@@ -534,9 +556,31 @@ const salasData = [
                   href: "#",
                   meta: "Mariana Solís",
                   curator: "Consultar",
-                }
-              ]}
-            />
+                  artist: "mariana-solis",
+                  discipline: "pintura",
+                  technique: "oleo",
+                  theme: "paisaje",
+                  format: "obra-original",
+                  scale: "gran-formato",
+                },
+              ].map((artwork) => (
+                <ImageCard
+                  src={artwork.src}
+                  alt={artwork.alt}
+                  title={artwork.title}
+                  href={artwork.href}
+                  meta={artwork.meta}
+                  curator={artwork.curator}
+                  class="aspect-[4/5]"
+                  data-artist={artwork.artist}
+                  data-discipline={artwork.discipline}
+                  data-technique={artwork.technique}
+                  data-theme={artwork.theme}
+                  data-format={artwork.format}
+                  data-scale={artwork.scale}
+                />
+              ))}
+            </Artworks>
           </div>
         </div>
       </section>

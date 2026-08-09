@@ -65,10 +65,10 @@ Home.astro
 │       └── CardInfo.astro ─────► lib/utils (atoms)
 ├── Title.astro ────────────────► lib/utils (atoms)
 ├── Headline.astro
-├── Filters.astro
-│   └── FilterBtn.astro ────────► lib/utils
-└── Artworks.astro
-    └── ImageCard.astro ─► { Image, CardInfo }
+├── Filters.tsx (React island, client:load) ─► atoms/FilterBtn.tsx ─► store/catalog.ts, lib/utils
+│   └── data/catalog.ts (fixture groups, localized in Home.astro)
+└── Artworks.tsx (React island, client:load) ─► store/catalog.ts, lib/utils
+    └── ImageCard.astro (slot children, stamped with data-* facets) ─► { Image, CardInfo }
 ```
 
 ### Layout.astro tree (Header + Footer shared by every page)
@@ -97,9 +97,9 @@ Layout.astro
 
 ```
 design-system.astro
-├── Btn, Logo, Link, Headline, Image, FilterBtn, BannerText, LangBtns, CardSummary, Title, CardInfo (atoms)
-├── H1, Menu, ImageBanner, Filters (molecules)
-├── Header, Gallery, Artworks (organisms)
+├── Btn, Logo, Link, Headline, Image, FilterBtn (React, client:load), BannerText, LangBtns, CardSummary, Title, CardInfo (atoms)
+├── H1, Menu, ImageBanner, Filters (React, client:load) (molecules)
+├── Header, Gallery, Artworks (React, client:load) (organisms)
 └── styles/global.css
 ```
 
@@ -135,4 +135,5 @@ Everything below is a terminal dependency imported by multiple components:
   - `molecules/GlobalLoader.tsx`
   - `lib/api/` (`client.ts`, `types.ts`, `constants.ts`)
 - **Reference stateful atom**: `atoms/Input.tsx` is the store-bound form atom (vanilla, self-bound via `useField`, injectable hook prop). `atoms/ValidatedInput.tsx` no longer exists — its responsibilities folded into `Input`.
-- **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work.
+- **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work. `store/catalog.ts` (zustand + persist, `useCatalog` hook, `matchesArtwork` predicate) is the shared filter-state store for the interactive collection section.
+- **Interactive collection**: `data/catalog.ts` holds fixture filter groups (bilingual) and artwork data. `atoms/FilterBtn.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Artworks` receives `ImageCard.astro` slot children stamped with `data-*` facet attributes and toggles their visibility. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.

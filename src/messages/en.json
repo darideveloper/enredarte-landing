@@ -6,7 +6,8 @@
     "footer": {
       "links": "Links",
       "contact": "Contact"
-    }
+    },
+    "loading": "Loading…"
   },
   "pages": {
     "home": {
