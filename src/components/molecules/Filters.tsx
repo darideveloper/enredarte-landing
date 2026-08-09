@@ -1,6 +1,8 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { FilterBtn } from "@/components/atoms/FilterBtn"
+import { FilterToggle } from "@/components/atoms/FilterToggle"
+import { useCatalogStore } from "@/store/catalog"
 import type { GroupKey } from "@/data/catalog"
 
 export interface LocalizedFilterOption {
@@ -16,6 +18,8 @@ export interface LocalizedFilterGroup {
 
 export interface FiltersProps {
   groups: LocalizedFilterGroup[]
+  expandLabel: string
+  collapseLabel: string
   className?: string
 }
 
@@ -150,12 +154,20 @@ function FilterRow({ group }: { group: LocalizedFilterGroup }) {
   )
 }
 
-export function Filters({ groups, className }: FiltersProps) {
+export function Filters({ groups, expandLabel, collapseLabel, className }: FiltersProps) {
+  const isExpanded = useCatalogStore((state) => state.isExpanded)
+  const visibleGroups = isExpanded ? groups : groups.slice(0, 1)
+
   return (
     <div className={cn("flex flex-col gap-5 mb-9", className)}>
-      {groups.map((group) => (
-        <FilterRow key={group.key} group={group} />
-      ))}
+      <div id="catalog-filters" className="flex flex-col gap-5">
+        {visibleGroups.map((group) => (
+          <FilterRow key={group.key} group={group} />
+        ))}
+      </div>
+      {groups.length > 1 && (
+        <FilterToggle label={isExpanded ? collapseLabel : expandLabel} />
+      )}
     </div>
   )
 }

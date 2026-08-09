@@ -16,7 +16,9 @@ export type ArtworkFacets = Record<string, string | undefined>
 export interface CatalogStore {
   selections: Record<GroupKey, string[]>
   isLoading: boolean
+  isExpanded: boolean
   toggle: (group: GroupKey, value: string) => void
+  toggleExpanded: () => void
 }
 
 export const useCatalogStore = create<CatalogStore>()(
@@ -24,6 +26,9 @@ export const useCatalogStore = create<CatalogStore>()(
     (set) => ({
       selections: EMPTY_SELECTIONS,
       isLoading: false,
+      isExpanded: false,
+
+      toggleExpanded: () => set((state) => ({ isExpanded: !state.isExpanded })),
 
       toggle: (group, value) => {
         set((state) => {
@@ -42,7 +47,10 @@ export const useCatalogStore = create<CatalogStore>()(
     }),
     {
       name: "enredarte-catalog-storage",
-      partialize: (state) => ({ selections: state.selections }),
+      partialize: (state) => ({
+        selections: state.selections,
+        isExpanded: state.isExpanded,
+      }),
     }
   )
 )
@@ -50,8 +58,10 @@ export const useCatalogStore = create<CatalogStore>()(
 export function useCatalog() {
   const selections = useCatalogStore((state) => state.selections)
   const isLoading = useCatalogStore((state) => state.isLoading)
+  const isExpanded = useCatalogStore((state) => state.isExpanded)
   const toggle = useCatalogStore((state) => state.toggle)
-  return { selections, isLoading, toggle }
+  const toggleExpanded = useCatalogStore((state) => state.toggleExpanded)
+  return { selections, isLoading, isExpanded, toggle, toggleExpanded }
 }
 
 export function matchesArtwork(

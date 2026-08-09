@@ -82,7 +82,12 @@ const localizedGroups = filterGroups.map((group) => ({
     Colección completa
   </Title>
 
-  <Filters client:load groups={localizedGroups} />
+  <Filters
+    client:load
+    groups={localizedGroups}
+    expandLabel={t("global.filters.more")}
+    collapseLabel={t("global.filters.less")}
+  />
 
   <Artworks client:load loadingLabel={t("global.loading")}>
     {artworks.map((artwork) => (

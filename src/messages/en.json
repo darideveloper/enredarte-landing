@@ -7,7 +7,11 @@
       "links": "Links",
       "contact": "Contact"
     },
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "filters": {
+      "more": "Show more filters",
+      "less": "Show fewer filters"
+    }
   },
   "pages": {
     "home": {
