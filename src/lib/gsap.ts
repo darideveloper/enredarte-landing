@@ -1,0 +1,10 @@
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { TextPlugin } from "gsap/TextPlugin";
+
+// Register plugins safely on the client side (SSR-safe)
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, TextPlugin);
+}
+
+export { gsap, ScrollTrigger, TextPlugin };
