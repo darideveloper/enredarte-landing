@@ -20,7 +20,7 @@ export interface Props {
 const { artworks, class: className, ...props } = Astro.props;
 ---
 
-<div class={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[3px]", className)} {...props}>
+<div class={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[3px] artworks-grid", className)} {...props}>
   {
     artworks.map((artwork) => (
       <ImageCard
@@ -31,8 +31,100 @@ const { artworks, class: className, ...props } = Astro.props;
         subtitle={artwork.subtitle}
         meta={artwork.meta}
         curator={artwork.curator}
-        class="aspect-[4/5]"
+        class="aspect-[4/5] artwork-card-item"
       />
     ))
   }
 </div>
+
+<script>
+  import { gsap, ScrollTrigger } from "../../lib/gsap";
+
+  const initArtworksAnimation = () => {
+    // 1. Header fade & slide entrance
+    gsap.fromTo(
+      ".artworks-header",
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.7,
+        ease: "power2.out",
+        clearProps: "transform,opacity",
+        scrollTrigger: {
+          trigger: "#artworks-collection",
+          start: "top 85%",
+        },
+      }
+    );
+
+    // 2. Filter pills slide-in cascade
+    gsap.fromTo(
+      ".filter-pill",
+      { x: -15, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.06,
+        ease: "power2.out",
+        clearProps: "transform,opacity",
+        scrollTrigger: {
+          trigger: "#artworks-filters",
+          start: "top 85%",
+        },
+      }
+    );
+
+    // 3. Grid wave reveal cascade
+    gsap.fromTo(
+      ".artwork-card-item",
+      { y: 35, scale: 0.96, opacity: 0 },
+      {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.7,
+        stagger: 0.08,
+        ease: "power2.out",
+        clearProps: "transform,opacity",
+        scrollTrigger: {
+          trigger: ".artworks-grid",
+          start: "top 80%",
+        },
+      }
+    );
+
+    // 4. Interactive Filter Button Switch Animation
+    const filterButtons = document.querySelectorAll<HTMLButtonElement>(".filter-pill");
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // Toggle active border/bg class states
+        filterButtons.forEach((b) => {
+          b.classList.remove("border-crimson", "text-ink", "bg-white");
+          b.classList.add("border-border-theme", "text-muted", "bg-transparent");
+        });
+        btn.classList.remove("border-border-theme", "text-muted", "bg-transparent");
+        btn.classList.add("border-crimson", "text-ink", "bg-white");
+
+        // Trigger GSAP scale & opacity refresh on artwork grid items
+        gsap.fromTo(
+          ".artwork-card-item",
+          { scale: 0.95, opacity: 0.2 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 0.45,
+            stagger: 0.05,
+            ease: "power2.out",
+            clearProps: "transform,opacity",
+          }
+        );
+      });
+    });
+  };
+
+  initArtworksAnimation();
+
+  document.addEventListener("astro:page-load", initArtworksAnimation);
+</script>

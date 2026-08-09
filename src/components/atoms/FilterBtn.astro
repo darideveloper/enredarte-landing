@@ -15,7 +15,7 @@ const { text, value, active = false, class: className, ...props } = Astro.props;
   type="button"
   data-value={value}
   class={cn(
-    "text-[10px] tracking-[0.06em] uppercase px-[18px] py-[9px] cursor-pointer transition-all duration-300 ease-in-out font-sans border",
+    "filter-pill text-[10px] tracking-[0.06em] uppercase px-[18px] py-[9px] cursor-pointer transition-all duration-300 ease-in-out font-sans border",
     active
       ? "border-crimson text-ink bg-white"
       : "border-border-theme text-muted bg-transparent hover:border-crimson hover:text-ink hover:bg-white",
