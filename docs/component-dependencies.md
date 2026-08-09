@@ -66,7 +66,7 @@ Home.astro
 ├── Title.astro ────────────────► lib/utils (atoms)
 ├── Headline.astro
 ├── Filters.tsx (React island, client:load) ─► atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts, lib/utils
-│   └── data/catalog.ts (fixture groups, localized in Home.astro)
+│   └── data/catalog.ts (fixture groups + artwork facets, localized in Home.astro; viability via store/catalog.ts `computeViableOptions`)
 └── Artworks.tsx (React island, client:load) ─► store/catalog.ts, lib/utils
     └── ImageCard.astro (slot children, stamped with data-* facets) ─► { Image, CardInfo }
 ```
@@ -135,5 +135,5 @@ Everything below is a terminal dependency imported by multiple components:
   - `molecules/GlobalLoader.tsx`
   - `lib/api/` (`client.ts`, `types.ts`, `constants.ts`)
 - **Reference stateful atom**: `atoms/Input.tsx` is the store-bound form atom (vanilla, self-bound via `useField`, injectable hook prop). `atoms/ValidatedInput.tsx` no longer exists — its responsibilities folded into `Input`.
-- **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work. `store/catalog.ts` (zustand + persist, `useCatalog` hook, `matchesArtwork` predicate) is the shared filter-state store for the interactive collection section.
-- **Interactive collection**: `data/catalog.ts` holds fixture filter groups (bilingual) and artwork data. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store; `Artworks` receives `ImageCard.astro` slot children stamped with `data-*` facet attributes and toggles their visibility. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.
+- **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work. `store/catalog.ts` (zustand + persist, `useCatalog` hook, `matchesArtwork` predicate, `computeViableOptions` helper) is the shared filter-state store for the interactive collection section.
+- **Interactive collection**: `data/catalog.ts` holds fixture filter groups (bilingual) and artwork data. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store, and disables chips that can no longer match any artwork (`disabled` prop on `FilterBtn`, viability computed client-side from the `facets` prop via `computeViableOptions`); `Artworks` receives `ImageCard.astro` slot children stamped with `data-*` facet attributes and toggles their visibility. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.

@@ -67,6 +67,15 @@ const localizedGroups = filterGroups.map((group) => ({
     label: option[lang],
   })),
 }))
+
+const facets = artworks.map(({ artist, discipline, technique, theme, format, scale }) => ({
+  artist,
+  discipline,
+  technique,
+  theme,
+  format,
+  scale,
+}))
 ---
 <PageSEO currentPage="home" lang={lang} slot="seo" />
 
@@ -85,6 +94,7 @@ const localizedGroups = filterGroups.map((group) => ({
   <Filters
     client:load
     groups={localizedGroups}
+    facets={facets}
     expandLabel={t("global.filters.more")}
     collapseLabel={t("global.filters.less")}
   />

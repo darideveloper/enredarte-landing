@@ -64,6 +64,33 @@ const salasData = [
     meta: "Territorio de Álvaro",
   }
 ];
+
+const showcaseFacets = [
+  {
+    artist: "alvaro-macias",
+    discipline: "pintura",
+    technique: "oleo",
+    theme: "paisaje",
+    format: "obra-original",
+    scale: "gran-formato",
+  },
+  {
+    artist: "daniel-ortega",
+    discipline: "pintura",
+    technique: "acrilico",
+    theme: "abstracto",
+    format: "obra-original",
+    scale: "mini-obras",
+  },
+  {
+    artist: "regina-ibarra",
+    discipline: "collage",
+    technique: "mixta",
+    theme: "memoria",
+    format: "obra-original",
+    scale: "mini-obras",
+  },
+];
 ---
 
 <!doctype html>
@@ -128,6 +155,10 @@ const salasData = [
               <div class="space-y-2">
                 <span class="block text-[10px] uppercase text-muted font-mono">group="discipline" value="pintura"</span>
                 <FilterBtn group="discipline" value="pintura" label="Pintura" client:load />
+              </div>
+              <div class="space-y-2">
+                <span class="block text-[10px] uppercase text-muted font-mono">group="technique" value="lapiz" disabled</span>
+                <FilterBtn group="technique" value="lapiz" label="Lápiz" disabled client:load />
               </div>
             </div>
           </div>
@@ -286,6 +317,7 @@ const salasData = [
                 client:load
                 expandLabel="Ver más filtros"
                 collapseLabel="Ver menos filtros"
+                facets={showcaseFacets}
                 groups={[
                   {
                     key: "artist",

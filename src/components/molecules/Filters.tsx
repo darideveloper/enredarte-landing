@@ -2,7 +2,8 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { FilterBtn } from "@/components/atoms/FilterBtn"
 import { FilterToggle } from "@/components/atoms/FilterToggle"
-import { useCatalogStore } from "@/store/catalog"
+import { computeViableOptions, useCatalogStore } from "@/store/catalog"
+import type { ArtworkFacets } from "@/store/catalog"
 import type { GroupKey } from "@/data/catalog"
 
 export interface LocalizedFilterOption {
@@ -18,12 +19,19 @@ export interface LocalizedFilterGroup {
 
 export interface FiltersProps {
   groups: LocalizedFilterGroup[]
+  facets: ArtworkFacets[]
   expandLabel: string
   collapseLabel: string
   className?: string
 }
 
-function FilterRow({ group }: { group: LocalizedFilterGroup }) {
+function FilterRow({
+  group,
+  viable,
+}: {
+  group: LocalizedFilterGroup
+  viable: Map<GroupKey, Set<string>>
+}) {
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const [canLeft, setCanLeft] = React.useState(false)
   const [canRight, setCanRight] = React.useState(false)
@@ -140,6 +148,7 @@ function FilterRow({ group }: { group: LocalizedFilterGroup }) {
               group={group.key}
               value={option.value}
               label={option.label}
+              disabled={!viable.get(group.key)?.has(option.value)}
             />
           ))}
         </div>
@@ -154,15 +163,21 @@ function FilterRow({ group }: { group: LocalizedFilterGroup }) {
   )
 }
 
-export function Filters({ groups, expandLabel, collapseLabel, className }: FiltersProps) {
+export function Filters({ groups, facets, expandLabel, collapseLabel, className }: FiltersProps) {
   const isExpanded = useCatalogStore((state) => state.isExpanded)
+  const selections = useCatalogStore((state) => state.selections)
   const visibleGroups = isExpanded ? groups : groups.slice(0, 1)
+
+  const viable = React.useMemo(
+    () => computeViableOptions(groups, facets, selections),
+    [groups, facets, selections]
+  )
 
   return (
     <div className={cn("flex flex-col gap-5 mb-9", className)}>
       <div id="catalog-filters" className="flex flex-col gap-5">
         {visibleGroups.map((group) => (
-          <FilterRow key={group.key} group={group} />
+          <FilterRow key={group.key} group={group} viable={viable} />
         ))}
       </div>
       {groups.length > 1 && (

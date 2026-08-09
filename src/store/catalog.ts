@@ -75,3 +75,27 @@ export function matchesArtwork(
     return value != null && selected.includes(value)
   })
 }
+
+export interface ViableGroup {
+  key: GroupKey
+  options: { value: string }[]
+}
+
+export function computeViableOptions(
+  groups: ViableGroup[],
+  facets: ArtworkFacets[],
+  selections: Record<GroupKey, string[]>
+): Map<GroupKey, Set<string>> {
+  const viable = new Map<GroupKey, Set<string>>()
+  for (const group of groups) {
+    const values = new Set<string>()
+    for (const option of group.options) {
+      const candidate = { ...selections, [group.key]: [option.value] }
+      if (facets.some((artwork) => matchesArtwork(artwork, candidate))) {
+        values.add(option.value)
+      }
+    }
+    viable.set(group.key, values)
+  }
+  return viable
+}
