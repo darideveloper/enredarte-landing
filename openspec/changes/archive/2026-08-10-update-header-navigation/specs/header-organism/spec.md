@@ -1,14 +1,4 @@
-# header-organism Specification
-
-## Purpose
-Defines the behavior contract, layout composition, atomic integrations, and navigation link states for the sticky header organism.
-## Requirements
-### Requirement: Sticky Header Bar
-The `Header` component SHALL render as a sticky top navigation bar with a paper background and bottom border.
-
-#### Scenario: Rendering top bar
-- **WHEN** the `Header` component is rendered
-- **THEN** it sticks to the top of the viewport (`sticky top-0 z-40`) with `bg-paper` and `border-b border-border-theme`
+## MODIFIED Requirements
 
 ### Requirement: Atomic Integrations
 The `Header` component SHALL compose the default `Logo` atom on the left, the localized navigation via the `Menu` molecule in the center, and the language switcher alongside the hamburger toggle in the right section.
@@ -34,10 +24,9 @@ The `Header` MUST delegate navigation rendering entirely to the `Menu` molecule 
 - **WHEN** the site is rendered in English
 - **THEN** labels resolve to `Home`, `Works`, `Rooms`, `Artists`
 
-### Requirement: Mobile Hamburger Toggle
-The `Header` MUST include a visual hamburger toggle button visible only on mobile viewports.
+## REMOVED Requirements
 
-#### Scenario: Toggling the menu
-- **WHEN** the user clicks the hamburger toggle on mobile
-- **THEN** it triggers client-side logic to slide the `Menu` molecule into view and animate the toggle button into a close state (X).
+### Requirement: Call-to-Action Responsive Placement
+**Reason**: The "Solicitar Acceso" CTA button has been removed from the header entirely, along with its `#acceso` anchor target, so there is no CTA to place responsively.
 
+**Migration**: Remove both the desktop CTA in the header right-section and the mobile CTA slotted into the `Menu` drawer, as well as the now-unused `Btn` import from `Header.astro`.

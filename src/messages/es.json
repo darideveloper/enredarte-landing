@@ -1,7 +1,10 @@
 {
   "global": {
     "nav": {
-      "home": "Inicio"
+      "home": "Inicio",
+      "obras": "Obras",
+      "salas": "Salas",
+      "artistas": "Artistas"
     },
     "footer": {
       "links": "Enlaces",

@@ -79,12 +79,10 @@ Layout.astro
 ├── styles/global.css
 ├── Header.astro
 │   ├── Logo.astro ─────────────► lib/utils (cn)
-│   ├── Btn.astro ──────────────► lib/utils
 │   ├── LangBtns.astro
 │   │   └── lib/i18n/utils (getLocalizedPath)
 │   ├── Menu.astro
-│   │   ├── Link.astro ─────────► lib/utils
-│   │   └── <slot/> = Btn.astro (CTA)
+│   │   └── Link.astro ─────────► lib/utils
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
