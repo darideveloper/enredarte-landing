@@ -9,9 +9,36 @@ export interface Props {
 const { class: className, ...props } = Astro.props;
 ---
 
-<div class={cn("flex justify-center items-center gap-6 md:gap-[56px] px-6 md:px-12 py-[22px] bg-banner-bg flex-wrap border-y border-border-theme", className)} {...props}>
-  <BannerText><b>COA</b> firmado en cada obra</BannerText>
-  <BannerText><b>Envío asegurado</b> DHL / FedEx</BannerText>
-  <BannerText>El artista recibe el <b>65%</b></BannerText>
-  <BannerText><b>Curaduría personal</b> — no marketplace</BannerText>
+<div id="banner-bar" class={cn("flex justify-center items-center gap-6 md:gap-[56px] px-6 md:px-12 py-[22px] bg-banner-bg flex-wrap border-y border-border-theme overflow-hidden", className)} {...props}>
+  <BannerText class="banner-bar-item"><b>COA</b> firmado en cada obra</BannerText>
+  <BannerText class="banner-bar-item"><b>Envío asegurado</b> DHL / FedEx</BannerText>
+  <BannerText class="banner-bar-item">El artista recibe el <b>65%</b></BannerText>
+  <BannerText class="banner-bar-item"><b>Curaduría personal</b> — no marketplace</BannerText>
 </div>
+
+<script>
+  import { gsap, ScrollTrigger } from "@/lib/gsap";
+
+  const initBannerBarAnimation = () => {
+    gsap.fromTo(
+      ".banner-bar-item",
+      { y: 25, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "power2.out",
+        clearProps: "transform,opacity",
+        scrollTrigger: {
+          trigger: "#banner-bar",
+          start: "top 85%",
+        },
+      }
+    );
+  };
+
+  initBannerBarAnimation();
+
+  document.addEventListener("astro:page-load", initBannerBarAnimation);
+</script>

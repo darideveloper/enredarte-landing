@@ -52,9 +52,10 @@ Home.astro
 ├── Hero.astro
 │   ├── H1.astro ──────────────► lib/utils (cn)
 │   ├── Headline.astro ────────► lib/utils
-│   └── ImageBanner.astro
-│       ├── Image.astro ────────► lib/utils
-│       └── CardSummary.astro ──► lib/utils (atoms)
+│   ├── ImageBanner.astro
+│   │   ├── Image.astro ────────► lib/utils
+│   │   └── CardSummary.astro ──► lib/utils
+│   └── Btn.astro ─────────────► lib/utils
 ├── BannerBar.astro
 │   └── BannerText.astro ───────► lib/utils
 ├── Gallery.astro
@@ -78,13 +79,12 @@ Layout.astro
 ├── styles/global.css
 ├── Header.astro
 │   ├── Logo.astro ─────────────► lib/utils (cn)
-│   ├── Btn.tsx (React) ────────► lib/utils
-│   ├── LangBtns.astro (atoms)
-│   │   ├── Btn.tsx
+│   ├── Btn.astro ──────────────► lib/utils
+│   ├── LangBtns.astro
 │   │   └── lib/i18n/utils (getLocalizedPath)
 │   ├── Menu.astro
 │   │   ├── Link.astro ─────────► lib/utils
-│   │   └── <slot/> = Btn.tsx (CTA)
+│   │   └── <slot/> = Btn.astro (CTA)
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
@@ -97,9 +97,13 @@ Layout.astro
 
 ```
 design-system.astro
-├── Btn, Logo, Link, Headline, Image, FilterBtn, FilterToggle (React, client:load), BannerText, LangBtns, CardSummary, Title, CardInfo (atoms)
-├── H1, Menu, ImageBanner, Filters (React, client:load) (molecules)
-├── Header, Gallery, Artworks (React, client:load) (organisms)
+├── Btn, Logo, Link, Headline, Image, BannerText (atoms, .astro)
+├── FilterBtn (atoms, .tsx React island, named export)
+├── H1, Menu, ImageBanner (molecules, .astro)
+├── LangBtns, CardSummary, Title, CardInfo (atoms, .astro)
+├── Filters (molecules, .tsx React island, named export)
+├── Header, Gallery (organisms, .astro)
+├── Artworks (organisms, .tsx React island, named export)
 └── styles/global.css
 ```
 
@@ -117,6 +121,7 @@ PageSEO.astro ─► BaseSEO.astro
 Everything below is a terminal dependency imported by multiple components:
 
 - `lib/utils.ts` — `cn()` helper (nearly every component)
+- `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see [[astro-gsap]])
 - `lib/i18n/utils.ts` — `getTranslations`, `getLocalizedPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries

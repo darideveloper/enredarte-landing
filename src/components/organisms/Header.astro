@@ -1,6 +1,6 @@
 ---
 import Logo from "@/components/atoms/Logo.astro"
-import { Btn } from "@/components/atoms/Btn"
+import Btn from "@/components/atoms/Btn.astro"
 import LangBtns from "@/components/atoms/LangBtns.astro"
 import Menu from "@/components/molecules/Menu.astro"
 import { cn } from "@/lib/utils"
@@ -30,7 +30,7 @@ const navLinks = [
 
     <!-- Center: Navigation Links (Responsive Drawer / Row) -->
     <Menu id="main-menu" links={navLinks}>
-      <Btn variant="ghost" size="sm" href="#acceso" className="mt-8 md:hidden w-full justify-center">
+      <Btn variant="ghost" size="sm" href="#acceso" class="mt-8 md:hidden w-full justify-center">
         Solicitar Acceso
       </Btn>
     </Menu>
