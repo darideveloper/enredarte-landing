@@ -59,8 +59,7 @@ import "swiper/css/free-mode"
 <script>
   import Swiper from "swiper"
   import { FreeMode, Pagination, Mousewheel } from "swiper/modules"
-  import { gsap } from "gsap"
-  import { ScrollTrigger } from "gsap/ScrollTrigger"
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
 
   gsap.registerPlugin(ScrollTrigger)
 

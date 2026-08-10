@@ -2,7 +2,7 @@
 
 Defines the centralized GSAP animation capability, utility module integration (`src/lib/gsap.ts`), and architectural documentation (`docs/gsap-scrolltrigger/`) for Astro components. The official `greensock/gsap-skills` installed in `.agents/skills/` are the source of truth for general GSAP API knowledge; local docs cover Astro-specific integration only.
 
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Centralized GSAP module initialization
 The project SHALL export a centralized GSAP module from `src/lib/gsap.ts` that registers only the core plugins actually used (e.g. `ScrollTrigger`) safely on the client side, and SHALL apply global ScrollTrigger configuration, GSAP tween defaults, and a refresh-on-load hook.

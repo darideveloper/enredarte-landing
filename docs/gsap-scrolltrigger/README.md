@@ -1,11 +1,21 @@
 # GSAP + ScrollTrigger Animation System (Reusable Astro Guide)
 
 A complete, copy-paste-ready guide for adding **GSAP + ScrollTrigger** animations to
-**any Astro project**, based on a production reference implementation.
+**any Astro project**.
 
-The system is framework-agnostic (works with Astro's `.astro` files, React/Preact
-islands, vanilla JS — anywhere GSAP runs). Everything here is plain TypeScript +
-Astro `<script>` blocks, so it ports to any Astro project with zero React required.
+> **Prerequisite:** The installed `.agents/skills/gsap-*` skills (pinned by `skills-lock.json`) are the canonical source of truth for general GSAP API knowledge. This guide uses `→ gsap-<skill> skill §<section>` pointers — **load the referenced skill** before working on the corresponding topic. The guide covers only Astro-specific integration: shared module, `astro:page-load` lifecycle, bundling/SSR-safety, SEO/LCP tips, copy-paste templates, and project pitfalls.
+
+Everything here is plain TypeScript + Astro `<script>` blocks. No React required for animations (if a component needs both GSAP and React interactivity, keep GSAP logic in the Astro `<script>` and mount the React island inside it — islands hydrate independently).
+
+## Skill map
+
+| Local file | Requires skill(s) |
+| :--- | :--- |
+| `01-setup-and-mandatory-files.md` | gsap-core, gsap-scrolltrigger, gsap-performance |
+| `02-loader-and-entrance-orchestration.md` | gsap-timeline |
+| `03-section-reveal-pattern.md` | gsap-core, gsap-scrolltrigger |
+| `04-scroll-effects-marquee-and-counters.md` | gsap-scrolltrigger, gsap-performance |
+| `05-accessibility-and-pitfalls.md` | gsap-core, gsap-performance |
 
 ---
 
@@ -19,51 +29,56 @@ Three reusable, independent animation capabilities:
 | **Scroll-triggered section reveals** | The workhorse pattern: sections fade/slide their content in as they enter the viewport, with automatic `prefers-reduced-motion` fallback | [03-section-reveal-pattern.md](./03-section-reveal-pattern.md) |
 | **Scroll effects + kinetic marquee + counters** | Parallax, scrubbed scroll fades, infinite background marquees, animated stat counters | [04-scroll-effects-marquee-and-counters.md](./04-scroll-effects-marquee-and-counters.md) |
 
-Plus the two things every project needs so these degrade gracefully:
+Plus:
 
-- **Accessibility & CSS fallbacks** (reduced-motion + no-JS progressive enhancement): [05-accessibility-and-pitfalls.md](./05-accessibility-and-pitfalls.md)
+- **Accessibility & SEO** (reduced-motion + no-JS progressive enhancement + LCP tips): [05-accessibility-and-pitfalls.md](./05-accessibility-and-pitfalls.md)
 
 ---
 
 ## Architecture at a glance
 
-The system is built in three layers, each fully optional:
+Two layers:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  LAYER 3 · Per-component <script> blocks                    │
-│  (Loader, Hero, every section)                              │
-│  ─ each self-contained: imports gsap + ScrollTrigger,       │
+│  (Hero, every section, Gallery)                             │
+│  ─ each self-contained: imports from @/lib/gsap,            │
 │    scopes selectors to its own section, builds tweens       │
+│    init on astro:page-load                                   │
 ├─────────────────────────────────────────────────────────────┤
-│  LAYER 2 · Global runtime scripts  (src/scripts/)           │
-│  ─ gsap-init.ts        : global config + plugin registration│
-│  ─ animation-manager.ts: loader/entrance orchestrator       │
-│  ─ kinetic-marquee.ts  : reusable infinite marquee factory  │
+│  LAYER 2 · Shared module  (src/lib/gsap.ts)                 │
+│  ─ SSR-safe plugin registration + ScrollTrigger config      │
+│    + gsap.defaults + refresh-on-load                        │
+│    + optional: animation-manager, kinetic-marquee           │
 ├─────────────────────────────────────────────────────────────┤
-│  LAYER 1 · CSS fallbacks (global.css)                       │
-│  ─ .js-reveal utility: hide before JS runs                  │
-│  ─ .no-js .js-reveal  : show for no-JS users                │
+│  LAYER 1 · SEO-safe reveal (no CSS pre-hiding needed)      │
+│  ─ fromTo + clearProps: content visible by default          │
+│  ─ alternative: .js-reveal + .no-js CSS fallback            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 Key rules that keep it maintainable:
 
-1. **Each component scopes its selectors** to its own root element (`.js-my-section`)
-   so tweens never leak across the page.
-2. **`prefers-reduced-motion` is handled in two places:** the orchestrator jumps
-   hero entrances straight to their end state; every section registers a
-   fade-only fallback via `gsap.matchMedia()`.
-3. **The "unhide then `.from()`" trick** is load-bearing: `gsap.set(el, { autoAlpha: 1 })`
-   *before* a `.from()` tween, otherwise GSAP can't measure the element's natural
-   position and the animation looks wrong.
+1. **Each component scopes its selectors** to its own root element so tweens never leak.
+2. **`prefers-reduced-motion` is handled** via `gsap.matchMedia()` in every section — full animation for `no-preference`, no movement for `reduce`.
+3. **Init once** on `astro:page-load` — never call tweens directly alongside the listener.
 
-> **Where animations live:** this system runs entirely in plain Astro `<script>`
-> blocks and vanilla TS — it does **not** use React islands. Scroll animation is
-> page-level behavior, not a self-contained interactive widget. If a component needs
-> *both* GSAP motion and React interactivity (state, form fields), keep the GSAP
-> logic in the Astro component's `<script>` block and mount the React island inside
-> it — islands hydrate independently (see [[astro-react-islands]]).
+---
+
+## Real project note
+
+This guide's patterns are generic and reusable. The actual `enredarte-landing` site
+implements them at:
+
+- `src/lib/gsap.ts` — shared GSAP wrapper (SSR-safe ScrollTrigger registration, config, defaults)
+- `src/components/organisms/Hero.astro` — entrance timeline on `astro:page-load`
+- `src/components/organisms/Gallery.astro` — scroll reveal via `fromTo` + `clearProps`
+- `src/components/organisms/BannerBar.astro` — staggered cascade on scroll
+
+It uses the `fromTo` + `clearProps` reveal strategy (no CSS pre-hiding, content
+indexable by default) and does not use the GSAP loader (a CSS-only `GlobalLoader.tsx`
+handles loading states).
 
 ---
 
@@ -74,20 +89,18 @@ Key rules that keep it maintainable:
    npm install gsap
    ```
 
-2. Copy the required files from [01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md):
-   - `src/scripts/gsap-init.ts` **(always required)**
-   - `src/scripts/animation-manager.ts` (only if using the preloader)
-   - `src/scripts/kinetic-marquee.ts` (only if using infinite marquees)
+2. Create `src/lib/gsap.ts` from [01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#2-shared-module--srclibgsapts).
 
-3. Import `gsap-init` once in your layout's `<head>`:
+3. Import it in each component's `<script>` block — **not** globally in Layout:
    ```astro
    <script>
-     import "@/scripts/gsap-init"
+     import { gsap, ScrollTrigger } from "@/lib/gsap"
+     const init = () => { /* animations */ }
+     document.addEventListener("astro:page-load", init)
    </script>
    ```
 
-4. Add the CSS fallback utilities to your global CSS (see
-   [01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#css-fallbacks)).
+4. Pick a SEO-safe reveal strategy from [01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#4-seo-safe-reveal-strategies).
 
 5. Pick a pattern and paste it into your components:
    - [02-loader-and-entrance-orchestration.md](./02-loader-and-entrance-orchestration.md) — preloader + gated hero entrance
@@ -100,8 +113,8 @@ Key rules that keep it maintainable:
 
 | File in this repo | Purpose in the docs |
 | :--- | :--- |
-| `docs/gsap-scrolltrigger/README.md` | This index + architecture + quick start |
-| `docs/gsap-scrolltrigger/01-setup-and-mandatory-files.md` | Install, config, the 3 core scripts, CSS fallbacks |
+| `docs/gsap-scrolltrigger/README.md` | This index + architecture + quick start + skill map |
+| `docs/gsap-scrolltrigger/01-setup-and-mandatory-files.md` | Shared module, wiring, SEO-safe reveal strategies, optional helpers |
 | `docs/gsap-scrolltrigger/02-loader-and-entrance-orchestration.md` | Preloader + `animation-manager` + hero entrance |
 | `docs/gsap-scrolltrigger/03-section-reveal-pattern.md` | The reusable section template + 6 real variations |
 | `docs/gsap-scrolltrigger/04-scroll-effects-marquee-and-counters.md` | Parallax, scrubbed fades, kinetic marquee, stat counters |
@@ -112,20 +125,20 @@ Key rules that keep it maintainable:
 
 ## What this guide does NOT cover
 
-- **Swiper horizontal scroller** — see the optional [06-optional-swiper-scroller.md](./06-optional-swiper-scroller.md) appendix.
+- **GSAP API reference** — that lives in the `gsap-*` skills (see the Skill map above).
 - **GSAP SplitText, ScrollSmoother, Flip, Draggable** — outside scope; they follow the same per-component pattern.
-- **View Transitions / SPA routing integration** — the `animation-manager` has a hook for it (see 01), but full MPA→SPA migration is its own topic.
+- **View Transitions / SPA routing integration** — the `gsap.context()` + `astro:after-swap` cleanup pattern is documented in [01](./01-setup-and-mandatory-files.md#for-projects-with-view-transitions).
 - **CSS-only animations** — this guide is for GSAP timelines and ScrollTrigger specifically.
 
 ---
 
 ## When NOT to use this
 
-- **SSG content that must be visible without JS:** the `.no-js` CSS fallback covers
-  static visibility, but animated entrance effects obviously need JS. If your site
-  targets no-JS users heavily, keep reveals subtle or skip the loader.
 - **Pure CSS needs:** a simple `transition` on hover/scroll is cheaper than GSAP.
   Reach for GSAP when you need sequencing (timelines), scroll scrubbing, staggering
   across many elements, or integration with a loader.
+- **No-JS sites:** all the templates produce indexable content (raw HTML is visible),
+  but animated entrances obviously need JS. For strict no-JS requirements, skip the
+  loader and keep reveals subtle.
 
 Continue to [01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md).

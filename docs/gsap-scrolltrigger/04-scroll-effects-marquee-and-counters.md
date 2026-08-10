@@ -7,6 +7,8 @@ scrubbed fades), the **infinite kinetic marquee**, and **animated stat counters*
 
 ## 1. Scroll-linked effects (parallax & scrubbed fades)
 
+> `→ gsap-scrolltrigger skill §Scrub` for the full `scrub`/`start`/`end` API and `→ gsap-scrolltrigger skill §Pinning` for `pin`/`pinSpacing`.
+
 These differ from section reveals because the animation is **driven by the scroll
 position** — you scrub back and forth as you scroll, not one-shot play.
 
@@ -91,10 +93,7 @@ gsap.to(".my-panel", {
 })
 ```
 
-> Performance: prefer animating `transform`/`opacity` only (what `y`, `x`, `scale`,
-> `autoAlpha` do). Avoid animating `top`/`left`/`margin` — they force layout
-> thrashing. `gsap.config({ force3D: true })` from the setup already pushes
-> transforms to the GPU.
+> `→ gsap-performance skill §Prefer Transform and Opacity` for GPU-composited animation rules. Animate only `transform` properties (`y`, `x`, `scale`, `autoAlpha`) — avoid `top`/`left`/`margin`.
 
 ---
 
@@ -166,9 +165,8 @@ headline/button reveal over it. Requires the `initKineticMarquee` factory.
 
 ```astro
 <script>
-  import { gsap } from "gsap"
-  import { ScrollTrigger } from "gsap/ScrollTrigger"
-  import { initKineticMarquee } from "@/scripts/kinetic-marquee"
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
+  import { initKineticMarquee } from "@/lib/kinetic-marquee"
 
   gsap.registerPlugin(ScrollTrigger)
 
@@ -262,8 +260,8 @@ Data is read from a `data-value` attribute, so markup stays declarative.
 ### The helper (copy-paste)
 
 ```ts
-// src/scripts/animate-counters.ts
-import { gsap } from "gsap"
+// src/lib/animate-counters.ts
+import { gsap } from "@/lib/gsap"
 
 /**
  * Animates every `.js-stat-value` element inside `container`.

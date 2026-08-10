@@ -31,8 +31,7 @@ classes to your markup, and you're done.
 </section>
 
 <script>
-  import { gsap } from "gsap"
-  import { ScrollTrigger } from "gsap/ScrollTrigger"
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
 
   // Optional — gsap-init.ts already registers it. Harmless either way.
   gsap.registerPlugin(ScrollTrigger)
@@ -123,8 +122,7 @@ will collide — that's why the root `.js-<prefix>-section` scope matters.
 
 ### Step 2 — `gsap.matchMedia()` branches
 
-`matchMedia` lets you register different behaviors for different CSS media
-queries and **cleans them up automatically** when they stop matching.
+> `→ gsap-core skill §Accessibility and responsive (gsap.matchMedia())` for the full API, condition objects, and cleanup. The template registers two branches:
 
 - **`(prefers-reduced-motion: no-preference)`** — full animation.
 - **`(prefers-reduced-motion: reduce)`** — fade-in only, no movement.
@@ -148,13 +146,7 @@ what the natural end-state looks like.
 
 ### Step 4 — The ScrollTrigger config
 
-```ts
-scrollTrigger: {
-  trigger: section,
-  start: "top 80%",
-  toggleActions: "play none none none",
-}
-```
+> `→ gsap-scrolltrigger skill §Key config options` for the full `start`/`end` format, `toggleActions`, and all trigger properties.
 
 | Key | Meaning |
 | :--- | :--- |
@@ -265,15 +257,26 @@ tl.from(section.querySelectorAll(".js-my-glow"), {
 
 ## Easing cheat sheet (recommended)
 
+> `→ gsap-core skill §Easing` for the full built-in ease list. Common picks for scroll reveals:
+
 | Ease | Feel |
 | :--- | :--- |
-| `power4.out` | Default (from `gsap-init`). Long, smooth deceleration — cinematic |
+| `power4.out` | Default (from `gsap.defaults`). Long, smooth deceleration — cinematic |
 | `power3.out` | Slightly quicker deceleration |
 | `power2.out` | Snappier, good for cards |
 | `power2.inOut` | Gentle ease both ends — good for ambient glows |
 | `expo.out` | Fast start, dramatic snap — good for big distance (cards, CTAs) |
 | `back.out(1.7)` | Overshoots past the target then settles — playful pop |
 | `power1.inOut` | Slow progress bars |
+
+## LCP tip
+
+For above-the-fold / LCP-critical elements, avoid animating `opacity` — use only
+`transform` (`y`, `scale`, `x`). Hiding an LCP element at `opacity: 0` delays the
+LCP measurement. The hero template in [02](./02-loader-and-entrance-orchestration.md)
+animates the banner via `scale` alone for this reason. See
+[05-accessibility-and-pitfalls.md](./05-accessibility-and-pitfalls.md) for more
+SEO-safe reveal patterns.
 
 ---
 
@@ -285,9 +288,8 @@ and each section is independently deletable). If you want less repetition, extra
 a tiny helper:
 
 ```ts
-// src/scripts/reveal-helper.ts
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+// src/lib/reveal-helper.ts
+import { gsap, ScrollTrigger } from "@/lib/gsap"
 
 gsap.registerPlugin(ScrollTrigger)
 

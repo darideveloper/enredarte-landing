@@ -7,6 +7,8 @@ modes you'll hit when porting it — with fixes.
 
 ## 1. Reduced motion — three layers of defense
 
+> `→ gsap-core skill §Accessibility and responsive (gsap.matchMedia())` for the full API, condition objects, and proper cleanup.
+
 The system respects `prefers-reduced-motion` at three levels. You should keep all
 three:
 
@@ -142,10 +144,7 @@ before it's fully visible. Lower the number (`"top 90%"` fires later) or switch 
 
 ### P4. Layout shift / reflow when scrolling
 
-Animating `top`, `left`, `width`, `height`, or `margin` causes layout thrash.
-Always animate `transform`/`opacity` properties (`x`, `y`, `scale`, `autoAlpha`,
-`rotation`). `gsap.config({ force3D: true })` in setup nudges transforms onto the
-GPU; add `will-change: transform` to elements you animate if you see jank.
+> `→ gsap-performance skill §Prefer Transform and Opacity` for the full rules. Key: animate only `transform`/`opacity` properties (`x`, `y`, `scale`, `autoAlpha`, `rotation`). Add `will-change: transform` to elements you animate if you see jank.
 
 ### P5. ScrollTrigger offsets are wrong after images/fonts load
 

@@ -1,10 +1,24 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { TextPlugin } from "gsap/TextPlugin";
 
-// Register plugins safely on the client side (SSR-safe)
+// SSR-safe plugin registration
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, TextPlugin);
+  gsap.registerPlugin(ScrollTrigger);
 }
 
-export { gsap, ScrollTrigger, TextPlugin };
+// ScrollTrigger performance tuning
+ScrollTrigger.config({
+  limitCallbacks: true,
+  ignoreMobileResize: true,
+});
+
+// Global tween defaults
+gsap.defaults({
+  ease: "power4.out",
+  duration: 1.2,
+});
+
+// Re-measure triggers when images, fonts, and lazy content settle
+window.addEventListener("load", () => ScrollTrigger.refresh());
+
+export { gsap, ScrollTrigger };

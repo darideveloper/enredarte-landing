@@ -20,25 +20,27 @@ const { class: className, ...props } = Astro.props;
   import { gsap, ScrollTrigger } from "@/lib/gsap";
 
   const initBannerBarAnimation = () => {
-    gsap.fromTo(
-      ".banner-bar-item",
-      { y: 25, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power2.out",
-        clearProps: "transform,opacity",
-        scrollTrigger: {
-          trigger: "#banner-bar",
-          start: "top 85%",
-        },
-      }
-    );
-  };
+    const mm = gsap.matchMedia();
 
-  initBannerBarAnimation();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.fromTo(
+        ".banner-bar-item",
+        { y: 25, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: "power2.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: "#banner-bar",
+            start: "top 85%",
+          },
+        }
+      );
+    });
+  };
 
   document.addEventListener("astro:page-load", initBannerBarAnimation);
 </script>

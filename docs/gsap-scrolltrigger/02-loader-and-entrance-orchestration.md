@@ -1,5 +1,7 @@
 # 02 · Loader & Entrance Orchestration
 
+> **Note:** `enredarte-landing` uses a CSS-only `GlobalLoader.tsx` (spinner, no GSAP) instead of the GSAP preloader described below. The pattern here is fully functional and portable — it's the recommended approach when you want a branded animated preloader.
+
 How to build a **branded preloader** that coordinates the page entrance so the hero
 animation never plays behind the loader. This is the most bespoke pattern in the
 system — everything else (section reveals) is self-contained.
@@ -60,7 +62,7 @@ system relies on: `#loader`, `#loader-bar`, `#loader-wipe`, and the **event name
 </div>
 
 <script>
-  import { gsap } from "gsap"
+  import { gsap } from "@/lib/gsap"
 
   function initLoader() {
     const loader = document.getElementById("loader")
@@ -178,7 +180,7 @@ must run *before* the `.from()` tweens are created, otherwise GSAP can't measure
 elements' natural position/opacity and the reveal is wrong.
 
 ```ts
-import { gsap } from "gsap"
+import { gsap } from "@/lib/gsap"
 import { animationManager } from "@/scripts/animation-manager"
 
 function initHeroAnimations() {
@@ -256,10 +258,7 @@ initHeroAnimations()
 
 ### The `-=` position parameter (how the choreography overlaps)
 
-Every `.from()` after the first takes a position like `"-=1"`. In a timeline,
-`"-=1"` means *"start this tween 1 second before the previous one ends."* That's how
-the whole hero staggers in as one continuous cascade instead of a queue of
-sequential animations.
+> `→ gsap-timeline skill §Position Parameter` for `-=`, `+=`, `<`, and label placement. Below is the overlap timing used in this hero entrance:
 
 | Tween | Overlap | Effect |
 | :--- | :--- | :--- |
