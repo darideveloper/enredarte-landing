@@ -97,9 +97,13 @@ Layout.astro
 
 ```
 design-system.astro
-├── Btn.astro, Logo, Link, Headline, Image, FilterBtn, BannerText (atoms)
-├── H1, Menu, LangBtns, CardSummary, ImageBanner, Title, CardInfo, Filters (molecules)
-├── Header, Gallery, Artworks (organisms)
+├── Btn, Logo, Link, Headline, Image, BannerText (atoms, .astro)
+├── FilterBtn (atoms, .tsx React island, named export)
+├── H1, Menu, ImageBanner (molecules, .astro)
+├── LangBtns, CardSummary, Title, CardInfo (atoms, .astro)
+├── Filters (molecules, .tsx React island, named export)
+├── Header, Gallery (organisms, .astro)
+├── Artworks (organisms, .tsx React island, named export)
 └── styles/global.css
 ```
 
