@@ -1,21 +1,4 @@
-## Purpose
-Defines the `Hero` organism component, serving as the main entry point for the landing page with composed typography and image molecules.
-
-## Requirements
-
-### Requirement: Display composed hero section
-The `Hero` organism SHALL assemble the `H1` typography molecule on the left and the `ImageBanner` molecule on the right.
-
-#### Scenario: Normal rendering
-- **WHEN** the `Hero` component is rendered
-- **THEN** it displays a two-column responsive layout, where the left column contains the H1, text, and curator info, and the right column contains an `ImageBanner`.
-
-### Requirement: Accept dynamic H1 content via slot
-The `Hero` component SHALL pass dynamic content to its internal `H1` molecule via slots.
-
-#### Scenario: Slotted H1
-- **WHEN** the user provides slotted content for the H1
-- **THEN** it renders the slotted content correctly within the left column's `H1` molecule.
+## MODIFIED Requirements
 
 ### Requirement: Choreographed GSAP entrance timeline
 The `Hero` organism SHALL trigger a synchronized GSAP entrance animation sequence exactly once via the `astro:page-load` event and a direct `init()` call for first paint, SHALL respect `prefers-reduced-motion` via `gsap.matchMedia()`, SHALL animate the artwork banner using only `transform` (never hiding it with `opacity: 0`), SHALL carry `transition:animate="none"` on its root element to prevent View Transition cross-fade from competing with the GSAP fromTo reveal, SHALL revert its `gsap.matchMedia()` context on `astro:after-swap` before re-initializing, and SHALL skip the entrance animation on subsequent VT navigations within the same session (using `sessionStorage`) so the above-fold content appears instantly on return visits.

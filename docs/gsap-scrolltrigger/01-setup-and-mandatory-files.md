@@ -218,7 +218,90 @@ gsap.set(section.querySelectorAll(".js-my-reveal"), { autoAlpha: 1 })
 
 ---
 
-## 5. Optional helpers
+## 5. View Transitions + GSAP (Client Router)
+
+> Cross-reference: `docs/astro-client-side-page-transitions.md` §5.4 for the Client Router side of this pattern.
+
+When `<ClientRouter />` is enabled, GSAP components need a lifecycle that handles
+VT navigations correctly: cleanup stale triggers from the previous page, re-init
+on the new page, and prevent the VT cross-fade from competing with GSAP fromTo
+reveals.
+
+### The triple-entry + guard pattern
+
+> `→ gsap-core skill`: "Do not nest `gsap.context()` inside matchMedia — matchMedia
+> creates a context internally; use `mm.revert()` only."
+
+```js
+import { gsap, ScrollTrigger } from "@/lib/gsap"
+
+let mm
+
+const init = () => {
+  // Guard: bail if this component isn't on the current page
+  if (!document.querySelector(".js-my-section")) return
+
+  // Kill stale tweens/triggers from the previous page
+  mm?.revert()
+  mm = gsap.matchMedia()
+
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    // fromTo + ScrollTrigger tweens here
+  })
+  mm.add("(prefers-reduced-motion: reduce)", () => {
+    // fade-only or no-op fallback
+  })
+}
+
+// Cleanup early — kills old triggers before the new page's init runs
+document.addEventListener("astro:after-swap", () => mm?.revert())
+// Re-init after every client-side navigation
+document.addEventListener("astro:page-load", init)
+// First paint — works even without ClientRouter
+init()
+```
+
+### `transition:animate="none"` on animated sections
+
+Add `transition:animate="none"` to every section root that has GSAP fromTo
+entrances. Without it, the VT cross-fade shows the new page at natural state
+before GSAP's `immediateRender` hides content and animates it — a visible flash.
+
+```astro
+<section class="js-hero-section" transition:animate="none">
+<div id="salas-gallery" transition:animate="none">
+```
+
+### ScrollTrigger refresh on navigation
+
+After a VT navigation, the new page's images and fonts load asynchronously and
+shift layout. `window.load` only fires once; add `astro:page-load` refresh to
+`src/lib/gsap.ts`:
+
+```ts
+document.addEventListener("astro:page-load", () => ScrollTrigger.refresh())
+```
+
+### Hero entrance guard
+
+Above-fold entrances replay on every VT navigation back to the home page.
+Guard with `sessionStorage` so the animation plays only once per session:
+
+```js
+if (sessionStorage.getItem("hero-entered")) {
+  // jump to final visible state, no animation
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    gsap.set(".hero-banner, ...", { clearProps: "transform,opacity" })
+  })
+  return
+}
+sessionStorage.setItem("hero-entered", "1")
+// full entrance timeline
+```
+
+---
+
+## 6. Optional helpers
 
 These are provided by the guide as convenience code. Create them only if your
 project needs them.
@@ -241,7 +324,7 @@ and [03](./03-section-reveal-pattern.md#reducing-the-copy-paste).
 
 ---
 
-## 6. Verify your setup
+## 7. Verify your setup
 
 1. `pnpm run dev`, open the page.
 2. In DevTools, import at the console: `const { gsap, ScrollTrigger } = await import("./node_modules/gsap/index.js")` → `ScrollTrigger` should be defined.

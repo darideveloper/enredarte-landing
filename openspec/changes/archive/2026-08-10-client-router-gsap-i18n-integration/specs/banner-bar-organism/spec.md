@@ -1,8 +1,4 @@
-## Purpose
-
-Defines the `BannerBar` organism component that renders key gallery value propositions with a GSAP ScrollTrigger staggered cascade entrance animation on scroll.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: ScrollTrigger staggered cascade entrance
 The `BannerBar` organism SHALL trigger a GSAP ScrollTrigger staggered cascade entrance sequence when scrolled into view, SHALL initialize via a direct `init()` call for first paint AND the `astro:page-load` event for client-side navigations, SHALL carry `transition:animate="none"` on its root element, SHALL revert its `gsap.matchMedia()` context on `astro:after-swap` before re-initializing, and SHALL respect `prefers-reduced-motion` so reduced-motion users get no movement.

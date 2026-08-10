@@ -21,4 +21,7 @@ gsap.defaults({
 // Re-measure triggers when images, fonts, and lazy content settle
 window.addEventListener("load", () => ScrollTrigger.refresh());
 
+// Re-measure after every client-side navigation (View Transitions)
+document.addEventListener("astro:page-load", () => ScrollTrigger.refresh());
+
 export { gsap, ScrollTrigger };

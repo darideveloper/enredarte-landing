@@ -10,7 +10,7 @@ export interface Props {
 }
 ---
 
-<section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden">
+<section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden" transition:animate="none">
   <!-- Left Side: Editorial Content -->
   <div class="flex flex-col justify-center px-6 py-12 lg:px-16 lg:py-0">
     <H1 class="mb-6">
@@ -54,8 +54,23 @@ export interface Props {
 <script>
   import { gsap, ScrollTrigger } from "@/lib/gsap";
 
+  let mm;
+
   const initHeroAnimation = () => {
-    const mm = gsap.matchMedia();
+    if (!document.querySelector(".hero-banner")) return;
+    mm?.revert();
+    mm = gsap.matchMedia();
+
+    if (sessionStorage.getItem("hero-entered")) {
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" });
+      });
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" });
+      });
+      return;
+    }
+    sessionStorage.setItem("hero-entered", "1");
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const tl = gsap.timeline({
@@ -78,5 +93,7 @@ export interface Props {
     });
   };
 
+  document.addEventListener("astro:after-swap", () => mm?.revert());
   document.addEventListener("astro:page-load", initHeroAnimation);
+  initHeroAnimation();
 </script>
