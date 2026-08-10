@@ -13,7 +13,9 @@
     "loading": "Cargando…",
     "filters": {
       "more": "Ver más filtros",
-      "less": "Ver menos filtros"
+      "less": "Ver menos filtros",
+      "noResults": "No se encontraron obras con los filtros seleccionados.",
+      "reset": "Reiniciar filtros"
     }
   },
   "pages": {

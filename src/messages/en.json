@@ -13,7 +13,9 @@
     "loading": "Loading…",
     "filters": {
       "more": "Show more filters",
-      "less": "Show fewer filters"
+      "less": "Show fewer filters",
+      "noResults": "No artworks match your selected filters.",
+      "reset": "Restart filters"
     }
   },
   "pages": {
