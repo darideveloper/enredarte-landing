@@ -1,7 +1,8 @@
 ---
-import H1 from '@/components/molecules/H1.astro';
-import Headline from '@/components/atoms/Headline.astro';
-import ImageBanner from '@/components/molecules/ImageBanner.astro';
+import H1 from '../molecules/H1.astro';
+import Headline from '../atoms/Headline.astro';
+import ImageBanner from '../molecules/ImageBanner.astro';
+import Btn from '../atoms/Btn.astro';
 
 export interface Props {
   // We can pass props later if needed, but for now we'll hardcode the content 
@@ -9,34 +10,34 @@ export interface Props {
 }
 ---
 
-<section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper">
+<section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden">
   <!-- Left Side: Editorial Content -->
   <div class="flex flex-col justify-center px-6 py-12 lg:px-16 lg:py-0">
     <H1 class="mb-6">
-      <Headline color="red" class="block mb-6">Sala 01 — Exhibición del mes</Headline>
-      <span class="block leading-[1.03] tracking-[-0.01em]">Tierra, mundo<br/>y <em class="text-crimson font-serif italic">memoria</em></span>
+      <Headline color="red" class="block mb-6 hero-badge">Sala 01 — Exhibición del mes</Headline>
+      <span class="block leading-[1.03] tracking-[-0.01em] hero-title">Tierra, mundo<br/>y <em class="text-crimson font-serif italic">memoria</em></span>
     </H1>
     
-    <p class="text-[15px] text-[#7A7568] leading-[1.85] max-w-[420px] mb-10 font-sans">
+    <p class="text-[15px] text-[#7A7568] leading-[1.85] max-w-[420px] mb-10 font-sans hero-desc">
       Seis artistas contemporáneos exploran el paisaje mexicano como archivo emocional — de los murales urbanos de Guadalajara a la abstracción costera de Los Cabos. Una sala, seis miradas, una sola pregunta: ¿de qué está hecho el lugar al que llamamos hogar?
     </p>
     
-    <div class="flex flex-wrap gap-3.5 mb-11">
-      <button class="bg-crimson text-paper border-none px-8 py-[15px] text-[11px] tracking-[0.1em] uppercase cursor-pointer transition-opacity hover:opacity-85 font-sans">
+    <div class="flex flex-wrap gap-3.5 mb-11 hero-cta">
+      <Btn variant="primary">
         Entrar a la Sala
-      </button>
-      <button class="bg-transparent text-[#7A7568] border border-[#D8D2C6] px-8 py-[15px] text-[11px] tracking-[0.1em] uppercase cursor-pointer transition-colors hover:border-ink hover:text-ink font-sans">
+      </Btn>
+      <Btn variant="outline">
         Ver Manifiesto
-      </button>
+      </Btn>
     </div>
     
-    <div class="text-[11px] text-muted tracking-[0.04em] pt-6 border-t border-border-theme max-w-[420px] font-sans">
+    <div class="text-[11px] text-muted tracking-[0.04em] pt-6 border-t border-border-theme max-w-[420px] font-sans hero-meta">
       Curaduría por <b class="text-[#4A4A4A] font-semibold">Álvaro Macias</b> — Guadalajara, JAL
     </div>
   </div>
 
   <!-- Right Side: Featured Artwork -->
-  <div class="relative overflow-hidden h-[50vh] lg:h-auto">
+  <div class="relative overflow-hidden h-[50vh] lg:h-auto hero-banner">
     <ImageBanner 
       src="/images/hero-wood-geometry.jpg"
       alt="Obra insignia"
@@ -44,7 +45,32 @@ export interface Props {
       artist="Obra insignia de la sala"
       price="Desde consulta con curador"
       href="/salas/1/obras/1"
+      overlay="darker"
       class="w-full h-full"
     />
   </div>
 </section>
+
+<script>
+  import { gsap } from "../../lib/gsap";
+
+  const initHeroAnimation = () => {
+    const tl = gsap.timeline({ 
+      defaults: { ease: "power3.out" },
+      onComplete: () => {
+        gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" });
+      }
+    });
+
+    tl.fromTo(".hero-banner", { scale: 1.08, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2 })
+      .fromTo(".hero-badge", { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=1.0")
+      .fromTo(".hero-title", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, "-=0.4")
+      .fromTo(".hero-desc", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.5")
+      .fromTo(".hero-cta", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4")
+      .fromTo(".hero-meta", { opacity: 0 }, { opacity: 1, duration: 0.6 }, "-=0.3");
+  };
+
+  initHeroAnimation();
+
+  document.addEventListener("astro:page-load", initHeroAnimation);
+</script>

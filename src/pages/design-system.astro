@@ -1,24 +1,23 @@
 ---
-import "@/styles/global.css"
-import { Btn } from "@/components/atoms/Btn"
-import Logo from "@/components/atoms/Logo.astro"
-import Link from "@/components/atoms/Link.astro"
-import Headline from "@/components/atoms/Headline.astro"
-import Image from "@/components/atoms/Image.astro"
-import { FilterBtn } from "@/components/atoms/FilterBtn"
-import BannerText from "@/components/atoms/BannerText.astro"
-import H1 from "@/components/molecules/H1.astro"
-import Menu from "@/components/molecules/Menu.astro"
-import Header from "@/components/organisms/Header.astro"
-import LangBtns from "@/components/atoms/LangBtns.astro"
-import CardSummary from "@/components/atoms/CardSummary.astro"
-import ImageBanner from "@/components/molecules/ImageBanner.astro"
-import Title from "@/components/atoms/Title.astro"
-import CardInfo from "@/components/atoms/CardInfo.astro"
-import { Filters } from "@/components/molecules/Filters"
-import Gallery from "@/components/organisms/Gallery.astro"
-import { Artworks } from "@/components/organisms/Artworks"
-import ImageCard from "@/components/molecules/ImageCard.astro"
+import "../styles/global.css"
+import Btn from "../components/atoms/Btn.astro"
+import Logo from "../components/atoms/Logo.astro"
+import Link from "../components/atoms/Link.astro"
+import Headline from "../components/atoms/Headline.astro"
+import Image from "../components/atoms/Image.astro"
+import FilterBtn from "../components/atoms/FilterBtn.astro"
+import BannerText from "../components/atoms/BannerText.astro"
+import H1 from "../components/molecules/H1.astro"
+import Menu from "../components/molecules/Menu.astro"
+import Header from "../components/organisms/Header.astro"
+import LangBtns from "../components/molecules/LangBtns.astro"
+import CardSummary from "../components/molecules/CardSummary.astro"
+import ImageBanner from "../components/molecules/ImageBanner.astro"
+import Title from "../components/molecules/Title.astro"
+import CardInfo from "../components/molecules/CardInfo.astro"
+import Filters from "../components/molecules/Filters.astro"
+import Gallery from "../components/organisms/Gallery.astro"
+import Artworks from "../components/organisms/Artworks.astro"
 
 const salasData = [
   {
@@ -118,24 +117,24 @@ const showcaseFacets = [
         <div class="bg-white/50 p-6 rounded border border-border-theme space-y-8">
           <!-- Btn Showcase -->
           <div>
-            <h3 class="text-sm font-semibold mb-4 text-ink">Btn Component (`src/components/atoms/Btn.tsx`)</h3>
+            <h3 class="text-sm font-semibold mb-4 text-ink">Btn Component (`src/components/atoms/Btn.astro`)</h3>
             <div class="flex flex-wrap items-center gap-6 p-4 bg-paper border border-border-theme rounded">
-              <!-- Regular Variant -->
+              <!-- Primary Variant -->
               <div class="space-y-2">
-                <span class="block text-[10px] uppercase text-muted font-mono">variant="regular" (hero CTA)</span>
-                <Btn href="#">Entrar a la Sala</Btn>
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="primary" (hero CTA)</span>
+                <Btn variant="primary" href="#">Entrar a la Sala</Btn>
               </div>
 
               <!-- Ghost Variant -->
               <div class="space-y-2">
                 <span class="block text-[10px] uppercase text-muted font-mono">variant="ghost" (nav CTA)</span>
-                <Btn variant="ghost" href="#">Solicitar Acceso</Btn>
+                <Btn variant="ghost" size="sm" href="#">Solicitar Acceso</Btn>
               </div>
 
-              <!-- Explicit Sizes -->
+              <!-- Outline Variant -->
               <div class="space-y-2">
-                <span class="block text-[10px] uppercase text-muted font-mono">variant="regular" size="sm"</span>
-                <Btn variant="regular" size="sm" href="#">Boton Pequeño</Btn>
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="outline" (hero secondary CTA)</span>
+                <Btn variant="outline" href="#">Ver Manifiesto</Btn>
               </div>
             </div>
           </div>
