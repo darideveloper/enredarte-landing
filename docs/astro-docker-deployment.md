@@ -27,8 +27,8 @@ RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
 WORKDIR /app
 
 # Build-time environment variables — add one ARG/ENV pair per PUBLIC_* var
-ARG PUBLIC_API_URL
-ENV PUBLIC_API_URL=$PUBLIC_API_URL
+ARG PUBLIC_API_BASE_URL
+ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
 
 # Add more as needed:
 # ARG PUBLIC_ANALYTICS_ID
@@ -113,7 +113,7 @@ server {
 ```bash
 # Build image (pass build args for every PUBLIC_* env var)
 docker build \
-  --build-arg PUBLIC_API_URL=https://api.example.com \
+  --build-arg PUBLIC_API_BASE_URL=https://api.example.com \
   -t your-app:latest .
 
 # Run container
@@ -144,7 +144,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg PUBLIC_API_URL=${{ secrets.API_URL }} \
+            --build-arg PUBLIC_API_BASE_URL=${{ secrets.API_URL }} \
             -t your-app:${{ github.sha }} .
       - name: Push to registry
         run: |
@@ -178,7 +178,7 @@ Ensure `package.json` has the pnpm engines constraint:
 
 | Pattern | When available | Example |
 |---|---|---|
-| `PUBLIC_*` | Build-time + runtime | `PUBLIC_API_URL` |
+| `PUBLIC_*` | Build-time + runtime | `PUBLIC_API_BASE_URL` |
 | Build ARGs | Build-time only | API keys, secrets for build |
 | `import.meta.env.PUBLIC_*` | Client-side code | Front-end API URLs |
 

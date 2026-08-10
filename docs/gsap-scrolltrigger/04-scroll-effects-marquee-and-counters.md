@@ -101,7 +101,7 @@ gsap.to(".my-panel", {
 
 A full-bleed row of giant words that scrolls forever. Built on the
 `initKineticMarquee` factory from
-[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#mandatory-file-3-srcscriptskinetic-marquetts-for-marquees).
+[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#6-optional-helpers).
 
 ### The factory (recap)
 
@@ -150,7 +150,7 @@ end exactly.
 </div>
 
 <script>
-  import { initKineticMarquee } from "@/scripts/kinetic-marquee"
+  import { initKineticMarquee } from "@/lib/kinetic-marquee"
 
   const section = document.querySelector(".js-my-section")
   const marqueeContainer = section?.querySelector(".js-marquee") as HTMLElement
@@ -322,7 +322,7 @@ Appending at position `"<"` means "start right after whatever is currently last"
 — so the counters tick up exactly as the stats slide in:
 
 ```ts
-import { animationManager } from "@/scripts/animation-manager"
+import { animationManager } from "@/lib/animation-manager"
 
 const tl = gsap.timeline({ paused: true })
 // ...hero reveal tweens...

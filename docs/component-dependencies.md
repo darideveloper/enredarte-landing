@@ -119,7 +119,7 @@ PageSEO.astro ─► BaseSEO.astro
 Everything below is a terminal dependency imported by multiple components:
 
 - `lib/utils.ts` — `cn()` helper (nearly every component)
-- `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see [[gsap-scrolltrigger]])
+- `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see `docs/gsap-scrolltrigger/`)
 - `lib/i18n/utils.ts` — `getTranslations`, `getLocalizedPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries

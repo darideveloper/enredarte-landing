@@ -227,7 +227,7 @@ useEffect(() => {
 
 ### 5.4 Client Router + GSAP
 
-> Cross-reference: `docs/gsap-scrolltrigger/01-setup` §5 for the GSAP-side VT documentation.
+> Cross-reference: `docs/gsap-scrolltrigger/01-setup-and-mandatory-files.md` §5 for the GSAP-side VT documentation.
 
 GSAP components (`fromTo` + `ScrollTrigger` + `matchMedia`) need a lifecycle that handles VT navigations correctly: cleanup stale triggers from the previous page, re-init on the new page, prevent the VT cross-fade from competing with GSAP fromTo reveals, and guard against stale event listeners.
 
@@ -284,7 +284,9 @@ document.addEventListener("astro:page-load", () => ScrollTrigger.refresh())
 ```js
 if (sessionStorage.getItem("hero-entered")) {
   // jump to final visible state, no animation
-  mm.add("...", () => gsap.set("...", { clearProps: "transform,opacity" }))
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    gsap.set("...", { clearProps: "transform,opacity" })
+  })
   return
 }
 sessionStorage.setItem("hero-entered", "1")

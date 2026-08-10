@@ -129,6 +129,16 @@ document.addEventListener("astro:page-load", init)
 document.addEventListener("astro:after-swap", () => ctx?.revert())
 ```
 
+> **Two cleanup approaches, pick per component.** This `gsap.context()` snippet is
+> the minimal VT cleanup for simple tweens. The **canonical pattern in this guide** is
+> §5 below: `gsap.context()` internally (via `gsap.matchMedia()`) plus an explicit
+> `mm?.revert()` on `astro:after-swap`, a section-presence guard, and a first-paint
+> `init()` call. Use the §5 pattern for anything that uses `gsap.matchMedia()` (the
+> recommended structure for reduced-motion support); the bare `gsap.context()`
+> snippet here is only for tiny components with no `matchMedia` branches. Never nest
+> `gsap.context()` inside `gsap.matchMedia()` — matchMedia creates a context
+> internally; use `mm.revert()` only (see §5).
+
 ### Bundling & performance notes
 
 - Astro processes `<script>` blocks (no attributes) as bundled modules. Shared

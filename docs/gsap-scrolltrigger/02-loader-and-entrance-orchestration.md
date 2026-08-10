@@ -24,8 +24,8 @@ The **hero entrance timeline is built `paused`** and handed to the
 loader finishes, the queue is played. If there's no loader at all, the manager plays
 entrances immediately.
 
-This file requires the `animation-manager.ts` from
-[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#mandatory-file-2-srcscriptsanimation-managerts-for-the-loader).
+This file requires the `animation-manager.ts` helper introduced in
+[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#6-optional-helpers).
 
 ---
 
@@ -181,7 +181,7 @@ elements' natural position/opacity and the reveal is wrong.
 
 ```ts
 import { gsap } from "@/lib/gsap"
-import { animationManager } from "@/scripts/animation-manager"
+import { animationManager } from "@/lib/animation-manager"
 
 function initHeroAnimations() {
   const hero = document.querySelector(".js-hero-section")

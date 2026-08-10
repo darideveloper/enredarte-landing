@@ -33,7 +33,7 @@ classes to your markup, and you're done.
 <script>
   import { gsap, ScrollTrigger } from "@/lib/gsap"
 
-  // Optional — gsap-init.ts already registers it. Harmless either way.
+  // Optional — src/lib/gsap.ts already registers it. Harmless either way.
   gsap.registerPlugin(ScrollTrigger)
 
   function initMyAnimations() {
@@ -330,7 +330,7 @@ export function initSectionReveal(prefix: string, start = "top 80%") {
 Then each component's script becomes:
 
 ```ts
-import { initSectionReveal } from "@/scripts/reveal-helper"
+import { initSectionReveal } from "@/lib/reveal-helper"
 initSectionReveal("plans", "top 75%")
 ```
 

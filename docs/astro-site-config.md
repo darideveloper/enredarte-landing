@@ -21,7 +21,8 @@ Centralized data files for business information, pricing, and content. One file 
 src/data/
 ├── site-config.ts       # PHONES, EMAIL, ADDRESS, SOCIAL_LINKS, GOOGLE_MAPS, BUSINESS_HOURS, BUSINESS_DATA
 ├── prices.ts            # BASE_PRICES (typed), PAGE_DESTINATION_MAP, helper functions
-└── vehicle-features.ts  # Bilingual vehicle features keyed by vehicle ID
+├── vehicle-features.ts  # Bilingual vehicle features keyed by vehicle ID
+└── faq.ts               # Frequently asked questions
 ```
 
 Each file is the **single source of truth** for its domain. Components import from these files directly — no prop drilling, no context wrappers, no duplication.
@@ -110,7 +111,7 @@ All SEO metadata and JSON-LD generation consumes `BUSINESS_DATA` — it bundles 
 The same one-file-per-domain pattern extends to any domain-specific data your project needs:
 
 - `prices.ts` — pricing tables, tiers, and helper functions
-- `features.ts` — product features, service descriptions, content data
+- `vehicle-features.ts` — product features, service descriptions, content data
 - `faq.ts` — frequently asked questions
 
 Each follows the same structure: typed constants, `as const`, exported for import from any component. See `src/data/` in the architecture diagram above for the full layout.
@@ -125,7 +126,7 @@ Astro projects handle `PUBLIC_*` env vars natively, but they're untyped by defau
 
 interface ImportMetaEnv {
   readonly SITE_URL: string;
-  readonly PUBLIC_API_BASE: string;
+  readonly PUBLIC_API_BASE_URL: string;
   readonly PUBLIC_ANALYTICS_ID: string;
 }
 
@@ -223,4 +224,4 @@ Then:
 ## 8. Connection to Other Patterns
 
 - `BUSINESS_DATA` is consumed by `BaseSEO.astro` for JSON-LD → see [[astro-seo]]
-- `PUBLIC_API_BASE` env var is passed through Docker build args → see [[astro-docker-deployment]]
+- `PUBLIC_API_BASE_URL` env var is passed through Docker build args → see [[astro-docker-deployment]]

@@ -77,8 +77,9 @@ implements them at:
 - `src/components/organisms/BannerBar.astro` — staggered cascade on scroll
 
 It uses the `fromTo` + `clearProps` reveal strategy (no CSS pre-hiding, content
-indexable by default) and does not use the GSAP loader (a CSS-only `GlobalLoader.tsx`
-handles loading states).
+indexable by default) and does not use the GSAP loader. A CSS-only `GlobalLoader.tsx`
+exists for loading states but is currently **not reachable from any page** (orphaned,
+see `docs/component-dependencies.md`).
 
 ---
 
