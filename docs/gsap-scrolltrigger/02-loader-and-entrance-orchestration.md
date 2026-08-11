@@ -1,6 +1,23 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - preloader
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 02 · Loader & Entrance Orchestration
 
-> **Note:** `enredarte-landing` uses a CSS-only `GlobalLoader.tsx` (spinner, no GSAP) instead of the GSAP preloader described below. The pattern here is fully functional and portable — it's the recommended approach when you want a branded animated preloader.
+> **🏠 Local note (enredarte-landing):** `enredarte-landing` uses a CSS-only
+> `GlobalLoader.tsx` (spinner, no GSAP) instead of the GSAP preloader described below.
+> The pattern here is fully functional and portable — it's the recommended approach
+> when you want a branded animated preloader.
 
 How to build a **branded preloader** that coordinates the page entrance so the hero
 animation never plays behind the loader. This is the most bespoke pattern in the

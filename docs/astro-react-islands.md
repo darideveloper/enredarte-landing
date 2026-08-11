@@ -41,19 +41,21 @@ Astro renders the full page on the server. React components opt in with `client:
 
 ## 1. Dependencies
 
+Versions below are examples — pin whatever is current when you set up a project:
+
 ```json
 {
   "dependencies": {
-    "@astrojs/react": "^5.0.7",
-    "@tailwindcss/vite": "^4.3.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "tailwindcss": "^4.3.0",
-    "tw-animate-css": "^1.4.0"
+    "@astrojs/react": "^5",
+    "@tailwindcss/vite": "^4",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1"
   },
   "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3"
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
   }
 }
 ```

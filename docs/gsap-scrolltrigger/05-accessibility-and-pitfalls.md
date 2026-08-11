@@ -1,3 +1,17 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - accessibility
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 05 · Accessibility & Pitfalls
 
 How the system stays accessible (`prefers-reduced-motion`, no-JS) and the failure

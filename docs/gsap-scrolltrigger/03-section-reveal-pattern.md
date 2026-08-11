@@ -1,7 +1,25 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 03 · The Section Reveal Pattern (the workhorse)
 
 The most reused pattern in the system. **Any section of content fades/slides in
 when it scrolls into the viewport**, with a built-in reduced-motion fallback.
+
+It uses **approach C (hybrid)** from
+[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#4-seo-safe-reveal-strategies):
+`.js-reveal` CSS hiding for no-JS safety, `gsap.set({ autoAlpha: 1 })` to unhide
+before measuring, then `.from()` tweens.
 
 It is fully self-contained per component — no shared code, no orchestrator. You
 copy the template, change the `my` prefix to something unique per section, add the
@@ -286,6 +304,12 @@ Every section repeats the same ~40 lines of `matchMedia` boilerplate. The refere
 implementation intentionally keeps it duplicated per component (readable, zero indirection,
 and each section is independently deletable). If you want less repetition, extract
 a tiny helper:
+
+> **⚠️ Convenience-only, not the reference implementation.** The helper below is
+> optional sugar. The canonical (reference) implementation is the per-component
+> template above — that is what the project ships. Only use the helper if it
+> genuinely simplifies your project; it changes reveal behavior (see the trade-off
+> below).
 
 ```ts
 // src/lib/reveal-helper.ts

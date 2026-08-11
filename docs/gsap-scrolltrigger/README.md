@@ -1,3 +1,16 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # GSAP + ScrollTrigger Animation System (Reusable Astro Guide)
 
 A complete, copy-paste-ready guide for adding **GSAP + ScrollTrigger** animations to
@@ -68,18 +81,18 @@ Key rules that keep it maintainable:
 
 ## Real project note
 
-This guide's patterns are generic and reusable. The actual `enredarte-landing` site
-implements them at:
-
-- `src/lib/gsap.ts` — shared GSAP wrapper (SSR-safe ScrollTrigger registration, config, defaults)
-- `src/components/organisms/Hero.astro` — entrance timeline on `astro:page-load`
-- `src/components/organisms/Gallery.astro` — scroll reveal via `fromTo` + `clearProps`
-- `src/components/organisms/BannerBar.astro` — staggered cascade on scroll
-
-It uses the `fromTo` + `clearProps` reveal strategy (no CSS pre-hiding, content
-indexable by default) and does not use the GSAP loader. A CSS-only `GlobalLoader.tsx`
-exists for loading states but is currently **not reachable from any page** (orphaned,
-see `docs/component-dependencies.md`).
+> **🏠 Local note (enredarte-landing):** This guide's patterns are generic and
+> reusable. The actual `enredarte-landing` site implements them at:
+>
+> - `src/lib/gsap.ts` — shared GSAP wrapper (SSR-safe ScrollTrigger registration, config, defaults)
+> - `src/components/organisms/Hero.astro` — entrance timeline on `astro:page-load`
+> - `src/components/organisms/Gallery.astro` — scroll reveal via `fromTo` + `clearProps`
+> - `src/components/organisms/BannerBar.astro` — staggered cascade on scroll
+>
+> It uses the `fromTo` + `clearProps` reveal strategy (no CSS pre-hiding, content
+> indexable by default) and does not use the GSAP loader. A CSS-only `GlobalLoader.tsx`
+> exists for loading states but is currently **not reachable from any page** (orphaned,
+> see `docs/component-dependencies.md`).
 
 ---
 

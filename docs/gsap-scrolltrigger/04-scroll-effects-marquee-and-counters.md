@@ -1,3 +1,17 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - marquee
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 04 · Scroll Effects, Kinetic Marquee & Counters
 
 The three "extra" animation techniques: **scroll-linked effects** (parallax,
@@ -258,6 +272,11 @@ Counts up from `0` to a target number with the suffix preserved (`100+`, `400+`)
 Data is read from a `data-value` attribute, so markup stays declarative.
 
 ### The helper (copy-paste)
+
+> **⚠️ Convenience-only, not the reference implementation.** `animateCounters` is
+> optional sugar for stat counters. The reference implementation duplicates the
+> per-component tween pattern (see `03-section-reveal-pattern.md`) by design; this
+> helper only saves copy-paste when you have many counters.
 
 ```ts
 // src/lib/animate-counters.ts

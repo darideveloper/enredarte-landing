@@ -37,7 +37,7 @@ The hierarchy works whether you use **vanilla components** (plain Astro/React + 
 > STOP and ask the user before choosing.** Guessing wrong produces duplicated components
 > (`Input` + `ValidatedInput`) and an architecture that contradicts this doc.
 >
-> **This repository is vanilla-only → approach 1 (self-bound atoms).**
+> **🏠 Local note (enredarte-landing):** This repository is vanilla-only → approach 1 (self-bound atoms).
 
 ## The Hierarchy
 

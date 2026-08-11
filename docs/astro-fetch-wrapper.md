@@ -16,11 +16,12 @@ status: active
 
 A typed fetch client with retry logic, timeout, and structured error classes. All API calls go through this wrapper — never raw `fetch()`.
 
-> **Real project note:** In `enredarte-landing`, `src/lib/api/` (`client.ts`, `types.ts`,
-> `constants.ts`) currently exists but is **not reachable from any page** — no UI imports it
-> yet (see `docs/component-dependencies.md` "Orphaned / not reachable" list). The pattern
-> below is the standard the project will use once endpoints are wired in; until then the
-> files are candidates for cleanup or first use.
+> **🏠 Local note (enredarte-landing):** In `enredarte-landing`, `src/lib/api/`
+> (`client.ts`, `types.ts`, `constants.ts`) currently exists but is **not reachable
+> from any page** — no UI imports it yet (see `docs/component-dependencies.md`
+> "Orphaned / not reachable" list). The pattern below is the standard the project
+> will use once endpoints are wired in; until then the files are candidates for
+> cleanup or first use.
 
 ## Architecture
 

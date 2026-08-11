@@ -16,6 +16,10 @@ This document describes the custom i18n system used in this project, designed fo
 
 **Build-time validation is mandatory within this system** — see section 9.
 
+> **Note:** The examples use two languages (`en`, `es`), but the pattern scales to
+> 3+ languages — just add an entry to `ui.ts`, a path to `routes.ts`, and the file
+> to the validation script.
+
 ## 1. Directory Structure
 
 - `src/messages/`: Contains JSON translation files (e.g., `en.json`, `es.json`).
@@ -330,9 +334,15 @@ Catches missing translation keys before deployment. Runs as part of the build pi
 
 ### Architecture
 
+The validation script runs with `tsx`, so it must be installed first:
+
+```bash
+pnpm add -D tsx
 ```
-npm run build
-  └── npm run validate-i18n
+
+```
+pnpm run build
+  └── pnpm run validate-i18n
         └── tsx scripts/validate-i18n.ts
               ├── reads src/messages/en.json
               ├── reads src/messages/es.json
@@ -422,7 +432,7 @@ console.log("✅ i18n validation passed!");
 {
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run validate-i18n && astro build",
+    "build": "pnpm run validate-i18n && astro build",
     "validate-i18n": "tsx scripts/validate-i18n.ts",
     "preview": "astro preview"
   }
@@ -432,7 +442,7 @@ console.log("✅ i18n validation passed!");
 The `build` command runs validation **before** the Astro build. This means:
 - No partial build output if translations are broken
 - CI/CD pipelines fail fast with a clear error
-- Developers discover issues on `npm run build`, not in production
+- Developers discover issues on `pnpm run build`, not in production
 
 ### Example Output
 
@@ -499,7 +509,7 @@ Then:
 4. Implement utilities in `utils.ts` (section 6)
 5. Set up catch-all router with `COMPONENT_MAP` (section 5)
 6. Add the validation script from section 9
-7. Wire into `package.json`: `"build": "npm run validate-i18n && astro build"`
+7. Wire into `package.json`: `"build": "pnpm run validate-i18n && astro build"`
 
 ## 11. Key Rules
 
@@ -516,3 +526,4 @@ Then:
 - SEO metadata uses i18n keys for page titles/descriptions/keywords → see [[astro-seo]]
 - React islands receive translations as props → see [[astro-react-islands]]
 - Language-specific business data (e.g. vehicle features) follows the same pattern → see [[astro-site-config]]
+- i18n + Client Router (View Transitions) behavior — localized links, `<html lang>` updates, hreflang swaps → see [[astro-client-side-page-transitions]]

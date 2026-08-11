@@ -1,3 +1,17 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - astro
+  - transitions
+  - view-transitions
+  - client-router
+  - gsap
+  - documentation
+type: resource
+status: active
+---
+
 # Astro Client-Side Page Transitions — Implementation Guide
 
 A functional, reusable guide for adding SPA-like client-side page transitions to an Astro project using `<ClientRouter />` from `astro:transitions`.
@@ -429,7 +443,7 @@ Transitions change browser behavior in ways that are easy to miss. Verify each o
 
 ## 9. Summary
 
-The full recipe is just three things:
+The full recipe is just four things:
 
 1. **Add `<ClientRouter />` to the `<head>`** of your shared layout (Sections 2–3).
 2. **Move one-time client-side logic from `DOMContentLoaded` to `astro:page-load`** (Section 5) — carousels, scroll animations, active-link state, hash scrolling.

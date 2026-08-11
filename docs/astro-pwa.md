@@ -163,7 +163,7 @@ Add to `package.json`:
 ## 5. PWA Meta Tags in Layout
 
 ```html
-<meta name="theme-color" content="#dd4d57" />
+<meta name="theme-color" content="#fe676e" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Your App" />
@@ -174,23 +174,10 @@ Add to `package.json`:
 
 ## 6. Production Nginx Caching (for SW files)
 
-Service worker must not be cached by CDN:
-
-```nginx
-location ~* ^/(sw\.js|workbox-.*\.js)$ {
-    add_header Cache-Control "no-cache, no-store, must-revalidate" always;
-}
-
-location = /manifest.webmanifest {
-    add_header Cache-Control "no-cache" always;
-    add_header Content-Type "application/manifest+json" always;
-}
-
-location ~* ^/_astro/ {
-    expires 1y;
-    add_header Cache-Control "public, max-age=31536000, immutable" always;
-}
-```
+The nginx caching rules for the service worker, manifest, and `/_astro/` assets
+live in [astro-docker-deployment.md](./astro-docker-deployment.md) (see the nginx
+config there) — that is the single source of truth. Service worker files must
+never be cached by the CDN.
 
 ## 7. New Project Setup
 

@@ -1,3 +1,16 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 01 · Setup & Mandatory Files
 
 > **Prerequisite:** The installed `.agents/skills/gsap-*` skills (pinned by `skills-lock.json`) are the canonical source of truth for GSAP API knowledge. This guide uses `→ gsap-<skill> skill §<section>` pointers — load the referenced skill before working on the corresponding topic. See the [Skill map in the README](./README.md) for which skills each section depends on.
@@ -21,7 +34,7 @@ If you also want the Swiper-powered horizontal scroller:
 npm install swiper
 ```
 
-Versions used: `gsap@^3.12.7`, `swiper@^12.1.3`, `astro@^7`.
+Versions used (examples): `gsap@^3.12.7`, `swiper@^12.1.3`, `astro@^5 || ^6`.
 
 ---
 
@@ -153,10 +166,11 @@ document.addEventListener("astro:after-swap", () => ctx?.revert())
 
 ## 4. SEO-safe reveal strategies
 
-Two equivalent approaches. Both are indexable by crawlers and degrade gracefully
-without JS. Pick whichever fits your project.
+Three approaches. All are indexable by crawlers and degrade gracefully without
+JS. Pick whichever fits your project — they are alternatives, not mutually
+exclusive combinations.
 
-### A. `fromTo` + `clearProps` (used by `enredarte-landing`)
+### A. `fromTo` + `clearProps`
 
 No CSS pre-hiding. Content is visible by default. GSAP's `immediateRender` applies
 the hidden from-state only when JS runs; `clearProps` restores the natural CSS
@@ -226,6 +240,35 @@ gsap.set(section.querySelectorAll(".js-my-reveal"), { autoAlpha: 1 })
 > Never hide elements with Tailwind's `opacity-0` alone — the `.no-js` override
 > only targets `.js-reveal`. See [05-accessibility-and-pitfalls.md](./05-accessibility-and-pitfalls.md#no-js-fallback).
 
+### C. Hybrid — `.js-reveal` CSS hiding + `gsap.set(autoAlpha: 1)` + `.from()`
+
+Uses approach B's CSS hiding (`.js-reveal` + `.no-js` fallback) for no-JS safety,
+but unhides elements with `gsap.set({ autoAlpha: 1 })` before building `.from()`
+tweens so GSAP can measure the natural state — exactly what the section-reveal
+template in [03-section-reveal-pattern.md](./03-section-reveal-pattern.md) uses.
+
+```ts
+// unhide so GSAP can measure natural positions BEFORE the .from()
+gsap.set(section.querySelectorAll(".js-reveal"), { autoAlpha: 1 })
+
+tl.from(".js-reveal", {
+  autoAlpha: 0,
+  y: 40,
+  duration: 1.2,
+  ease: "power4.out",
+})
+```
+
+Why this works: the CSS class keeps content visible for no-JS users (approach B's
+benefit), while `gsap.set(autoAlpha: 1)` normalizes the state before the `.from()`
+tween — avoiding the hidden-element measurement problem that would otherwise
+break the reveal (see 03's "unhide then `.from()`" step).
+
+**Choosing between them:** prefer A when you want zero CSS pre-hiding and the
+simplest markup; prefer B when you want a strict CSS-first fallback; prefer C
+(the template's choice) when you combine the `.js-reveal` no-JS safety with the
+`.from()` measurement trick.
+
 ---
 
 ## 5. View Transitions + GSAP (Client Router)
@@ -237,76 +280,20 @@ VT navigations correctly: cleanup stale triggers from the previous page, re-init
 on the new page, and prevent the VT cross-fade from competing with GSAP fromTo
 reveals.
 
-### The triple-entry + guard pattern
+The full pattern — the triple-entry + guard setup, `transition:animate="none"`
+on animated sections, the `ScrollTrigger.refresh()` on `astro:page-load`, and the
+hero entrance guard — is owned by
+[astro-client-side-page-transitions.md](../astro-client-side-page-transitions.md#54-client-router--gsap)
+§5.4. Follow that document for the canonical implementation.
 
-> `→ gsap-core skill`: "Do not nest `gsap.context()` inside matchMedia — matchMedia
-> creates a context internally; use `mm.revert()` only."
-
-```js
-import { gsap, ScrollTrigger } from "@/lib/gsap"
-
-let mm
-
-const init = () => {
-  // Guard: bail if this component isn't on the current page
-  if (!document.querySelector(".js-my-section")) return
-
-  // Kill stale tweens/triggers from the previous page
-  mm?.revert()
-  mm = gsap.matchMedia()
-
-  mm.add("(prefers-reduced-motion: no-preference)", () => {
-    // fromTo + ScrollTrigger tweens here
-  })
-  mm.add("(prefers-reduced-motion: reduce)", () => {
-    // fade-only or no-op fallback
-  })
-}
-
-// Cleanup early — kills old triggers before the new page's init runs
-document.addEventListener("astro:after-swap", () => mm?.revert())
-// Re-init after every client-side navigation
-document.addEventListener("astro:page-load", init)
-// First paint — works even without ClientRouter
-init()
-```
-
-### `transition:animate="none"` on animated sections
-
-Add `transition:animate="none"` to every section root that has GSAP fromTo
-entrances. Without it, the VT cross-fade shows the new page at natural state
-before GSAP's `immediateRender` hides content and animates it — a visible flash.
+The one GSAP-side detail to keep inline for context: add a
+`transition:animate="none"` attribute to every section root that has GSAP fromTo
+entrances, or the VT cross-fade flashes the content at natural state before GSAP
+hides and animates it.
 
 ```astro
 <section class="js-hero-section" transition:animate="none">
 <div id="salas-gallery" transition:animate="none">
-```
-
-### ScrollTrigger refresh on navigation
-
-After a VT navigation, the new page's images and fonts load asynchronously and
-shift layout. `window.load` only fires once; add `astro:page-load` refresh to
-`src/lib/gsap.ts`:
-
-```ts
-document.addEventListener("astro:page-load", () => ScrollTrigger.refresh())
-```
-
-### Hero entrance guard
-
-Above-fold entrances replay on every VT navigation back to the home page.
-Guard with `sessionStorage` so the animation plays only once per session:
-
-```js
-if (sessionStorage.getItem("hero-entered")) {
-  // jump to final visible state, no animation
-  mm.add("(prefers-reduced-motion: no-preference)", () => {
-    gsap.set(".hero-banner, ...", { clearProps: "transform,opacity" })
-  })
-  return
-}
-sessionStorage.setItem("hero-entered", "1")
-// full entrance timeline
 ```
 
 ---
@@ -339,6 +326,6 @@ and [03](./03-section-reveal-pattern.md#reducing-the-copy-paste).
 1. `pnpm run dev`, open the page.
 2. In DevTools, import at the console: `const { gsap, ScrollTrigger } = await import("./node_modules/gsap/index.js")` → `ScrollTrigger` should be defined.
 3. Scroll — sections using the reveal pattern should animate in.
-4. DevTools → "Disable JavaScript" → all content should still be visible (approach A) or the `.no-js` override reveals `.js-reveal` elements (approach B).
+4. DevTools → "Disable JavaScript" → all content should still be visible: approach A has no pre-hiding; approaches B/C rely on the `.no-js` override revealing `.js-reveal` elements.
 
 Ready for the patterns. Next: [02-loader-and-entrance-orchestration.md](./02-loader-and-entrance-orchestration.md).

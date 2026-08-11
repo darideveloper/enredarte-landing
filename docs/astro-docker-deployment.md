@@ -22,8 +22,8 @@ Multi-stage Docker build for Astro projects: node builds the static site, nginx 
 # syntax=docker/dockerfile:1.7
 
 # === Stage 1: Build ===
-FROM node:22-alpine AS build
-RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
+FROM node:lts-alpine AS build
+RUN corepack enable && corepack prepare pnpm@<latest> --activate
 WORKDIR /app
 
 # Build-time environment variables — add one ARG/ENV pair per PUBLIC_* var
@@ -127,7 +127,7 @@ docker run -d -p 8080:80 your-app:latest
 1. Point to your Git repo
 2. Set build pack to **Dockerfile**
 3. Add environment variables as **Build Time** vars (prefixed with `PUBLIC_`)
-4. The Dockerfile uses `node:22-alpine` — ensure the platform supports `corepack`
+4. The Dockerfile uses `node:lts-alpine` — ensure the platform supports `corepack`
 
 ### CI/CD (GitHub Actions)
 
@@ -167,9 +167,9 @@ Ensure `package.json` has the pnpm engines constraint:
 
 ```json
 {
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@<latest>",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">= LTS"
   }
 }
 ```
