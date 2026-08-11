@@ -3,9 +3,9 @@ import { getLangFromUrl, getLocalizedPath, getPageKeyFromUrl } from "@/lib/i18n/
 import { cn } from "@/lib/utils"
 
 export interface Props {
-  lang?: string;
-  pageKey?: string;
-  class?: string;
+  lang?: string
+  pageKey?: string
+  class?: string
 }
 
 const { class: className } = Astro.props
@@ -15,14 +15,14 @@ const pageKey = Astro.props.pageKey ?? getPageKeyFromUrl(Astro.url)
 const languages = [
   { code: "es", label: "ES" },
   { code: "en", label: "EN" },
-];
+]
 ---
 
 <div class={cn("flex items-center gap-1.5 text-[10px] tracking-[0.1em] uppercase font-sans", className)}>
   {
     languages.map((l, idx) => {
-      const isActive = l.code === lang;
-      const url = getLocalizedPath(pageKey, l.code);
+      const isActive = l.code === lang
+      const url = getLocalizedPath(pageKey, l.code)
 
       return (
         <>
@@ -37,7 +37,7 @@ const languages = [
             {l.label}
           </a>
         </>
-      );
+      )
     })
   }
 </div>

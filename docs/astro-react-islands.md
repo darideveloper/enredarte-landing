@@ -46,7 +46,7 @@ Versions below are examples — pin whatever is current when you set up a projec
 ```json
 {
   "dependencies": {
-    "@astrojs/react": "^5",
+    "@astrojs/react": "^6",
     "@tailwindcss/vite": "^4",
     "react": "^19",
     "react-dom": "^19",
@@ -172,10 +172,9 @@ Then configure `astro.config.mjs` as shown in section 2, add `global.css` as sho
 
 - `export function ComponentName(...)` — never arrow functions or `React.FC`
 - `import * as React from "react"` — namespace import
-- No semicolons
 - Double quotes for all string literals
 - No `"use client"` directive (Astro convention, not Next.js)
-- Use `@/` path aliases for cross-directory imports
+- Always use `@/` path aliases for project imports — including same-directory imports
 
 ## 8. The Slot Pattern (Astro + React Together)
 

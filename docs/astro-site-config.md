@@ -20,10 +20,12 @@ Centralized data files for business information, pricing, and content. One file 
 ```
 src/data/
 ├── site-config.ts       # PHONES, EMAIL, ADDRESS, SOCIAL_LINKS, GOOGLE_MAPS, BUSINESS_HOURS, BUSINESS_DATA
-├── prices.ts            # BASE_PRICES (typed), PAGE_DESTINATION_MAP, helper functions
-├── vehicle-features.ts  # Bilingual vehicle features keyed by vehicle ID
-└── faq.ts               # Frequently asked questions
+├── prices.ts (example)  # BASE_PRICES (typed), PAGE_DESTINATION_MAP, helper functions
+├── vehicle-features.ts (example)  # Bilingual vehicle features keyed by vehicle ID
+└── faq.ts (example)     # Frequently asked questions
 ```
+
+Files suffixed with `(example)` are reusable patterns, not files in the current project. The current project only ships `site-config.ts` (and any project-specific data files); copy the example patterns only if your project needs them.
 
 Each file is the **single source of truth** for its domain. Components import from these files directly — no prop drilling, no context wrappers, no duplication.
 
@@ -114,7 +116,7 @@ The same one-file-per-domain pattern extends to any domain-specific data your pr
 - `vehicle-features.ts` — product features, service descriptions, content data
 - `faq.ts` — frequently asked questions
 
-Each follows the same structure: typed constants, `as const`, exported for import from any component. See `src/data/` in the architecture diagram above for the full layout.
+These are **optional example patterns**, not files in the current project — the architecture diagram marks them `(example)`. Create them only if your project has that data domain. Each follows the same structure: typed constants, `as const`, exported for import from any component. See `src/data/` in the architecture diagram above for the full layout.
 
 ## 3. Typed Environment Variables (`env.d.ts`)
 
@@ -125,9 +127,8 @@ Astro projects handle `PUBLIC_*` env vars natively, but they're untyped by defau
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly SITE_URL: string;
   readonly PUBLIC_API_BASE_URL: string;
-  readonly PUBLIC_ANALYTICS_ID: string;
+  readonly PUBLIC_ANALYTICS_ID?: string;
 }
 
 interface ImportMeta {
@@ -135,7 +136,7 @@ interface ImportMeta {
 }
 ```
 
-Without this, `import.meta.env.SITE_URL` returns `any`. With it, you get autocomplete and type safety.
+Only `PUBLIC_*` variables belong in `ImportMetaEnv` — they're the ones exposed to client bundles via `import.meta.env`. Non-`PUBLIC_` variables (e.g. `SITE_URL`) are server-only and must be read via `process.env`, not `import.meta.env`. Without these declarations, `import.meta.env.PUBLIC_*` returns `any`. With them, you get autocomplete and type safety.
 
 ## 4. Constants (`src/consts.ts`)
 

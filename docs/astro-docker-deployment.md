@@ -59,6 +59,8 @@ server {
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
+
+    ## PWA: remove this block if not using PWA
     error_page 404 /offline/index.html;
 
     gzip on;
@@ -75,11 +77,13 @@ server {
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
 
+    ## PWA: remove this block if not using PWA
     # Service worker — never cache
     location ~* ^/(sw\.js|workbox-.*\.js)$ {
         add_header Cache-Control "no-cache, no-store, must-revalidate" always;
     }
 
+    ## PWA: remove this block if not using PWA
     # PWA manifest
     location = /manifest.webmanifest {
         add_header Cache-Control "no-cache" always;
@@ -107,6 +111,8 @@ server {
     }
 }
 ```
+
+The template works for both PWA and non-PWA projects. Delete every section marked `## PWA: remove this block if not using PWA` (the offline `error_page`, the service worker block, and the manifest block) to get the non-PWA variant.
 
 ## Build & Run Commands
 
@@ -207,6 +213,5 @@ dist/
 
 - Always use `pnpm install --frozen-lockfile` in Docker builds — fails if lockfile is out of sync
 - Add new build ARGs for every `PUBLIC_*` env var
-- Service worker JS must have no-cache headers
 - `/_astro/*` assets can have immutable cache — Astro content-hashes filenames
-- Use `error_page 404 /offline/index.html` for SPA/PWA offline navigation
+- PWA only: service worker JS must have no-cache headers, and use `error_page 404 /offline/index.html` for SPA/PWA offline navigation

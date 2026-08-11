@@ -44,39 +44,39 @@ const navLinks = [
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('mobile-menu-btn');
-    const menu = document.getElementById('main-menu');
+    const btn = document.getElementById('mobile-menu-btn')
+    const menu = document.getElementById('main-menu')
     
     if (btn && menu) {
-      const spans = btn.querySelectorAll('span');
+      const spans = btn.querySelectorAll('span')
       
       btn.addEventListener('click', () => {
-        const isClosed = menu.classList.contains('translate-x-full');
+        const isClosed = menu.classList.contains('translate-x-full')
         
         if (isClosed) {
           // Open menu
-          menu.classList.remove('translate-x-full');
-          menu.classList.add('translate-x-0');
+          menu.classList.remove('translate-x-full')
+          menu.classList.add('translate-x-0')
           
           // Animate to X
           if (spans.length === 3) {
-            spans[0]?.classList.add('rotate-45', 'translate-y-[8px]');
-            spans[1]?.classList.add('opacity-0');
-            spans[2]?.classList.add('-rotate-45', '-translate-y-[8px]');
+            spans[0]?.classList.add('rotate-45', 'translate-y-[8px]')
+            spans[1]?.classList.add('opacity-0')
+            spans[2]?.classList.add('-rotate-45', '-translate-y-[8px]')
           }
         } else {
           // Close menu
-          menu.classList.remove('translate-x-0');
-          menu.classList.add('translate-x-full');
+          menu.classList.remove('translate-x-0')
+          menu.classList.add('translate-x-full')
           
           // Animate to hamburger
           if (spans.length === 3) {
-            spans[0]?.classList.remove('rotate-45', 'translate-y-[8px]');
-            spans[1]?.classList.remove('opacity-0');
-            spans[2]?.classList.remove('-rotate-45', '-translate-y-[8px]');
+            spans[0]?.classList.remove('rotate-45', 'translate-y-[8px]')
+            spans[1]?.classList.remove('opacity-0')
+            spans[2]?.classList.remove('-rotate-45', '-translate-y-[8px]')
           }
         }
-      });
+      })
     }
-  });
+  })
 </script>
