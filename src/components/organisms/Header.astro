@@ -1,10 +1,9 @@
 ---
 import Logo from "@/components/atoms/Logo.astro"
-import Btn from "@/components/atoms/Btn.astro"
 import LangBtns from "@/components/atoms/LangBtns.astro"
 import Menu from "@/components/molecules/Menu.astro"
 import { cn } from "@/lib/utils"
-import { getLangFromUrl, getLocalizedPath } from "@/lib/i18n/utils"
+import { getLangFromUrl, getLocalizedPath, getTranslations } from "@/lib/i18n/utils"
 
 export interface Props {
   class?: string
@@ -12,14 +11,13 @@ export interface Props {
 
 const { class: className } = Astro.props
 const lang = getLangFromUrl(Astro.url)
+const t = getTranslations(lang)
 
 const navLinks = [
-  { label: "Salas", href: "#salas" },
-  { label: "Artistas", href: "#artistas" },
-  { label: "Curadores", href: "#curadores" },
-  { label: "Gaceta", href: "#gaceta" },
-  { label: "Eventos", href: "#eventos" },
-  { label: "Trade", href: "#trade" },
+  { label: t("global.nav.home"), href: getLocalizedPath("home", lang) },
+  { label: t("global.nav.obras"), href: "#obras" },
+  { label: t("global.nav.salas"), href: "#salas" },
+  { label: t("global.nav.artistas"), href: "#artistas" },
 ]
 ---
 
@@ -29,21 +27,11 @@ const navLinks = [
     <Logo variant="default" href={getLocalizedPath("home", lang)} class="h-10" />
 
     <!-- Center: Navigation Links (Responsive Drawer / Row) -->
-    <Menu id="main-menu" links={navLinks}>
-      <Btn variant="ghost" size="sm" href="#acceso" class="mt-8 md:hidden w-full justify-center">
-        Solicitar Acceso
-      </Btn>
-    </Menu>
+    <Menu id="main-menu" links={navLinks} />
 
-    <!-- Right: Language Switcher, Desktop CTA, & Hamburger Toggle -->
+    <!-- Right: Language Switcher & Hamburger Toggle -->
     <div class="flex items-center gap-4.5">
       <LangBtns />
-
-      <div class="hidden md:block">
-        <Btn variant="ghost" size="sm" href="#acceso">
-          Solicitar Acceso
-        </Btn>
-      </div>
 
       <button id="mobile-menu-btn" class="md:hidden flex flex-col justify-center gap-1.5 w-6 h-6 z-50 relative" aria-label="Toggle menu">
         <span class="block w-full h-[2px] bg-ink transition-transform duration-300 origin-center"></span>
@@ -56,39 +44,39 @@ const navLinks = [
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('mobile-menu-btn');
-    const menu = document.getElementById('main-menu');
+    const btn = document.getElementById('mobile-menu-btn')
+    const menu = document.getElementById('main-menu')
     
     if (btn && menu) {
-      const spans = btn.querySelectorAll('span');
+      const spans = btn.querySelectorAll('span')
       
       btn.addEventListener('click', () => {
-        const isClosed = menu.classList.contains('translate-x-full');
+        const isClosed = menu.classList.contains('translate-x-full')
         
         if (isClosed) {
           // Open menu
-          menu.classList.remove('translate-x-full');
-          menu.classList.add('translate-x-0');
+          menu.classList.remove('translate-x-full')
+          menu.classList.add('translate-x-0')
           
           // Animate to X
           if (spans.length === 3) {
-            spans[0]?.classList.add('rotate-45', 'translate-y-[8px]');
-            spans[1]?.classList.add('opacity-0');
-            spans[2]?.classList.add('-rotate-45', '-translate-y-[8px]');
+            spans[0]?.classList.add('rotate-45', 'translate-y-[8px]')
+            spans[1]?.classList.add('opacity-0')
+            spans[2]?.classList.add('-rotate-45', '-translate-y-[8px]')
           }
         } else {
           // Close menu
-          menu.classList.remove('translate-x-0');
-          menu.classList.add('translate-x-full');
+          menu.classList.remove('translate-x-0')
+          menu.classList.add('translate-x-full')
           
           // Animate to hamburger
           if (spans.length === 3) {
-            spans[0]?.classList.remove('rotate-45', 'translate-y-[8px]');
-            spans[1]?.classList.remove('opacity-0');
-            spans[2]?.classList.remove('-rotate-45', '-translate-y-[8px]');
+            spans[0]?.classList.remove('rotate-45', 'translate-y-[8px]')
+            spans[1]?.classList.remove('opacity-0')
+            spans[2]?.classList.remove('-rotate-45', '-translate-y-[8px]')
           }
         }
-      });
+      })
     }
-  });
+  })
 </script>

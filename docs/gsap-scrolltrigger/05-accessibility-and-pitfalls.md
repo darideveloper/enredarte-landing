@@ -1,3 +1,17 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - accessibility
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 05 · Accessibility & Pitfalls
 
 How the system stays accessible (`prefers-reduced-motion`, no-JS) and the failure
@@ -6,6 +20,8 @@ modes you'll hit when porting it — with fixes.
 ---
 
 ## 1. Reduced motion — three layers of defense
+
+> `→ gsap-core skill §Accessibility and responsive (gsap.matchMedia())` for the full API, condition objects, and proper cleanup.
 
 The system respects `prefers-reduced-motion` at three levels. You should keep all
 three:
@@ -142,10 +158,7 @@ before it's fully visible. Lower the number (`"top 90%"` fires later) or switch 
 
 ### P4. Layout shift / reflow when scrolling
 
-Animating `top`, `left`, `width`, `height`, or `margin` causes layout thrash.
-Always animate `transform`/`opacity` properties (`x`, `y`, `scale`, `autoAlpha`,
-`rotation`). `gsap.config({ force3D: true })` in setup nudges transforms onto the
-GPU; add `will-change: transform` to elements you animate if you see jank.
+> `→ gsap-performance skill §Prefer Transform and Opacity` for the full rules. Key: animate only `transform`/`opacity` properties (`x`, `y`, `scale`, `autoAlpha`, `rotation`). Add `will-change: transform` to elements you animate if you see jank.
 
 ### P5. ScrollTrigger offsets are wrong after images/fonts load
 
@@ -157,7 +170,7 @@ or not at all. Fixes:
 // After images/fonts settle:
 ScrollTrigger.refresh()
 
-// or automatically on window load (already wired in gsap-init.ts):
+// or automatically on window load (already wired in src/lib/gsap.ts):
 window.addEventListener("load", () => ScrollTrigger.refresh())
 ```
 
@@ -180,7 +193,7 @@ resets the entrance queue on route changes).
 
 ### P8. `registerPlugin(ScrollTrigger)` repeated everywhere
 
-`gsap-init.ts` already registers it globally. The per-file `registerPlugin` calls in
+`src/lib/gsap.ts` already registers it globally. The per-file `registerPlugin` calls in
 each component are redundant but **harmless** (idempotent). You can delete them.
 
 ### P9. Content invisible for no-JS users
@@ -197,9 +210,9 @@ mechanism. See [02 · No-JS fallback](#2-no-js-fallback-progressive-enhancement)
 ## 4. Final checklist when porting to a new Astro project
 
 - [ ] `npm install gsap` (+ `swiper` if using the optional horizontal scroller appendix)
-- [ ] `src/scripts/gsap-init.ts` created and imported once in the layout `<head>`
-- [ ] `src/scripts/animation-manager.ts` created **only if** you use the loader
-- [ ] `src/scripts/kinetic-marquee.ts` created **only if** you use marquees
+- [ ] `src/lib/gsap.ts` created and imported in each component's `<script>` block (not globally in the Layout `<head>`)
+- [ ] `src/lib/animation-manager.ts` created **only if** you use the loader
+- [ ] `src/lib/kinetic-marquee.ts` created **only if** you use marquees
 - [ ] CSS fallback `.js-reveal` + `.no-js .js-reveal` rules added
 - [ ] `no-js` → `js` class-swap inline script in the layout
 - [ ] Every section's script: section-scoped root, `gsap.set(autoAlpha:1)` before `.from()`, `matchMedia` reduce branch
@@ -213,11 +226,11 @@ mechanism. See [02 · No-JS fallback](#2-no-js-fallback-progressive-enhancement)
 
 | File | Mandatory? | Used for |
 | :--- | :--- | :--- |
-| `src/scripts/gsap-init.ts` | **Yes** | Global config, ScrollTrigger registration |
-| `src/scripts/animation-manager.ts` | Loader only | Gated hero entrance orchestration |
-| `src/scripts/kinetic-marquee.ts` | Marquee only | Infinite marquee factory |
-| `src/scripts/animate-counters.ts` * | Counters only | Stat counter helper |
-| `src/scripts/reveal-helper.ts` * | Optional | DRY section-reveal helper |
+| `src/lib/gsap.ts` | **Yes** | Global config, ScrollTrigger registration |
+| `src/lib/animation-manager.ts` | Loader only | Gated hero entrance orchestration |
+| `src/lib/kinetic-marquee.ts` | Marquee only | Infinite marquee factory |
+| `src/lib/animate-counters.ts` * | Counters only | Stat counter helper |
+| `src/lib/reveal-helper.ts` * | Optional | DRY section-reveal helper |
 | `src/styles/global.css` (fallback rules) | **Yes** | No-JS + initial hidden state |
 
 > **\*** These are guide-provided helpers (optional, not part of the reference

@@ -22,10 +22,11 @@ Astro is a modern web framework designed for speed, focusing on content-driven w
 *   [[astro-portless|Portless Dev Workflow]]
 *   [[astro-seo|Search Engine Optimization (SEO)]]
 *   [[astro-site-config|All Config in One Place]]
+*   [[astro-client-side-page-transitions|Client-Side Page Transitions (SPA)]]
 
 ### **Optional (project-dependent)**
 *   [[astro-i18n|Internationalization (i18n)]]
-*   [[astro-pwa|PWA Out of the Box]]
+*   [[gsap-scrolltrigger|GSAP + ScrollTrigger Animation System]]
 
 ### **Other Resources**
 *   [[20-areas/work/mermaid/mermaid-diagram-generation|Mermaid Diagram Generation]]

@@ -1,4 +1,5 @@
 import * as React from "react"
+import { gsap } from "gsap"
 import { cn } from "@/lib/utils"
 import { FilterBtn } from "@/components/atoms/FilterBtn"
 import { FilterToggle } from "@/components/atoms/FilterToggle"
@@ -60,17 +61,48 @@ function FilterRow({
   React.useEffect(() => {
     const el = scrollRef.current
     if (!el) return
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const EASE = 0.18
+    const SETTLE = 0.5
+    let target: number | null = null
+    let ticking = false
+
+    const tick = () => {
+      if (target === null) return
+      const next = gsap.utils.interpolate(el.scrollLeft, target, EASE)
+      if (Math.abs(next - target) < SETTLE) {
+        el.scrollLeft = target
+        target = null
+        ticking = false
+        gsap.ticker.remove(tick)
+      } else {
+        el.scrollLeft = next
+      }
+    }
+
     const onWheel = (e: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth) return
       const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
       const max = el.scrollWidth - el.clientWidth
-      const clamped = Math.min(max, Math.max(0, el.scrollLeft + delta))
+      const clamped = Math.min(max, Math.max(0, (target ?? el.scrollLeft) + delta))
       if (clamped === el.scrollLeft) return
-      el.scrollLeft = clamped
+      if (reduceMotion) {
+        el.scrollLeft = clamped
+      } else {
+        target = clamped
+        if (!ticking) {
+          ticking = true
+          gsap.ticker.add(tick)
+        }
+      }
       e.preventDefault()
     }
+
     el.addEventListener("wheel", onWheel, { passive: false })
-    return () => el.removeEventListener("wheel", onWheel)
+    return () => {
+      el.removeEventListener("wheel", onWheel)
+      gsap.ticker.remove(tick)
+    }
   }, [])
 
   React.useEffect(() => {

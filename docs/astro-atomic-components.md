@@ -37,7 +37,7 @@ The hierarchy works whether you use **vanilla components** (plain Astro/React + 
 > STOP and ask the user before choosing.** Guessing wrong produces duplicated components
 > (`Input` + `ValidatedInput`) and an architecture that contradicts this doc.
 >
-> **This repository is vanilla-only → approach 1 (self-bound atoms).**
+> **🏠 Local note (enredarte-landing):** This repository is vanilla-only → approach 1 (self-bound atoms).
 
 ## The Hierarchy
 
@@ -243,11 +243,15 @@ Common stateful atoms in UI-library projects: `ValidatedInput`, `ValidatedRadioG
 | Atom manages its own Zustand data | Wrapper tier required (primitives are reinstalled) |
 | Best for small projects or custom design | Best for large projects with design systems |
 
-**The golden rule:** vanilla projects bind atoms directly to the store — no `Validated*` wrapper tier. The wrapper tier exists only for projects with a `ui/` directory (generated primitives that must not be edited). You can also **mix** — use shadcn for complex inputs (select, radio, checkbox) and vanilla for simple ones.
+**The golden rule:** vanilla projects bind atoms directly to the store — no `Validated*` wrapper tier. The wrapper tier exists only for projects with a `ui/` directory (generated primitives that must not be edited). The two **approaches** (self-bound vs wrapper tier) remain mutually exclusive — pick one per project. Within the **UI-library approach** you can mix primitives — shadcn for complex inputs (select, radio, checkbox) and hand-written Tailwind atoms for simple ones.
 
 ## 3. `molecules/` — Combinations of Atoms
 
 Combine multiple atoms (vanilla or library-based) into a reusable unit. They never import from `ui/` — only from `atoms/`.
+
+> The molecule example below uses the **UI-library (wrapper)** variant — `ValidatedRadioGroup`
+> (approach 2). In a **vanilla-only** project the equivalent self-bound atom is `RadioGroup`
+> (approach 1), the same shape as `Input`. Pick one approach per project and keep it consistent.
 
 ```tsx
 // src/components/molecules/DynamicLabelRadioGroup.tsx
@@ -300,17 +304,18 @@ Common molecules: `AuthGuard`, `DynamicLabelRadioGroup`, `SupportCircleRepeater`
 
 Used for screen regions that compose multiple molecules. Only when a page needs more structure than a single molecule provides.
 
-> **⚠️ READER NOTE on this example:** `Input` is the vanilla **self-bound** atom (approach 1).
-> The `ValidatedRadioGroup` / `ValidatedCheckboxGroup` atoms shown alongside it are **UI-library
-> wrapper atoms (approach 2)** — they exist in a project that has the `ui/` wrapper tier.
-> In a **vanilla-only** project these would be self-bound equivalents (e.g. `RadioGroup`, `CheckboxGroup`)
-> following the same pattern as `Input`. Pick ONE approach per project; do not mix them.
+> **⚠️ READER NOTE on this example:** this organism composes **vanilla self-bound atoms**
+> (approach 1) — `Input`, `RadioGroup`, and `CheckboxGroup` each bind the store directly
+> (e.g. via the injectable `useField` hook, as `Input` does). In a **UI-library** project
+> (with `ui/`) these would instead be `ValidatedInput`, `ValidatedRadioGroup`,
+> `ValidatedCheckboxGroup` wrapper atoms (approach 2). Pick ONE approach per project; do
+> not mix them.
 
 ```tsx
 // src/components/organisms/Step3Form.tsx
 import * as React from "react"
-import { ValidatedRadioGroup } from "@/components/atoms/ValidatedRadioGroup"
-import { ValidatedCheckboxGroup } from "@/components/atoms/ValidatedCheckboxGroup"
+import { RadioGroup } from "@/components/atoms/RadioGroup"
+import { CheckboxGroup } from "@/components/atoms/CheckboxGroup"
 import { Input } from "@/components/atoms/Input"
 import { useFormStore } from "@/store/form"
 
@@ -319,10 +324,10 @@ export function Step3Form() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-lg mx-auto">
-      <ValidatedRadioGroup field="home_type" label="Home type?" options={homeTypeOptions} />
-      <ValidatedRadioGroup field="ourlens_completed" label="Completed safety scan?" options={ourlensOptions} />
+      <RadioGroup field="home_type" label="Home type?" options={homeTypeOptions} />
+      <RadioGroup field="ourlens_completed" label="Completed safety scan?" options={ourlensOptions} />
       {ourlensCompleted === "yes" && (
-        <ValidatedCheckboxGroup field="hazard_flags" label="Hazards found?" options={hazardOptions} />
+        <CheckboxGroup field="hazard_flags" label="Hazards found?" options={hazardOptions} />
       )}
       <Input field="hobbies_social" label="Hobbies?" placeholder="e.g., gardening, church" />
     </div>

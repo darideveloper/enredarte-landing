@@ -12,9 +12,9 @@ function listFiles(dir: string): string[] {
   })
 }
 
-const fromRe = /from\s+["']\.{2,}\//g
-const dynamicRe = /import\(\s*["']\.{2,}\//g
-const bareRe = /^import\s+["']\.{2,}\//g
+const fromRe = /from\s+["']\.{1,}\//g
+const dynamicRe = /import\(\s*["']\.{1,}\//g
+const bareRe = /^import\s+["']\.{1,}\//g
 
 const offenders: string[] = []
 
@@ -33,9 +33,9 @@ for (const file of listFiles(srcDir)) {
 }
 
 if (offenders.length > 0) {
-  console.error("❌ Import validation failed! Cross-directory relative imports (../) found:")
+  console.error("❌ Import validation failed! Relative project imports (./ or ../) found:")
   offenders.forEach((line) => console.error(`  - ${line}`))
-  console.error("\nUse the @/ alias for cross-directory imports (e.g. '@/lib/utils').")
+  console.error("\nUse the @/ alias for all project imports (e.g. '@/lib/utils').")
   process.exit(1)
 }
 

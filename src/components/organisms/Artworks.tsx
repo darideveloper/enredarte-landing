@@ -5,22 +5,36 @@ import { matchesArtwork, useCatalogStore } from "@/store/catalog"
 export interface ArtworksProps {
   children: React.ReactNode
   loadingLabel?: string
+  emptyLabel?: string
+  resetLabel?: string
   className?: string
 }
 
-export function Artworks({ children, loadingLabel = "Cargando…", className }: ArtworksProps) {
+export function Artworks({
+  children,
+  loadingLabel = "Cargando…",
+  emptyLabel = "No se encontraron obras con los filtros seleccionados.",
+  resetLabel = "Reiniciar filtros",
+  className,
+}: ArtworksProps) {
   const gridRef = React.useRef<HTMLDivElement>(null)
   const selections = useCatalogStore((state) => state.selections)
   const isLoading = useCatalogStore((state) => state.isLoading)
+  const reset = useCatalogStore((state) => state.reset)
+  const [hasVisibleCards, setHasVisibleCards] = React.useState(true)
 
   React.useEffect(() => {
     if (isLoading) return
     const grid = gridRef.current
     if (!grid) return
     const cards = grid.querySelectorAll<HTMLElement>("[data-artist]")
+    let visible = 0
     for (const card of cards) {
-      card.hidden = !matchesArtwork(card.dataset, selections)
+      const matches = matchesArtwork(card.dataset, selections)
+      card.hidden = !matches
+      if (matches) visible += 1
     }
+    setHasVisibleCards(visible > 0)
   }, [selections, isLoading])
 
   return (
@@ -31,6 +45,18 @@ export function Artworks({ children, loadingLabel = "Cargando…", className }: 
       >
         {children}
       </div>
+      {!hasVisibleCards && !isLoading && (
+        <div className="flex flex-col items-center justify-center gap-5 py-20 text-center">
+          <span className="text-[10px] tracking-[0.06em] uppercase text-muted">{emptyLabel}</span>
+          <button
+            type="button"
+            onClick={reset}
+            className="text-[10px] tracking-[0.06em] uppercase px-[18px] py-[9px] cursor-pointer transition-all duration-200 font-sans border shrink-0 border-border-theme text-muted bg-transparent hover:border-crimson hover:text-ink hover:bg-white"
+          >
+            {resetLabel}
+          </button>
+        </div>
+      )}
       {isLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-paper/80">
           <div className="flex flex-col items-center gap-3">

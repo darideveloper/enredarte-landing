@@ -1,7 +1,10 @@
 {
   "global": {
     "nav": {
-      "home": "Inicio"
+      "home": "Inicio",
+      "obras": "Obras",
+      "salas": "Salas",
+      "artistas": "Artistas"
     },
     "footer": {
       "links": "Enlaces",
@@ -10,7 +13,9 @@
     "loading": "Cargando…",
     "filters": {
       "more": "Ver más filtros",
-      "less": "Ver menos filtros"
+      "less": "Ver menos filtros",
+      "noResults": "No se encontraron obras con los filtros seleccionados.",
+      "reset": "Reiniciar filtros"
     }
   },
   "pages": {

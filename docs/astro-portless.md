@@ -58,12 +58,6 @@ npm install -g portless
 
 ```js
 export default defineConfig({
-  vite: {
-    server: {
-      port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
-      strictPort: true,
-    },
-  },
   server: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
   },

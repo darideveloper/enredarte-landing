@@ -101,7 +101,12 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
     collapseLabel={t("global.filters.less")}
   />
 
-  <Artworks client:load loadingLabel={t("global.loading")}>
+  <Artworks
+    client:load
+    loadingLabel={t("global.loading")}
+    emptyLabel={t("global.filters.noResults")}
+    resetLabel={t("global.filters.reset")}
+  >
     {artworks.map((artwork) => (
       <ImageCard
         src={artwork.src}

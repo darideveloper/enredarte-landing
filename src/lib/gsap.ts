@@ -1,10 +1,27 @@
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { TextPlugin } from "gsap/TextPlugin";
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-// Register plugins safely on the client side (SSR-safe)
+// SSR-safe plugin registration
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, TextPlugin);
+  gsap.registerPlugin(ScrollTrigger)
 }
 
-export { gsap, ScrollTrigger, TextPlugin };
+// ScrollTrigger performance tuning
+ScrollTrigger.config({
+  limitCallbacks: true,
+  ignoreMobileResize: true,
+})
+
+// Global tween defaults
+gsap.defaults({
+  ease: "power4.out",
+  duration: 1.2,
+})
+
+// Re-measure triggers when images, fonts, and lazy content settle
+window.addEventListener("load", () => ScrollTrigger.refresh())
+
+// Re-measure after every client-side navigation (View Transitions)
+document.addEventListener("astro:page-load", () => ScrollTrigger.refresh())
+
+export { gsap, ScrollTrigger }

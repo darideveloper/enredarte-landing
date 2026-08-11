@@ -16,6 +16,10 @@ This document describes the custom i18n system used in this project, designed fo
 
 **Build-time validation is mandatory within this system** — see section 9.
 
+> **Note:** The examples use two languages (`en`, `es`), but the pattern scales to
+> 3+ languages — just add an entry to `ui.ts`, a path to `routes.ts`, and the file
+> to the validation script.
+
 ## 1. Directory Structure
 
 - `src/messages/`: Contains JSON translation files (e.g., `en.json`, `es.json`).
@@ -25,7 +29,8 @@ This document describes the custom i18n system used in this project, designed fo
   - `routes.ts`: Localized path mapping.
 - `src/pages/[...path].astro`: Central dynamic router for localized pages.
 - `scripts/validate-i18n.ts`: **Mandatory** build-time validation script.
-- `package.json`: Scripts wiring `validate-i18n` into the build pipeline.
+- `scripts/validate-imports.ts`: **Mandatory** build-time script enforcing `@/` path aliases.
+- `package.json`: Scripts wiring `validate-i18n` and `validate-imports` into the build pipeline.
 
 ## 2. Translation Files (`src/messages/`)
 
@@ -109,6 +114,8 @@ export default defineConfig({
 ```
 
 This maps `/en/<path>` → `/<path>` for every route automatically.
+
+> **Note:** The Astro config file is loaded directly by Node (not through Vite aliases), so the `@/` alias does not resolve there. Import `routes` with a relative path — e.g. `import { routes } from "./src/lib/i18n/routes.ts"`. If the config is `.mjs` (plain JS, not TS), drop the `reduce<...>` generic and type the accumulator with a JSDoc `/** @type {Record<string, string>} */` annotation instead.
 
 ## 5. Dynamic Router (`src/pages/[...path].astro`)
 
@@ -330,16 +337,28 @@ Catches missing translation keys before deployment. Runs as part of the build pi
 
 ### Architecture
 
+The validation script runs with `tsx`, so it must be installed first:
+
+```bash
+pnpm add -D tsx
 ```
-npm run build
-  └── npm run validate-i18n
-        └── tsx scripts/validate-i18n.ts
-              ├── reads src/messages/en.json
-              ├── reads src/messages/es.json
-              ├── flattenKeys() — recursively extracts all dotted keys
-              ├── compares sets (enKeys vs esKeys)
-              ├── match? → exit 0, continue to astro build
-              └── mismatch? → exit 1, fail build with report
+
+```
+pnpm run build
+  ├── pnpm run validate-i18n
+  │     └── tsx scripts/validate-i18n.ts
+  │           ├── reads src/messages/en.json
+  │           ├── reads src/messages/es.json
+  │           ├── flattenKeys() — recursively extracts all dotted keys
+  │           ├── compares sets (enKeys vs esKeys)
+  │           ├── match? → exit 0, continue to astro build
+  │           └── mismatch? → exit 1, fail build with report
+  └── pnpm run validate-imports
+        └── tsx scripts/validate-imports.ts
+              ├── scans src/**/*.{astro,ts,tsx}
+              ├── flags relative project imports (`from './'`, `from '../'`, `import('./')`, bare `import './'`)
+              ├── clean? → exit 0, continue to astro build
+              └── offenders? → exit 1, fail build with report
 ```
 
 ### The Validation Script
@@ -422,8 +441,9 @@ console.log("✅ i18n validation passed!");
 {
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run validate-i18n && astro build",
+    "build": "pnpm validate-i18n && pnpm validate-imports && astro build",
     "validate-i18n": "tsx scripts/validate-i18n.ts",
+    "validate-imports": "tsx scripts/validate-imports.ts",
     "preview": "astro preview"
   }
 }
@@ -431,8 +451,13 @@ console.log("✅ i18n validation passed!");
 
 The `build` command runs validation **before** the Astro build. This means:
 - No partial build output if translations are broken
+- No cross-directory relative imports reach the build
 - CI/CD pipelines fail fast with a clear error
-- Developers discover issues on `npm run build`, not in production
+- Developers discover issues on `pnpm run build`, not in production
+
+### What validate-imports checks
+
+`validate-imports` enforces the `@/` path alias convention across `src/**/*.{astro,ts,tsx}`. It scans every source file for relative project imports — single-dot `from "./..."`, `import("./...")`, bare `import "./..."`, and parent `from "../..."` — and fails the build if any are found. This bans `./` and `../` imports in favor of the `@/` alias (e.g. `@/lib/utils`), keeping imports stable when files move directories. The one exception is the Astro config file (`astro.config.mjs`), which is loaded directly by Node and cannot resolve `@/` — it uses a relative import. Because it runs on `tsx`, install it first: `pnpm add -D tsx`.
 
 ### Example Output
 
@@ -499,7 +524,7 @@ Then:
 4. Implement utilities in `utils.ts` (section 6)
 5. Set up catch-all router with `COMPONENT_MAP` (section 5)
 6. Add the validation script from section 9
-7. Wire into `package.json`: `"build": "npm run validate-i18n && astro build"`
+7. Wire into `package.json`: `"build": "pnpm validate-i18n && pnpm validate-imports && astro build"`
 
 ## 11. Key Rules
 
@@ -516,3 +541,4 @@ Then:
 - SEO metadata uses i18n keys for page titles/descriptions/keywords → see [[astro-seo]]
 - React islands receive translations as props → see [[astro-react-islands]]
 - Language-specific business data (e.g. vehicle features) follows the same pattern → see [[astro-site-config]]
+- i18n + Client Router (View Transitions) behavior — localized links, `<html lang>` updates, hreflang swaps → see [[astro-client-side-page-transitions]]

@@ -1,3 +1,17 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - swiper
+  - animation
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 06 · Optional: Swiper Horizontal Scroller
 
 A free-mode horizontal scroller that coexists with the section-reveal pattern.
@@ -59,8 +73,7 @@ import "swiper/css/free-mode"
 <script>
   import Swiper from "swiper"
   import { FreeMode, Pagination, Mousewheel } from "swiper/modules"
-  import { gsap } from "gsap"
-  import { ScrollTrigger } from "gsap/ScrollTrigger"
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
 
   gsap.registerPlugin(ScrollTrigger)
 

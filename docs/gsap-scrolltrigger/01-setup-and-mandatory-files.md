@@ -1,6 +1,21 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 01 · Setup & Mandatory Files
 
-Everything you need to bootstrap the animation system in a **fresh Astro project**.
+> **Prerequisite:** The installed `.agents/skills/gsap-*` skills (pinned by `skills-lock.json`) are the canonical source of truth for GSAP API knowledge. This guide uses `→ gsap-<skill> skill §<section>` pointers — load the referenced skill before working on the corresponding topic. See the [Skill map in the README](./README.md) for which skills each section depends on.
+
+Everything you need to bootstrap the animation system in an **Astro project**.
 
 ---
 
@@ -13,307 +28,181 @@ which ships inside the `gsap` package — no extra dependency).
 npm install gsap
 ```
 
-If you also want the Swiper-powered horizontal scroller shown in one of the examples:
+If you also want the Swiper-powered horizontal scroller:
 
 ```bash
 npm install swiper
 ```
 
-Versions used in the reference implementation: `gsap@^3.14.2`, `swiper@^12.1.3`, `astro@^5`.
+Versions used (examples): `gsap@^3.12.7`, `swiper@^12.1.3`, `astro@^5 || ^6`.
 
 ---
 
-## 2. Project structure
+## 2. Shared module — `src/lib/gsap.ts`
 
-These are the **only** files the animation system needs. Create them exactly as-is,
-then wire them up (step 3):
+The single file every component imports from. It registers plugins **SSR-safe**
+(guarded with `typeof window !== "undefined"`), configures `ScrollTrigger` global
+options, sets tween defaults, and wires a `load`-event `ScrollTrigger.refresh()`.
 
-```
-src/
-├── scripts/
-│   ├── gsap-init.ts            # global config + plugin registration (MANDATORY)
-│   ├── animation-manager.ts    # loader/entrance orchestrator (optional, for loader)
-│   ├── kinetic-marquee.ts      # reusable infinite marquee factory (optional)
-│   ├── animate-counters.ts     # stat counter helper (optional, guide-provided)
-│   └── reveal-helper.ts        # DRY section-reveal helper (optional, guide-provided)
-├── layouts/
-│   └── Layout.astro            # your layout — import gsap-init in <head>
-└── styles/
-    └── global.css              # your global CSS — add the fallback utilities
-```
-
-- `gsap-init.ts` is the only **strictly mandatory** file.
-- `animation-manager.ts` is required only if you use the preloader pattern
-  ([02-loader-and-entrance-orchestration.md](./02-loader-and-entrance-orchestration.md)).
-- `kinetic-marquee.ts` is required only for the kinetic marquee
-  ([04-scroll-effects-marquee-and-counters.md](./04-scroll-effects-marquee-and-counters.md)).
-- `animate-counters.ts` and `reveal-helper.ts` are optional convenience helpers
-  **provided by this guide** (not part of the reference implementation). Create
-  them only if you want the DRY shortcuts in sections
-  [03](./03-section-reveal-pattern.md) and [04](./04-scroll-effects-marquee-and-counters.md).
-
-> **Note:** the reference implementation uses `newsletter-marquee.ts` as the
-> filename. This guide ships the generic `kinetic-marquee.ts`; both names map
-> to the same code.
-
-> **Directory convention:** these are pure browser-runtime modules (no server-side
-> usage), so they live in their own `src/scripts/` instead of `src/lib/` (API/fetch
-> utilities, see [[astro-fetch-wrapper]]) or `src/store/` (state, see
-> [[astro-zustand-zod]]). All imports use the `@/scripts/...` alias from the shared
-> `tsconfig.json` (`@/*` → `./src/*`, see [[astro-react-islands]]).
-
----
-
-## 3. Wiring it into your layout
-
-Astro bundles a non-`is:inline` `<script>` in the layout at build time. Import the
-config **once** — it runs before/independent of any component script:
-
-```astro
----
-import "@/styles/global.css"
-// import your own SEO, fonts, metadata here
----
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    <!-- your <title>, <meta>, link tags -->
-
-    <!-- SEO slot — pages inject <PageSEO slot="seo" /> here (see astro-seo) -->
-    <slot name="seo" />
-
-    <!-- swap no-js → js as early as possible -->
-    <script is:inline>
-      document.documentElement.classList.remove("no-js")
-      document.documentElement.classList.add("js")
-    </script>
-
-    <!-- GSAP global config — processed & bundled by Astro -->
-    <script>
-      import "@/scripts/gsap-init"
-    </script>
-  </head>
-  <body>
-    <!-- <Loader /> only if using the preloader pattern (02) -->
-    <slot />
-  </body>
-</html>
-```
-
-**Why the `no-js`/`js` class swap matters:** your CSS uses it to decide whether
-`.js-reveal` elements stay hidden (JS available → hidden until animated) or visible
-(no JS → static content). See [05-accessibility-and-pitfalls.md](./05-accessibility-and-pitfalls.md#no-js-fallback).
-
-> **Important:** do **not** add `is:inline` to the `gsap-init` import. Astro must
-> bundle it so the `gsap` import resolves. `is:inline` is only correct for the tiny
-> class-swap script above.
-
----
-
-## 4. Mandatory file 1 — `src/scripts/gsap-init.ts`
-
-Sets global defaults so every component gets consistent easing/duration, registers
-ScrollTrigger, and applies performance tweaks. **Copy verbatim:**
+**Create `src/lib/gsap.ts`. Copy verbatim:**
 
 ```ts
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-// Register Plugins
-gsap.registerPlugin(ScrollTrigger)
+// SSR-safe plugin registration
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
-// Configure ScrollTrigger Performance
+// ScrollTrigger performance tuning
 ScrollTrigger.config({
   limitCallbacks: true,
-  ignoreMobileResize: true
+  ignoreMobileResize: true,
 })
 
-// Set Global Defaults
+// Global tween defaults
 gsap.defaults({
   ease: "power4.out",
-  duration: 1.2
+  duration: 1.2,
 })
 
-// Configure Performance Defaults
-gsap.config({
-  force3D: true
-})
-
-// Re-measure triggers once images, fonts, and lazy content settle
+// Re-measure triggers when images, fonts, and lazy content settle
 window.addEventListener("load", () => ScrollTrigger.refresh())
+
+export { gsap, ScrollTrigger }
 ```
 
 ### What each line does
 
+> For the general GSAP API behind these settings, load:
+> `→ gsap-core skill` for `registerPlugin` / `gsap.defaults` / `ease`,
+> `→ gsap-scrolltrigger skill` for `ScrollTrigger.config` and `refresh()`.
+
 | Setting | Effect |
 | :--- | :--- |
-| `gsap.registerPlugin(ScrollTrigger)` | Makes `scrollTrigger: {...}` work in any tween/timeline without per-file registration |
-| `ScrollTrigger.config({ limitCallbacks: true })` | Fire callbacks only when scrolling stops near the threshold — reduces work during fast scrolls |
-| `ScrollTrigger.config({ ignoreMobileResize: true })` | Don't refresh on mobile browser-chrome (URL bar) resize jumps |
-| `gsap.defaults({ ease: "power4.out", duration: 1.2 })` | Every tween inherits this unless it overrides `ease`/`duration` |
-| `gsap.config({ force3D: true })` | Forces `transform: translate3d(...)` for GPU-composited motion |
-| `window.addEventListener("load", () => ScrollTrigger.refresh())` | Re-measures all trigger positions once images/fonts/lazy content settle — prevents reveals firing at wrong scroll offsets |
+| `typeof window !== "undefined"` guard | Prevents `registerPlugin` from running during Astro's server-side render — GSAP is browser-only |
+| `ScrollTrigger.config({ limitCallbacks: true })` | Fire callbacks only near the threshold — reduces work during fast scrolls |
+| `ScrollTrigger.config({ ignoreMobileResize: true })` | Skip refresh on mobile URL bar show/hide |
+| `gsap.defaults({ ease, duration })` | Every tween inherits these unless it overrides `ease`/`duration` |
+| `window.addEventListener("load", ...)` | Re-measures trigger positions after images/fonts/lazy content settle |
 
-> **Tip:** components may still call `gsap.registerPlugin(ScrollTrigger)` locally
-> (the reference implementation does it in several files). It's harmless and idempotent, but
-> it's not required once `gsap-init.ts` runs first.
+> **Per-section `registerPlugin` calls are harmless** and can be kept or removed — the shared module's registration is sufficient.
 
 ---
 
-## 5. Mandatory file 2 — `src/scripts/animation-manager.ts` (for the loader)
+## 3. Wiring it into your components
 
-A singleton that **gates entrance animations behind the preloader**. Any entrance
-registered before the loader finishes is queued and played automatically when the
-loader dispatches its `loader:complete` event. Also respects `prefers-reduced-motion`
-(plays at the end state instead of animating).
+Import `@/lib/gsap` in each component's `<script>` block — **not** in the Layout's
+`<head>`. Astro bundles the import into a shared chunk that every page caches, and
+tree-shakes subpath imports (`gsap/ScrollTrigger`). Never use `is:inline` for GSAP.
+
+```astro
+---
+// MyComponent.astro
+---
+<section class="js-my-section">
+  <!-- markup -->
+</section>
+
+<script>
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
+
+  const initAnimations = () => {
+    // animations here
+  }
+
+  document.addEventListener("astro:page-load", initAnimations)
+</script>
+```
+
+### Why `astro:page-load`?
+
+`astro:page-load` fires on initial page load and after every View Transition
+navigation. Use it as the single entry point — never call `init()` directly
+alongside the listener, or the animation initializes twice.
+
+### For projects with View Transitions
+
+When you enable `<ClientRouter />`, add cleanup so stale tweens and ScrollTriggers
+don't leak across navigations. `→ gsap-frameworks skill §ScrollTrigger Cleanup`
+and `→ gsap-core skill §gsap.context()`:
 
 ```ts
-import { gsap } from "gsap"
+let ctx: ReturnType<typeof gsap.context>
 
-class AnimationManager {
-  private isLoaderComplete: boolean = false
-  private queue: (gsap.core.Timeline | gsap.core.Tween)[] = []
-
-  constructor() {
-    if (typeof window === "undefined") return
-
-    // Initial check: if there is no loader, we are effectively "complete"
-    const loader = document.getElementById("loader")
-    if (!loader || loader.style.display === "none") {
-      this.isLoaderComplete = true
-    }
-
-    // Listen for the loader:complete event
-    document.addEventListener("loader:complete", () => {
-      this.isLoaderComplete = true
-      this.processQueue()
-    })
-
-    // Handle View Transitions if enabled
-    document.addEventListener("astro:after-swap", () => {
-      this.resetState()
-    })
-  }
-
-  private resetState() {
-    const loader = document.getElementById("loader")
-    this.isLoaderComplete = !loader || loader.style.display === "none"
-    this.queue = []
-  }
-
-  private processQueue() {
-    this.queue.forEach(item => this.playEntrance(item))
-    this.queue = []
-  }
-
-  private playEntrance(item: gsap.core.Timeline | gsap.core.Tween) {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
-    if (prefersReducedMotion) {
-      // For reduced motion, skip movement and just show content
-      if ("progress" in item) {
-        item.progress(1)
-      } else {
-        item.play()
-      }
-    } else {
-      item.play()
-    }
-  }
-
-  /**
-   * Registers an entrance animation (timeline or tween).
-   * It will play automatically when the loader finishes.
-   */
-  public registerEntrance(item: gsap.core.Timeline | gsap.core.Tween) {
-    if (this.isLoaderComplete) {
-      this.playEntrance(item)
-    } else {
-      this.queue.push(item)
-    }
-  }
+const init = () => {
+  ctx?.revert()
+  ctx = gsap.context(() => {
+    // tweens and ScrollTriggers go here
+  }, section)
 }
 
-// Export as a singleton
-export const animationManager = new AnimationManager()
+document.addEventListener("astro:page-load", init)
+document.addEventListener("astro:after-swap", () => ctx?.revert())
 ```
 
-**How to use it from any component:**
+> **Two cleanup approaches, pick per component.** This `gsap.context()` snippet is
+> the minimal VT cleanup for simple tweens. The **canonical pattern in this guide** is
+> §5 below: `gsap.context()` internally (via `gsap.matchMedia()`) plus an explicit
+> `mm?.revert()` on `astro:after-swap`, a section-presence guard, and a first-paint
+> `init()` call. Use the §5 pattern for anything that uses `gsap.matchMedia()` (the
+> recommended structure for reduced-motion support); the bare `gsap.context()`
+> snippet here is only for tiny components with no `matchMedia` branches. Never nest
+> `gsap.context()` inside `gsap.matchMedia()` — matchMedia creates a context
+> internally; use `mm.revert()` only (see §5).
 
-```ts
-import { animationManager } from "@/scripts/animation-manager"
+### Bundling & performance notes
 
-const tl = gsap.timeline({ paused: true })
-// ...build tweens...
-animationManager.registerEntrance(tl)
-```
-
-The timeline must be created **paused**; the manager plays it (or fast-forwards it
-to the end for reduced-motion users) when the loader is done.
-
-> The `astro:after-swap` listener only matters if you enable Astro View Transitions
-> (`<ClientRouter />`). If you don't use them, it's inert — you can delete it.
+- Astro processes `<script>` blocks (no attributes) as bundled modules. Shared
+  dependencies like `gsap` go into a single cacheable chunk; each page only loads
+  the chunk once the browser caches it.
+- `gsap/ScrollTrigger` is tree-shaken per page — only pages whose components import
+  it pay the cost.
+- `<script>` modules are automatically deferred (non-render-blocking) — they don't
+  delay First Contentful Paint.
 
 ---
 
-## 6. Mandatory file 3 — `src/scripts/kinetic-marquee.ts` (for marquees)
+## 4. SEO-safe reveal strategies
 
-A factory that turns a horizontal strip of content into a seamless infinite marquee.
-It duplicates its children, then loops a `x` translation with a modulo modifier.
+Three approaches. All are indexable by crawlers and degrade gracefully without
+JS. Pick whichever fits your project — they are alternatives, not mutually
+exclusive combinations.
+
+### A. `fromTo` + `clearProps`
+
+No CSS pre-hiding. Content is visible by default. GSAP's `immediateRender` applies
+the hidden from-state only when JS runs; `clearProps` restores the natural CSS
+state after completion. Crawlers see the raw HTML text; no-JS users see everything.
 
 ```ts
-import { gsap } from "gsap"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
 
-export const initKineticMarquee = (container: HTMLElement) => {
-  const wordsContainer = container.querySelector(".js-marquee-content") as HTMLElement
-  if (!wordsContainer) return
-
-  const ctx = gsap.context(() => {
-    // Respect reduced motion
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (prefersReducedMotion) return
-
-    // Duplicate content for seamless loop
-    const children = Array.from(wordsContainer.children)
-    children.forEach((child) => {
-      wordsContainer.appendChild(child.cloneNode(true))
-    })
-
-    const totalWidth = wordsContainer.scrollWidth / 2
-
-    gsap.to(wordsContainer, {
-      x: -totalWidth,
-      duration: 30,
-      ease: "none",
-      repeat: -1,
-      modifiers: {
-        x: (x) => `${parseFloat(x) % totalWidth}px`,
+document.addEventListener("astro:page-load", () => {
+  gsap.fromTo(".my-el",
+    { y: 30, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: 0.7,
+      ease: "power2.out",
+      clearProps: "transform,opacity",
+      scrollTrigger: {
+        trigger: ".my-section",
+        start: "top 85%",
       },
-    })
-  }, container)
-
-  return () => ctx.revert()
-}
+    }
+  )
+})
 ```
 
-Notes:
-- `initKineticMarquee(container)` expects an element that contains a
-  `.js-marquee-content` child with the repeated content.
-- It returns a **cleanup function** (`ctx.revert()`) — call it on unmount for View
-  Transitions or component lifecycles.
-- `gsap.context(() => {...}, container)` scopes all created animations to the
-  container so `revert()` kills exactly this marquee.
-- Reduced-motion users get a static row (function returns early).
+### B. CSS `js-reveal` fallback (progressive enhancement)
 
----
+Elements start hidden via a CSS class; the `.no-js` override on `<html>` makes
+them visible if JS never runs.
 
-## 7. CSS fallbacks (add to `src/styles/global.css`)
-
-These two rules are the **no-JS progressive enhancement** and the **initial hidden
-state** for animated elements. In Tailwind v4 use `@utility`; in plain CSS use a
-normal class.
-
-**Tailwind v4 (this project):**
+**CSS** (add to `src/styles/global.css`):
 
 ```css
 @utility js-reveal {
@@ -327,50 +216,116 @@ normal class.
 }
 ```
 
-**Plain CSS equivalent:**
+**Layout markup**:
 
-```css
-.js-reveal {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.no-js .js-reveal {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+```astro
+<html lang="en" class="no-js">
+  <head>
+    <script is:inline>
+      document.documentElement.classList.remove("no-js")
+      document.documentElement.classList.add("js")
+    </script>
+  </head>
+</html>
 ```
 
-### What it does
+With this approach, unhide elements in JS before building `.from()` tweens so
+GSAP can measure their natural positions:
 
-- With JS: any element carrying `.js-reveal` starts hidden. GSAP reveals it.
-- Without JS: `html.no-js` is still set (the swap script never ran), so the override
-  forces the content visible — the page is fully readable with zero JS.
+```ts
+gsap.set(section.querySelectorAll(".js-my-reveal"), { autoAlpha: 1 })
+// ...then build .from() tweens
+```
 
-> `visibility: hidden` prevents layout-shift flash and keeps elements from being
-> tab-focusable while hidden. GSAP's `autoAlpha` toggles the same two properties.
+> Never hide elements with Tailwind's `opacity-0` alone — the `.no-js` override
+> only targets `.js-reveal`. See [05-accessibility-and-pitfalls.md](./05-accessibility-and-pitfalls.md#no-js-fallback).
+
+### C. Hybrid — `.js-reveal` CSS hiding + `gsap.set(autoAlpha: 1)` + `.from()`
+
+Uses approach B's CSS hiding (`.js-reveal` + `.no-js` fallback) for no-JS safety,
+but unhides elements with `gsap.set({ autoAlpha: 1 })` before building `.from()`
+tweens so GSAP can measure the natural state — exactly what the section-reveal
+template in [03-section-reveal-pattern.md](./03-section-reveal-pattern.md) uses.
+
+```ts
+// unhide so GSAP can measure natural positions BEFORE the .from()
+gsap.set(section.querySelectorAll(".js-reveal"), { autoAlpha: 1 })
+
+tl.from(".js-reveal", {
+  autoAlpha: 0,
+  y: 40,
+  duration: 1.2,
+  ease: "power4.out",
+})
+```
+
+Why this works: the CSS class keeps content visible for no-JS users (approach B's
+benefit), while `gsap.set(autoAlpha: 1)` normalizes the state before the `.from()`
+tween — avoiding the hidden-element measurement problem that would otherwise
+break the reveal (see 03's "unhide then `.from()`" step).
+
+**Choosing between them:** prefer A when you want zero CSS pre-hiding and the
+simplest markup; prefer B when you want a strict CSS-first fallback; prefer C
+(the template's choice) when you combine the `.js-reveal` no-JS safety with the
+`.from()` measurement trick.
 
 ---
 
-## 8. Verify your setup
+## 5. View Transitions + GSAP (Client Router)
 
-1. `npm run dev`, open the page.
-2. In DevTools run `gsap` in the console — it should be a defined object.
-3. Check `ScrollTrigger` is registered: `gsap.utils.toArray(".js-reveal")` should
-   return your hidden elements.
-4. Scroll — sections that use the reveal pattern should animate in.
+> Cross-reference: `docs/astro-client-side-page-transitions.md` §5.4 for the Client Router side of this pattern.
 
-### Bonus: why the auto-refresh is baked in
+When `<ClientRouter />` is enabled, GSAP components need a lifecycle that handles
+VT navigations correctly: cleanup stale triggers from the previous page, re-init
+on the new page, and prevent the VT cross-fade from competing with GSAP fromTo
+reveals.
 
-Images, custom fonts, or lazy-loaded content shift the layout after ScrollTrigger
-has measured positions, so reveals fire at wrong offsets. The `load` listener
-above is **already part of `gsap-init.ts`** — no extra wiring needed:
+The full pattern — the triple-entry + guard setup, `transition:animate="none"`
+on animated sections, the `ScrollTrigger.refresh()` on `astro:page-load`, and the
+hero entrance guard — is owned by
+[astro-client-side-page-transitions.md](../astro-client-side-page-transitions.md#54-client-router--gsap)
+§5.4. Follow that document for the canonical implementation.
 
-```ts
-window.addEventListener("load", () => ScrollTrigger.refresh())
+The one GSAP-side detail to keep inline for context: add a
+`transition:animate="none"` attribute to every section root that has GSAP fromTo
+entrances, or the VT cross-fade flashes the content at natural state before GSAP
+hides and animates it.
+
+```astro
+<section class="js-hero-section" transition:animate="none">
+<div id="salas-gallery" transition:animate="none">
 ```
 
-If your site loads late content in a custom way (e.g. after an API call), call
-`ScrollTrigger.refresh()` again at that point.
+---
+
+## 6. Optional helpers
+
+These are provided by the guide as convenience code. Create them only if your
+project needs them.
+
+### `animation-manager.ts` (for the preloader → [02](./02-loader-and-entrance-orchestration.md))
+
+A singleton that gates hero entrances behind a GSAP preloader. If no loader is
+present, entrances play immediately. Copy from [02-loader-and-entrance-orchestration.md](./02-loader-and-entrance-orchestration.md).
+
+### `kinetic-marquee.ts` (for infinite marquees → [04](./04-scroll-effects-marquee-and-counters.md))
+
+A factory that turns a horizontal content strip into a seamless looping marquee.
+Copy from [04-scroll-effects-marquee-and-counters.md](./04-scroll-effects-marquee-and-counters.md).
+
+### `animate-counters.ts` + `reveal-helper.ts`
+
+Convenience shortcuts for stat counters and DRY section reveals.
+Copy from [04](./04-scroll-effects-marquee-and-counters.md#3-animated-stat-counters)
+and [03](./03-section-reveal-pattern.md#reducing-the-copy-paste).
+
+---
+
+## 7. Verify your setup
+
+1. `pnpm run dev`, open the page.
+2. In DevTools, import at the console: `const { gsap, ScrollTrigger } = await import("./node_modules/gsap/index.js")` → `ScrollTrigger` should be defined.
+3. Scroll — sections using the reveal pattern should animate in.
+4. DevTools → "Disable JavaScript" → all content should still be visible: approach A has no pre-hiding; approaches B/C rely on the `.no-js` override revealing `.js-reveal` elements.
 
 Ready for the patterns. Next: [02-loader-and-entrance-orchestration.md](./02-loader-and-entrance-orchestration.md).

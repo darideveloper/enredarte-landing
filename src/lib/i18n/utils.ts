@@ -1,5 +1,5 @@
-import { ui, defaultLang } from "./ui"
-import { routes, type PageKey } from "./routes"
+import { ui, defaultLang } from "@/lib/i18n/ui"
+import { routes, type PageKey } from "@/lib/i18n/routes"
 
 export function getLangFromUrl(url: URL) {
   const [, firstSegment] = url.pathname.split("/")

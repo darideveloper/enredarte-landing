@@ -1,8 +1,8 @@
 ---
-import H1 from '@/components/molecules/H1.astro';
-import Headline from '@/components/atoms/Headline.astro';
-import ImageBanner from '@/components/molecules/ImageBanner.astro';
-import Btn from '@/components/atoms/Btn.astro';
+import H1 from '@/components/molecules/H1.astro'
+import Headline from '@/components/atoms/Headline.astro'
+import ImageBanner from '@/components/molecules/ImageBanner.astro'
+import Btn from '@/components/atoms/Btn.astro'
 
 export interface Props {
   // We can pass props later if needed, but for now we'll hardcode the content 
@@ -10,7 +10,7 @@ export interface Props {
 }
 ---
 
-<section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden">
+<section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden" transition:animate="none">
   <!-- Left Side: Editorial Content -->
   <div class="flex flex-col justify-center px-6 py-12 lg:px-16 lg:py-0">
     <H1 class="mb-6">
@@ -52,25 +52,48 @@ export interface Props {
 </section>
 
 <script>
-  import { gsap } from "@/lib/gsap";
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
+
+  let mm
 
   const initHeroAnimation = () => {
-    const tl = gsap.timeline({ 
-      defaults: { ease: "power3.out" },
-      onComplete: () => {
-        gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" });
-      }
-    });
+    if (!document.querySelector(".hero-banner")) return
+    mm?.revert()
+    mm = gsap.matchMedia()
 
-    tl.fromTo(".hero-banner", { scale: 1.08, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2 })
-      .fromTo(".hero-badge", { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=1.0")
-      .fromTo(".hero-title", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, "-=0.4")
-      .fromTo(".hero-desc", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.5")
-      .fromTo(".hero-cta", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4")
-      .fromTo(".hero-meta", { opacity: 0 }, { opacity: 1, duration: 0.6 }, "-=0.3");
-  };
+    if (sessionStorage.getItem("hero-entered")) {
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" })
+      })
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" })
+      })
+      return
+    }
+    sessionStorage.setItem("hero-entered", "1")
 
-  initHeroAnimation();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const tl = gsap.timeline({
+        defaults: { ease: "power3.out" },
+        onComplete: () => {
+          gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" })
+        },
+      })
 
-  document.addEventListener("astro:page-load", initHeroAnimation);
+      tl.fromTo(".hero-banner", { scale: 1.08 }, { scale: 1, duration: 1.2 })
+        .fromTo(".hero-badge", { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=1.0")
+        .fromTo(".hero-title", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, "-=0.4")
+        .fromTo(".hero-desc", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.5")
+        .fromTo(".hero-cta", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4")
+        .fromTo(".hero-meta", { opacity: 0 }, { opacity: 1, duration: 0.6 }, "-=0.3")
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      gsap.set(".hero-banner, .hero-badge, .hero-title, .hero-desc, .hero-cta, .hero-meta", { clearProps: "transform,opacity" })
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initHeroAnimation)
+  initHeroAnimation()
 </script>

@@ -22,13 +22,13 @@ Multi-stage Docker build for Astro projects: node builds the static site, nginx 
 # syntax=docker/dockerfile:1.7
 
 # === Stage 1: Build ===
-FROM node:22-alpine AS build
-RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
+FROM node:lts-alpine AS build
+RUN corepack enable && corepack prepare pnpm@<latest> --activate
 WORKDIR /app
 
 # Build-time environment variables — add one ARG/ENV pair per PUBLIC_* var
-ARG PUBLIC_API_URL
-ENV PUBLIC_API_URL=$PUBLIC_API_URL
+ARG PUBLIC_API_BASE_URL
+ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
 
 # Add more as needed:
 # ARG PUBLIC_ANALYTICS_ID
@@ -59,6 +59,8 @@ server {
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
+
+    ## PWA: remove this block if not using PWA
     error_page 404 /offline/index.html;
 
     gzip on;
@@ -75,11 +77,13 @@ server {
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
 
+    ## PWA: remove this block if not using PWA
     # Service worker — never cache
     location ~* ^/(sw\.js|workbox-.*\.js)$ {
         add_header Cache-Control "no-cache, no-store, must-revalidate" always;
     }
 
+    ## PWA: remove this block if not using PWA
     # PWA manifest
     location = /manifest.webmanifest {
         add_header Cache-Control "no-cache" always;
@@ -108,12 +112,14 @@ server {
 }
 ```
 
+The template works for both PWA and non-PWA projects. Delete every section marked `## PWA: remove this block if not using PWA` (the offline `error_page`, the service worker block, and the manifest block) to get the non-PWA variant.
+
 ## Build & Run Commands
 
 ```bash
 # Build image (pass build args for every PUBLIC_* env var)
 docker build \
-  --build-arg PUBLIC_API_URL=https://api.example.com \
+  --build-arg PUBLIC_API_BASE_URL=https://api.example.com \
   -t your-app:latest .
 
 # Run container
@@ -127,7 +133,7 @@ docker run -d -p 8080:80 your-app:latest
 1. Point to your Git repo
 2. Set build pack to **Dockerfile**
 3. Add environment variables as **Build Time** vars (prefixed with `PUBLIC_`)
-4. The Dockerfile uses `node:22-alpine` — ensure the platform supports `corepack`
+4. The Dockerfile uses `node:lts-alpine` — ensure the platform supports `corepack`
 
 ### CI/CD (GitHub Actions)
 
@@ -144,7 +150,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg PUBLIC_API_URL=${{ secrets.API_URL }} \
+            --build-arg PUBLIC_API_BASE_URL=${{ secrets.API_URL }} \
             -t your-app:${{ github.sha }} .
       - name: Push to registry
         run: |
@@ -167,9 +173,9 @@ Ensure `package.json` has the pnpm engines constraint:
 
 ```json
 {
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@<latest>",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">= LTS"
   }
 }
 ```
@@ -178,7 +184,7 @@ Ensure `package.json` has the pnpm engines constraint:
 
 | Pattern | When available | Example |
 |---|---|---|
-| `PUBLIC_*` | Build-time + runtime | `PUBLIC_API_URL` |
+| `PUBLIC_*` | Build-time + runtime | `PUBLIC_API_BASE_URL` |
 | Build ARGs | Build-time only | API keys, secrets for build |
 | `import.meta.env.PUBLIC_*` | Client-side code | Front-end API URLs |
 
@@ -207,6 +213,5 @@ dist/
 
 - Always use `pnpm install --frozen-lockfile` in Docker builds — fails if lockfile is out of sync
 - Add new build ARGs for every `PUBLIC_*` env var
-- Service worker JS must have no-cache headers
 - `/_astro/*` assets can have immutable cache — Astro content-hashes filenames
-- Use `error_page 404 /offline/index.html` for SPA/PWA offline navigation
+- PWA only: service worker JS must have no-cache headers, and use `error_page 404 /offline/index.html` for SPA/PWA offline navigation

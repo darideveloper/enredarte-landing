@@ -63,7 +63,7 @@ const salasData = [
     subtitle: "Sala 05 · Próximamente",
     meta: "Territorio de Álvaro",
   }
-];
+]
 
 const showcaseFacets = [
   {
@@ -90,7 +90,7 @@ const showcaseFacets = [
     format: "obra-original",
     scale: "mini-obras",
   },
-];
+]
 ---
 
 <!doctype html>
@@ -128,8 +128,8 @@ const showcaseFacets = [
 
               <!-- Ghost Variant -->
               <div class="space-y-2">
-                <span class="block text-[10px] uppercase text-muted font-mono">variant="ghost" (nav CTA)</span>
-                <Btn variant="ghost" size="sm" href="#">Solicitar Acceso</Btn>
+                <span class="block text-[10px] uppercase text-muted font-mono">variant="ghost"</span>
+                <Btn variant="ghost" size="sm" href="#">Ghost Button</Btn>
               </div>
 
               <!-- Outline Variant -->
@@ -390,9 +390,10 @@ const showcaseFacets = [
           <h3 class="text-sm font-semibold mb-4 text-ink">Menu Component (`src/components/molecules/Menu.astro`)</h3>
           <div class="p-8 bg-paper border border-border-theme rounded">
             <Menu links={[
+              { label: "Home", href: "#home" },
+              { label: "Obras", href: "#obras" },
               { label: "Salas", href: "#salas" },
-              { label: "Artistas", href: "#artistas" },
-              { label: "Curadores", href: "#curadores" }
+              { label: "Artistas", href: "#artistas" }
             ]} />
           </div>
         </div>

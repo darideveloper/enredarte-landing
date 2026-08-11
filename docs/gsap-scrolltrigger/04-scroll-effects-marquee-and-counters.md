@@ -1,3 +1,17 @@
+---
+created: 2026-08-11
+updated: 2026-08-11
+tags:
+  - gsap
+  - scrolltrigger
+  - animation
+  - marquee
+  - astro
+  - documentation
+type: resource
+status: active
+---
+
 # 04 · Scroll Effects, Kinetic Marquee & Counters
 
 The three "extra" animation techniques: **scroll-linked effects** (parallax,
@@ -6,6 +20,8 @@ scrubbed fades), the **infinite kinetic marquee**, and **animated stat counters*
 ---
 
 ## 1. Scroll-linked effects (parallax & scrubbed fades)
+
+> `→ gsap-scrolltrigger skill §Scrub` for the full `scrub`/`start`/`end` API and `→ gsap-scrolltrigger skill §Pinning` for `pin`/`pinSpacing`.
 
 These differ from section reveals because the animation is **driven by the scroll
 position** — you scrub back and forth as you scroll, not one-shot play.
@@ -91,10 +107,7 @@ gsap.to(".my-panel", {
 })
 ```
 
-> Performance: prefer animating `transform`/`opacity` only (what `y`, `x`, `scale`,
-> `autoAlpha` do). Avoid animating `top`/`left`/`margin` — they force layout
-> thrashing. `gsap.config({ force3D: true })` from the setup already pushes
-> transforms to the GPU.
+> `→ gsap-performance skill §Prefer Transform and Opacity` for GPU-composited animation rules. Animate only `transform` properties (`y`, `x`, `scale`, `autoAlpha`) — avoid `top`/`left`/`margin`.
 
 ---
 
@@ -102,7 +115,7 @@ gsap.to(".my-panel", {
 
 A full-bleed row of giant words that scrolls forever. Built on the
 `initKineticMarquee` factory from
-[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#mandatory-file-3-srcscriptskinetic-marquetts-for-marquees).
+[01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#6-optional-helpers).
 
 ### The factory (recap)
 
@@ -151,7 +164,7 @@ end exactly.
 </div>
 
 <script>
-  import { initKineticMarquee } from "@/scripts/kinetic-marquee"
+  import { initKineticMarquee } from "@/lib/kinetic-marquee"
 
   const section = document.querySelector(".js-my-section")
   const marqueeContainer = section?.querySelector(".js-marquee") as HTMLElement
@@ -166,9 +179,8 @@ headline/button reveal over it. Requires the `initKineticMarquee` factory.
 
 ```astro
 <script>
-  import { gsap } from "gsap"
-  import { ScrollTrigger } from "gsap/ScrollTrigger"
-  import { initKineticMarquee } from "@/scripts/kinetic-marquee"
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
+  import { initKineticMarquee } from "@/lib/kinetic-marquee"
 
   gsap.registerPlugin(ScrollTrigger)
 
@@ -261,9 +273,14 @@ Data is read from a `data-value` attribute, so markup stays declarative.
 
 ### The helper (copy-paste)
 
+> **⚠️ Convenience-only, not the reference implementation.** `animateCounters` is
+> optional sugar for stat counters. The reference implementation duplicates the
+> per-component tween pattern (see `03-section-reveal-pattern.md`) by design; this
+> helper only saves copy-paste when you have many counters.
+
 ```ts
-// src/scripts/animate-counters.ts
-import { gsap } from "gsap"
+// src/lib/animate-counters.ts
+import { gsap } from "@/lib/gsap"
 
 /**
  * Animates every `.js-stat-value` element inside `container`.
@@ -324,7 +341,7 @@ Appending at position `"<"` means "start right after whatever is currently last"
 — so the counters tick up exactly as the stats slide in:
 
 ```ts
-import { animationManager } from "@/scripts/animation-manager"
+import { animationManager } from "@/lib/animation-manager"
 
 const tl = gsap.timeline({ paused: true })
 // ...hero reveal tweens...

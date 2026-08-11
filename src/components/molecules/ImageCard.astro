@@ -1,20 +1,20 @@
 ---
-import { cn } from "@/lib/utils";
-import Image from "@/components/atoms/Image.astro";
-import CardInfo from "@/components/atoms/CardInfo.astro";
+import { cn } from "@/lib/utils"
+import Image from "@/components/atoms/Image.astro"
+import CardInfo from "@/components/atoms/CardInfo.astro"
 
 export interface Props {
-  src: string;
-  alt: string;
-  title: string;
-  href: string;
-  isLarge?: boolean;
-  subtitle?: string;
-  meta?: string;
-  curator?: string;
-  overlay?: 'hover' | 'darker' | 'always' | 'none';
-  darkenOnHover?: boolean;
-  class?: string;
+  src: string
+  alt: string
+  title: string
+  href: string
+  isLarge?: boolean
+  subtitle?: string
+  meta?: string
+  curator?: string
+  overlay?: 'hover' | 'darker' | 'always' | 'none'
+  darkenOnHover?: boolean
+  class?: string
 }
 
 const { 
@@ -30,16 +30,16 @@ const {
   darkenOnHover,
   class: className, 
   ...props 
-} = Astro.props;
+} = Astro.props
 
-const overlayMode = darkenOnHover !== undefined ? (darkenOnHover ? 'hover' : 'none') : overlay;
+const overlayMode = darkenOnHover !== undefined ? (darkenOnHover ? 'hover' : 'none') : overlay
 
 const overlayStyles = {
   hover: "bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/95 group-hover:via-black/60 transition-all duration-500",
   darker: "bg-gradient-to-t from-black/90 via-black/60 to-black/30 transition-all duration-500",
   always: "bg-black/50 transition-all duration-500",
   none: "",
-};
+}
 ---
 
 <div class={cn(

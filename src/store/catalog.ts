@@ -19,6 +19,7 @@ export interface CatalogStore {
   isExpanded: boolean
   toggle: (group: GroupKey, value: string) => void
   toggleExpanded: () => void
+  reset: () => void
 }
 
 export const useCatalogStore = create<CatalogStore>()(
@@ -29,6 +30,11 @@ export const useCatalogStore = create<CatalogStore>()(
       isExpanded: false,
 
       toggleExpanded: () => set((state) => ({ isExpanded: !state.isExpanded })),
+
+      reset: () => {
+        set({ selections: EMPTY_SELECTIONS, isLoading: true })
+        setTimeout(() => set({ isLoading: false }), 400)
+      },
 
       toggle: (group, value) => {
         set((state) => {
@@ -61,7 +67,8 @@ export function useCatalog() {
   const isExpanded = useCatalogStore((state) => state.isExpanded)
   const toggle = useCatalogStore((state) => state.toggle)
   const toggleExpanded = useCatalogStore((state) => state.toggleExpanded)
-  return { selections, isLoading, isExpanded, toggle, toggleExpanded }
+  const reset = useCatalogStore((state) => state.reset)
+  return { selections, isLoading, isExpanded, toggle, toggleExpanded, reset }
 }
 
 export function matchesArtwork(

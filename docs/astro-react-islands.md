@@ -41,19 +41,21 @@ Astro renders the full page on the server. React components opt in with `client:
 
 ## 1. Dependencies
 
+Versions below are examples — pin whatever is current when you set up a project:
+
 ```json
 {
   "dependencies": {
-    "@astrojs/react": "^5.0.7",
-    "@tailwindcss/vite": "^4.3.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "tailwindcss": "^4.3.0",
-    "tw-animate-css": "^1.4.0"
+    "@astrojs/react": "^6",
+    "@tailwindcss/vite": "^4",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1"
   },
   "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3"
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
   }
 }
 ```
@@ -170,10 +172,9 @@ Then configure `astro.config.mjs` as shown in section 2, add `global.css` as sho
 
 - `export function ComponentName(...)` — never arrow functions or `React.FC`
 - `import * as React from "react"` — namespace import
-- No semicolons
 - Double quotes for all string literals
 - No `"use client"` directive (Astro convention, not Next.js)
-- Use `@/` path aliases for cross-directory imports
+- Always use `@/` path aliases for project imports — including same-directory imports
 
 ## 8. The Slot Pattern (Astro + React Together)
 
