@@ -8,7 +8,13 @@
     },
     "footer": {
       "links": "Enlaces",
-      "contact": "Contacto"
+      "contact": "Contacto",
+      "rights": "Todos los derechos reservados.",
+      "poweredBy": "Desarrollado por",
+      "social": {
+        "facebook": "Facebook",
+        "instagram": "Instagram"
+      }
     },
     "loading": "Cargando…",
     "filters": {

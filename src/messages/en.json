@@ -8,7 +8,13 @@
     },
     "footer": {
       "links": "Links",
-      "contact": "Contact"
+      "contact": "Contact",
+      "rights": "All rights reserved.",
+      "poweredBy": "Powered by",
+      "social": {
+        "facebook": "Facebook",
+        "instagram": "Instagram"
+      }
     },
     "loading": "Loading…",
     "filters": {

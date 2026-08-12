@@ -83,11 +83,19 @@ Layout.astro
 │   │   └── lib/i18n/utils (getLocalizedPath)
 │   ├── Menu.astro
 │   │   └── Link.astro ─────────► lib/utils
+│   ├── lib/nav.ts ─────────────► lib/i18n/utils (getNavLinks)
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
-└── Footer.astro
-    ├── data/site-config.ts
+└── Footer.astro (dark ink palette)
+    ├── Logo.astro (bg-red-circle variant) ──► lib/utils (cn)
+    ├── Link.astro (footer variant) ─► lib/utils
+    ├── Headline.astro ───────────────► lib/utils
+    ├── LangBtns.astro (inverse variant)
+    │   └── lib/i18n/utils (getLocalizedPath)
+    ├── lib/nav.ts (shared getNavLinks with Header)
+    │   └── lib/i18n/utils
+    ├── data/site-config.ts (BUSINESS_DATA, SOCIAL_LINKS, PHONES, EMAIL)
     └── lib/i18n/utils (getLangFromUrl, getLocalizedPath, getTranslations)
 ```
 
@@ -123,6 +131,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/i18n/utils.ts` — `getTranslations`, `getLocalizedPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries
+- `lib/nav.ts` — `getNavLinks(lang)`, shared nav source for Header and Footer
 - `data/site-config.ts` — `BUSINESS_DATA`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
 - `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …)

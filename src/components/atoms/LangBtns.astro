@@ -6,11 +6,27 @@ export interface Props {
   lang?: string
   pageKey?: string
   class?: string
+  variant?: "default" | "inverse"
 }
 
-const { class: className } = Astro.props
+const { class: className, variant = "default" } = Astro.props
 const lang = Astro.props.lang ?? getLangFromUrl(Astro.url)
 const pageKey = Astro.props.pageKey ?? getPageKeyFromUrl(Astro.url)
+
+const variantStyles = {
+  default: {
+    active: "text-ink font-semibold pointer-events-none",
+    inactive: "text-muted hover:text-ink",
+    separator: "text-border-theme",
+  },
+  inverse: {
+    active: "text-paper font-semibold pointer-events-none",
+    inactive: "text-paper/60 hover:text-paper",
+    separator: "text-paper/40",
+  },
+}
+
+const styles = variantStyles[variant]
 
 const languages = [
   { code: "es", label: "ES" },
@@ -26,13 +42,10 @@ const languages = [
 
       return (
         <>
-          {idx > 0 && <span class="text-border-theme font-sans">/</span>}
+          {idx > 0 && <span class={cn("font-sans", styles.separator)}>/</span>}
           <a
             href={url}
-            class={cn(
-              "transition-colors duration-200",
-              isActive ? "text-ink font-semibold pointer-events-none" : "text-muted hover:text-ink"
-            )}
+            class={cn("transition-colors duration-200", isActive ? styles.active : styles.inactive)}
           >
             {l.label}
           </a>

@@ -25,3 +25,12 @@ The button corresponding to the inactive language MUST be a functional link that
 #### Scenario: Viewing English page
 - **WHEN** the user is viewing a page in English (`lang="en"`, `pageKey="about"`)
 - **THEN** the ES button MUST be a link pointing to the localized Spanish URL (e.g., `/es/acerca-de`) and have interactive hover effects
+
+### Requirement: Inverse Variant
+The `LangBtns` component MUST support an `inverse` variant for use on dark backgrounds, swapping its default light-mode colors for light-on-dark equivalents.
+
+#### Scenario: Rendering the inverse variant
+- **WHEN** the component is rendered with the `inverse` variant enabled
+- **THEN** the active language is styled with the light paper color instead of `text-ink`
+- **THEN** inactive language links use a muted light foreground and transition to the light paper color on hover
+- **THEN** the separator between language options remains visible against the dark background
