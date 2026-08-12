@@ -2,6 +2,9 @@
 import Layout from "@/layouts/Layout.astro"
 import { routes, type PageKey } from "@/lib/i18n/routes"
 import Home from "@/components/pages/landing/Home.astro"
+import GalleryPage from "@/components/pages/sala/GalleryPage.astro"
+import { galleries } from "@/data/galleries"
+import { getLocalizedSalaPath } from "@/lib/i18n/utils"
 
 export async function getStaticPaths() {
   const paths = []
@@ -15,16 +18,35 @@ export async function getStaticPaths() {
       props: { pageKey: key, lang: "es" },
     })
   }
+  for (const gallery of galleries) {
+    paths.push({
+      params: { path: `salas/${gallery.slug}` },
+      props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "en" },
+    })
+    paths.push({
+      params: { path: `es/salas/${gallery.slug}` },
+      props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "es" },
+    })
+  }
   return paths
 }
 
 const COMPONENT_MAP: Record<string, any> = {
   home: Home,
+  gallery: GalleryPage,
 }
 
-const { pageKey, lang } = Astro.props
+const { pageKey, lang, gallerySlug } = Astro.props
 const PageComponent = COMPONENT_MAP[pageKey as PageKey]
+
+const localizedPaths =
+  pageKey === "gallery" && gallerySlug
+    ? {
+        en: getLocalizedSalaPath(gallerySlug, "en"),
+        es: getLocalizedSalaPath(gallerySlug, "es"),
+      }
+    : undefined
 ---
-<Layout>
-  {PageComponent && <PageComponent lang={lang} pageKey={pageKey} />}
+<Layout localizedPaths={localizedPaths}>
+  {PageComponent && <PageComponent lang={lang} pageKey={pageKey} gallerySlug={gallerySlug} />}
 </Layout>

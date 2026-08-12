@@ -5,11 +5,12 @@ import { cn } from "@/lib/utils"
 export interface Props {
   lang?: string
   pageKey?: string
+  localizedPaths?: Record<"en" | "es", string>
   class?: string
   variant?: "default" | "inverse"
 }
 
-const { class: className, variant = "default" } = Astro.props
+const { class: className, variant = "default", localizedPaths } = Astro.props
 const lang = Astro.props.lang ?? getLangFromUrl(Astro.url)
 const pageKey = Astro.props.pageKey ?? getPageKeyFromUrl(Astro.url)
 
@@ -38,7 +39,7 @@ const languages = [
   {
     languages.map((l, idx) => {
       const isActive = l.code === lang
-      const url = getLocalizedPath(pageKey, l.code)
+      const url = localizedPaths?.[l.code] ?? getLocalizedPath(pageKey, l.code)
 
       return (
         <>

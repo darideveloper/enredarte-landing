@@ -10,51 +10,7 @@ import { Filters } from "@/components/molecules/Filters"
 import { Artworks } from "@/components/organisms/Artworks"
 import ImageCard from "@/components/molecules/ImageCard.astro"
 import { artworks, filterGroups } from "@/data/catalog"
-
-const salasData = [
-  {
-    src: "/images/abstract-landscape-oil.jpg",
-    alt: "Sala Tierra Mundo Memoria",
-    title: "Tierra, Mundo y Memoria",
-    href: "#",
-    isLarge: true,
-    subtitle: "Sala 01 · Activa",
-    meta: "6 Artistas · Los Cabos / GDL",
-    curator: "Curaduría: Álvaro Macias",
-  },
-  {
-    src: "/images/painting-abstract-details.jpg",
-    alt: "Sala Plástica Oaxaqueña",
-    title: "Plástica Oaxaqueña",
-    href: "#",
-    subtitle: "Sala 02 · Activa",
-    meta: "4 Artistas · Oaxaca",
-  },
-  {
-    src: "/images/cityscape-madrid-gran-via.jpg",
-    alt: "Sala Nuevas Voces",
-    title: "Nuevas Voces CDMX",
-    href: "#",
-    subtitle: "Sala 03 · Activa",
-    meta: "5 Artistas · Ciudad de México",
-  },
-  {
-    src: "/images/artist-street-exhibition.jpg",
-    alt: "Sala San Miguel de Allende",
-    title: "San Miguel de Allende",
-    href: "#",
-    subtitle: "Sala 04 · Próximamente",
-    meta: "Curaduría: Regina Ibarra",
-  },
-  {
-    src: "/images/abstract-mosaic-woman.jpg",
-    alt: "Sala Puerto Vallarta",
-    title: "Puerto Vallarta",
-    href: "#",
-    subtitle: "Sala 05 · Próximamente",
-    meta: "Territorio de Álvaro",
-  }
-]
+import { getSalasData } from "@/data/galleries"
 
 const { lang } = Astro.props
 const t = getTranslations(lang)
@@ -83,7 +39,7 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
 
 <BannerBar />
 
-<Gallery salas={salasData} />
+<Gallery salas={getSalasData(lang)} />
 
 <section id="artworks-collection" class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
   <div class="artworks-header">

@@ -1,15 +1,4 @@
-# homepage-gallery Specification
-
-## Purpose
-Integrates the recently built `Gallery` organism into the main landing page.
-## Requirements
-### Requirement: Render the gallery section
-The system SHALL display the `Gallery` organism below the `Hero` section on the landing page.
-
-#### Scenario: User visits the homepage
-- **GIVEN** the user navigates to the root `/` page
-- **THEN** they see the `Hero` component
-- **AND** below it, they see the `Gallery` component populated with exhibition data.
+## ADDED Requirements
 
 ### Requirement: Sala cards navigate to gallery detail pages
 The homepage `Gallery` section SHALL render one card per gallery in the shared galleries module, and each card SHALL link to its gallery detail page (`/salas/<slug>` in English, `/es/salas/<slug>` in Spanish) instead of a dead `#` link.
@@ -24,4 +13,3 @@ The homepage `Gallery` section SHALL render one card per gallery in the shared g
 - **WHEN** it is rendered
 - **THEN** each card's image, title, subtitle, meta, and curator line are derived from the shared galleries module (not an inline `salasData` array)
 - **AND** each card's subtitle (e.g. "Sala 01 · Activa", "Sala 04 · Próximamente") is derived from the gallery's `sortOrder` and `status`
-

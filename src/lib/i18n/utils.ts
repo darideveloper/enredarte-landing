@@ -12,6 +12,10 @@ export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
   return path === undefined ? "/" : `/${path}`
 }
 
+export function getLocalizedSalaPath(slug: string, lang: keyof typeof ui) {
+  return lang === "es" ? `/es/salas/${slug}` : `/salas/${slug}`
+}
+
 export function getPageKeyFromUrl(url: URL): PageKey {
   const lang = getLangFromUrl(url)
   const pathname = url.pathname.length > 1 ? url.pathname.replace(/\/$/, "") : url.pathname

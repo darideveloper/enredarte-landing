@@ -1,0 +1,48 @@
+---
+import Image from "@/components/atoms/Image.astro"
+import CardSummary from "@/components/atoms/CardSummary.astro"
+import { getFacetLabel, type Artwork } from "@/data/catalog"
+import type { Lang } from "@/lib/api/types"
+import { cn } from "@/lib/utils"
+
+export interface Props {
+  artwork: Artwork
+  lang: Lang
+  reverse?: boolean
+  class?: string
+}
+
+const { artwork, lang, reverse = false, class: className, ...props } = Astro.props
+
+const tags = [
+  getFacetLabel("discipline", artwork.discipline, lang),
+  getFacetLabel("technique", artwork.technique, lang),
+  getFacetLabel("theme", artwork.theme, lang),
+]
+---
+
+<div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme", className)} {...props}>
+  <div
+    class={cn(
+      "relative min-h-[320px] md:min-h-[440px] overflow-hidden bg-[#0D0D0D]",
+      reverse && "md:order-2"
+    )}
+  >
+    <Image src={artwork.src} alt={artwork.alt} class="absolute inset-0 w-full h-full object-cover" />
+  </div>
+  <div
+    class={cn(
+      "flex flex-col items-start justify-center p-8 md:p-12 bg-white/50",
+      reverse && "md:order-1"
+    )}
+  >
+    <div class="flex flex-wrap gap-2 mb-5">
+      {tags.map((tag) => (
+        <span class="text-[10px] uppercase tracking-[0.14em] text-muted border border-border-theme px-3 py-1.5">
+          {tag}
+        </span>
+      ))}
+    </div>
+    <CardSummary title={artwork.title} href={artwork.href} artist={artwork.meta} class="max-w-none w-full" />
+  </div>
+</div>

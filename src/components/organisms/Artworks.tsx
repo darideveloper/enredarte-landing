@@ -7,6 +7,7 @@ export interface ArtworksProps {
   loadingLabel?: string
   emptyLabel?: string
   resetLabel?: string
+  gridClassName?: string
   className?: string
 }
 
@@ -15,6 +16,7 @@ export function Artworks({
   loadingLabel = "Cargando…",
   emptyLabel = "No se encontraron obras con los filtros seleccionados.",
   resetLabel = "Reiniciar filtros",
+  gridClassName,
   className,
 }: ArtworksProps) {
   const gridRef = React.useRef<HTMLDivElement>(null)
@@ -41,7 +43,7 @@ export function Artworks({
     <div className="relative">
       <div
         ref={gridRef}
-        className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[3px]", className)}
+        className={cn("grid gap-[3px]", gridClassName ?? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4", className)}
       >
         {children}
       </div>

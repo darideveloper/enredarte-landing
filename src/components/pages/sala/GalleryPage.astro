@@ -1,0 +1,127 @@
+---
+import PageSEO from "@/components/seo/PageSEO.astro"
+import Title from "@/components/atoms/Title.astro"
+import Headline from "@/components/atoms/Headline.astro"
+import Image from "@/components/atoms/Image.astro"
+import { Filters } from "@/components/molecules/Filters"
+import { Artworks } from "@/components/organisms/Artworks"
+import ImageBanner from "@/components/molecules/ImageBanner.astro"
+import ImageRowCard from "@/components/molecules/ImageRowCard.astro"
+import CuratorCard from "@/components/molecules/CuratorCard.astro"
+import { galleries } from "@/data/galleries"
+import { filterGroups } from "@/data/catalog"
+import { getTranslations } from "@/lib/i18n/utils"
+import type { Lang } from "@/lib/api/types"
+
+export interface Props {
+  lang: Lang
+  gallerySlug: string
+}
+
+const { lang, gallerySlug } = Astro.props
+const t = getTranslations(lang)
+
+const gallery = galleries.find((g) => g.slug === gallerySlug)
+if (!gallery) {
+  throw new Error(`Unknown gallery slug: ${gallerySlug}`)
+}
+
+const localizedGroups = filterGroups
+  .filter((g) => g.key === "artist" || g.key === "technique")
+  .map((group) => ({
+    key: group.key,
+    label: group[lang],
+    options: group.options.map((option) => ({ value: option.slug, label: option[lang] })),
+  }))
+
+const facets = gallery.artworks.map(({ artist, discipline, technique, theme, format, scale }) => ({
+  artist,
+  discipline,
+  technique,
+  theme,
+  format,
+  scale,
+}))
+
+const [featured, ...rest] = gallery.artworks
+const eyebrow = `${t("global.gallery.sala")} ${String(gallery.sortOrder).padStart(2, "0")}`
+---
+
+<PageSEO
+  lang={lang}
+  title={gallery.name[lang]}
+  description={gallery.description[lang]}
+  ogImage={gallery.logo}
+  slot="seo"
+/>
+
+<section class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-10 overflow-hidden" transition:animate="none">
+  <div class="max-w-6xl">
+    <Headline color="muted" class="block mb-3 tracking-[0.2em]">{eyebrow}</Headline>
+    <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-6">{gallery.name[lang]}</h1>
+    <p class="text-[15px] text-[#7A7568] leading-[1.85] max-w-[560px] mb-10">{gallery.description[lang]}</p>
+  </div>
+  <div class="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-[#0D0D0D]">
+    <Image src={gallery.logo} alt={gallery.name[lang]} class="absolute inset-0 w-full h-full object-cover" />
+  </div>
+</section>
+
+<section class="bg-paper px-6 md:px-14 pb-16 md:pb-24 overflow-hidden" transition:animate="none">
+  <CuratorCard curator={gallery.curator} lang={lang} />
+</section>
+
+<section id="sala-artworks" class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
+  <div class="sala-artworks-header">
+    <Title>
+      <Headline color="muted" class="block mb-2 tracking-[0.2em]">Explora</Headline>
+      {t("global.gallery.works")}
+    </Title>
+  </div>
+
+  <Filters
+    client:load
+    groups={localizedGroups}
+    facets={facets}
+    expandLabel={t("global.filters.more")}
+    collapseLabel={t("global.filters.less")}
+  />
+
+  <Artworks
+    client:load
+    loadingLabel={t("global.loading")}
+    emptyLabel={t("global.filters.noResults")}
+    resetLabel={t("global.filters.reset")}
+    gridClassName="grid-cols-1 sm:grid-cols-1 lg:grid-cols-1"
+  >
+    <ImageBanner
+      src={featured.src}
+      alt={featured.alt}
+      aspectRatio="video"
+      title={featured.title}
+      artist={featured.meta}
+      price={featured.curator}
+      href={featured.href}
+      overlay="darker"
+      class="mb-1"
+      data-artist={featured.artist}
+      data-discipline={featured.discipline}
+      data-technique={featured.technique}
+      data-theme={featured.theme}
+      data-format={featured.format}
+      data-scale={featured.scale}
+    />
+    {rest.map((artwork, i) => (
+      <ImageRowCard
+        artwork={artwork}
+        lang={lang}
+        reverse={i % 2 === 1}
+        data-artist={artwork.artist}
+        data-discipline={artwork.discipline}
+        data-technique={artwork.technique}
+        data-theme={artwork.theme}
+        data-format={artwork.format}
+        data-scale={artwork.scale}
+      />
+    ))}
+  </Artworks>
+</section>

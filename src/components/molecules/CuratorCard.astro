@@ -1,0 +1,41 @@
+---
+import Image from "@/components/atoms/Image.astro"
+import { cn } from "@/lib/utils"
+import type { ArtCurator, Lang } from "@/lib/api/types"
+import { getTranslations } from "@/lib/i18n/utils"
+
+export interface Props {
+  curator: ArtCurator
+  lang: Lang
+  class?: string
+}
+
+const { curator, lang, class: className } = Astro.props
+const t = getTranslations(lang)
+---
+
+<div
+  class={cn(
+    "bg-ink text-paper p-8 md:p-14 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 md:gap-14 items-start",
+    className
+  )}
+>
+  <div class="relative aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
+    <Image src={curator.photo} alt={curator.name} class="absolute inset-0 w-full h-full object-cover" />
+  </div>
+  <div class="min-w-0">
+    <p class="text-[10px] uppercase text-crimson font-bold tracking-[0.2em] mb-3">
+      {t("global.gallery.curatorship")}
+    </p>
+    <h3 class="font-serif text-3xl text-paper mb-4">{curator.name}</h3>
+    <p class="text-[14px] text-paper/80 leading-[1.8] mb-6 max-w-[560px]">{curator.bio[lang]}</p>
+    <div class="flex flex-wrap gap-6 text-[11px] tracking-[0.06em] uppercase">
+      <a href={`mailto:${curator.email}`} class="text-crimson hover:underline">
+        {curator.email}
+      </a>
+      <a href={curator.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
+        {curator.website}
+      </a>
+    </div>
+  </div>
+</div>

@@ -17,6 +17,13 @@
       }
     },
     "loading": "Cargando…",
+    "gallery": {
+      "sala": "Sala",
+      "active": "Activa",
+      "upcoming": "Próximamente",
+      "curatorship": "Curaduría",
+      "works": "Obras de la sala"
+    },
     "filters": {
       "more": "Ver más filtros",
       "less": "Ver menos filtros",

@@ -20,6 +20,7 @@ export interface FilterGroup {
 }
 
 export interface Artwork {
+  slug: string
   src: string
   alt: string
   title: string
@@ -32,6 +33,11 @@ export interface Artwork {
   theme: string
   format: string
   scale: string
+}
+
+export function getFacetLabel(key: GroupKey, slug: string, lang: "es" | "en") {
+  const group = filterGroups.find((g) => g.key === key)
+  return group?.options.find((o) => o.slug === slug)?.[lang] ?? slug
 }
 
 export const filterGroups: FilterGroup[] = [
@@ -122,6 +128,7 @@ export const filterGroups: FilterGroup[] = [
 
 export const artworks: Artwork[] = [
   {
+    slug: "horizonte-en-tres-tiempos",
     src: "/images/abstract-landscape-oil.jpg",
     alt: "Horizonte en tres tiempos",
     title: "Horizonte en tres tiempos",
@@ -136,6 +143,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "raiz",
     src: "/images/painting-abstract-details.jpg",
     alt: "Raíz",
     title: "Raíz",
@@ -150,6 +158,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "concreto-y-memoria",
     src: "/images/cityscape-madrid-gran-via.jpg",
     alt: "Concreto y Memoria",
     title: "Concreto y Memoria",
@@ -164,6 +173,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "costa-interior",
     src: "/images/artist-street-exhibition.jpg",
     alt: "Costa Interior",
     title: "Costa Interior",
@@ -178,6 +188,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "sin-titulo-04",
     src: "/images/abstract-mosaic-woman.jpg",
     alt: "Sin título 04",
     title: "Sin título 04",
@@ -192,6 +203,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "cempasuchil",
     src: "/images/painting-cityline-reflections.jpg",
     alt: "Cempasúchil",
     title: "Cempasúchil",
@@ -206,6 +218,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "rio-interior",
     src: "/images/abstract-blue-acrylic-texture.jpg",
     alt: "Río Interior",
     title: "Río Interior",
@@ -220,6 +233,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "trazo-urbano",
     src: "/images/architecture-spiral-staircase.jpg",
     alt: "Trazo Urbano",
     title: "Trazo Urbano",
@@ -234,6 +248,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "mirada",
     src: "/images/portrait-female-face-paint.jpg",
     alt: "Mirada",
     title: "Mirada",
@@ -248,6 +263,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "rostros-del-silencio",
     src: "/images/sculpture-female-face-plaster.jpg",
     alt: "Rostros del silencio",
     title: "Rostros del silencio",
@@ -262,6 +278,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "noche-urbana",
     src: "/images/street-dark-person-walking.jpg",
     alt: "Noche urbana",
     title: "Noche urbana",
@@ -276,6 +293,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "naturaleza-viva",
     src: "/images/abstract-colorful-canvas.jpg",
     alt: "Naturaleza viva",
     title: "Naturaleza viva",
@@ -290,6 +308,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "acuarela-del-mar",
     src: "/images/abstract-watercolor-beige.jpg",
     alt: "Acuarela del mar",
     title: "Acuarela del mar",
@@ -304,6 +323,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "memoria-en-capas",
     src: "/images/collage-lips-silence.jpg",
     alt: "Memoria en capas",
     title: "Memoria en capas",
@@ -318,6 +338,7 @@ export const artworks: Artwork[] = [
     scale: "mini-obras",
   },
   {
+    slug: "sueno-surreal",
     src: "/images/surreal-woman-binoculars.jpg",
     alt: "Sueño surreal",
     title: "Sueño surreal",
@@ -332,6 +353,7 @@ export const artworks: Artwork[] = [
     scale: "gran-formato",
   },
   {
+    slug: "neon-interior",
     src: "/images/vibrant-neon-abstract.jpg",
     alt: "Neón interior",
     title: "Neón interior",
