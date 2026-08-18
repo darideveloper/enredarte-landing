@@ -1,7 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { useCatalogStore } from "@/store/catalog"
-import type { GroupKey } from "@/data/catalog"
+import { useCatalogStore, type GroupKey } from "@/store/catalog"
 
 export interface FilterBtnProps {
   group: GroupKey

@@ -22,7 +22,9 @@
       "active": "Activa",
       "upcoming": "Próximamente",
       "curatorship": "Curaduría",
-      "works": "Obras de la sala"
+      "works": "Obras de la sala",
+      "workCount": "{count} Obra",
+      "worksCount": "{count} Obras"
     },
     "filters": {
       "more": "Ver más filtros",

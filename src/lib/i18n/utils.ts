@@ -1,5 +1,6 @@
 import { ui, defaultLang } from "@/lib/i18n/ui"
 import { routes, type PageKey } from "@/lib/i18n/routes"
+import type { Lang, Translations } from "@/lib/api/types"
 
 export function getLangFromUrl(url: URL) {
   const [, firstSegment] = url.pathname.split("/")
@@ -14,6 +15,18 @@ export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
 
 export function getLocalizedSalaPath(slug: string, lang: keyof typeof ui) {
   return lang === "es" ? `/es/salas/${slug}` : `/salas/${slug}`
+}
+
+export function pickTranslation<T extends Record<string, string>>(
+  translations: Translations<T> | undefined,
+  lang: Lang,
+  field: keyof T,
+): string {
+  const direct = translations?.[lang]?.[field]
+  if (direct != null && direct !== "") return direct
+  const fallback = translations?.[lang === "es" ? "en" : "es"]?.[field]
+  if (fallback != null && fallback !== "") return fallback
+  return ""
 }
 
 export function getPageKeyFromUrl(url: URL): PageKey {

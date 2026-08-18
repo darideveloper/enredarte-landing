@@ -22,7 +22,9 @@
       "active": "Active",
       "upcoming": "Upcoming",
       "curatorship": "Curated by",
-      "works": "Works of the room"
+      "works": "Works of the room",
+      "workCount": "{count} Work",
+      "worksCount": "{count} Works"
     },
     "filters": {
       "more": "Show more filters",

@@ -8,8 +8,8 @@
     "pnpm": ">=10.18.3"
   },
   "scripts": {
-    "dev": "portless enredarte-landing pnpm astro dev",
-    "build": "pnpm validate-i18n && pnpm validate-imports && astro build",
+    "dev": "NODE_OPTIONS=--use-openssl-ca portless enredarte-landing pnpm astro dev",
+    "build": "pnpm validate-i18n && pnpm validate-imports && NODE_OPTIONS=--use-openssl-ca astro build",
     "preview": "astro preview",
     "astro": "astro",
     "validate-i18n": "tsx scripts/validate-i18n.ts",

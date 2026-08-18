@@ -1,9 +1,4 @@
-# gallery-data Specification
-
-## Purpose
-Provides the build-time data orchestration that sources gallery, curator, artist, artwork, and taxonomy data from the backend DRF API (`/apis/artworks/…`), acts as the single source of truth for both the homepage gallery section and the gallery detail pages, and exposes the API-faithful types imported from the `api-client` capability.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Resolve gallery curator from the art-curators endpoint
 The system SHALL resolve each gallery's `curator` reference (`{ id, slug }`) into the full curator object (`name`, `email`, `website`, `photo`, `translations`) from the art-curators list fetched at build time, so the gallery detail page's curator block and the homepage card's curator line can render full curator data.
@@ -16,6 +11,8 @@ The system SHALL resolve each gallery's `curator` reference (`{ id, slug }`) int
 #### Scenario: Gallery without a curator
 - **GIVEN** a gallery whose `curator` is null
 - **THEN** the curator block is omitted or renders a fallback without error
+
+## MODIFIED Requirements
 
 ### Requirement: Define gallery and curator data types
 The system SHALL source gallery and curator data from the backend DRF API at build time using the `api-client` types, instead of dummy fixtures. `Gallery` SHALL include `id`, `slug`, `logo`, a `curator` reference (`{ id, slug }`), `sort_order`, ordered `artwork_links`, and language-keyed `translations` (`{ name, description }`); `ArtCurator` SHALL include `id`, `slug`, `name`, `email`, `website`, `photo`, and language-keyed `translations` (`{ bio }`). Bilingual content SHALL be read from the translation dictionary via a language-picking helper, not from an embedded `{es, en}` literal. The gallery `status` (`active` | `upcoming`) field SHALL NOT exist.
@@ -58,3 +55,9 @@ The homepage "Pabellón de Salas" section SHALL derive its cards from the galler
 - **GIVEN** galleries with `sort_order` values of `1` and `4`
 - **WHEN** the homepage gallery section renders
 - **THEN** the cards' subtitles read "Sala 01" and "Sala 04" respectively, derived from `sort_order` only (no status/upcoming suffix)
+
+## REMOVED Requirements
+
+### Requirement: Expose API-facing types
+**Reason**: The gallery/curator response types now live in the `api-client` capability (`src/lib/api/types.ts`), which the data layer consumes directly; the gallery-data module no longer declares its own type contract.
+**Migration**: Import `Gallery` and `ArtCurator` from `src/lib/api/types.ts` (via the `api-client` capability) instead of defining them in `data/galleries.ts`.

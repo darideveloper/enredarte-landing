@@ -26,13 +26,13 @@ FROM node:lts-alpine AS build
 RUN corepack enable && corepack prepare pnpm@<latest> --activate
 WORKDIR /app
 
-# Build-time environment variables — add one ARG/ENV pair per PUBLIC_* var
-ARG PUBLIC_API_BASE_URL
-ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
+# Build-time environment variables — add one ARG/ENV pair per server-only var
+ARG API_BASE_URL
+ENV API_BASE_URL=$API_BASE_URL
 
 # Add more as needed:
-# ARG PUBLIC_ANALYTICS_ID
-# ENV PUBLIC_ANALYTICS_ID=$PUBLIC_ANALYTICS_ID
+# ARG API_TOKEN
+# ENV API_TOKEN=$API_TOKEN
 
 # Install dependencies (cached layer — only invalidates on lockfile change)
 COPY package.json pnpm-lock.yaml ./
@@ -117,9 +117,9 @@ The template works for both PWA and non-PWA projects. Delete every section marke
 ## Build & Run Commands
 
 ```bash
-# Build image (pass build args for every PUBLIC_* env var)
+# Build image (pass build args for server-only env vars)
 docker build \
-  --build-arg PUBLIC_API_BASE_URL=https://api.example.com \
+  --build-arg API_BASE_URL=https://api.example.com \
   -t your-app:latest .
 
 # Run container
@@ -132,7 +132,7 @@ docker run -d -p 8080:80 your-app:latest
 
 1. Point to your Git repo
 2. Set build pack to **Dockerfile**
-3. Add environment variables as **Build Time** vars (prefixed with `PUBLIC_`)
+3. Add environment variables as **Build Time** vars (server-only, no `PUBLIC_` prefix)
 4. The Dockerfile uses `node:lts-alpine` — ensure the platform supports `corepack`
 
 ### CI/CD (GitHub Actions)
@@ -150,7 +150,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg PUBLIC_API_BASE_URL=${{ secrets.API_URL }} \
+            --build-arg API_BASE_URL=${{ secrets.API_URL }} \
             -t your-app:${{ github.sha }} .
       - name: Push to registry
         run: |
@@ -184,11 +184,11 @@ Ensure `package.json` has the pnpm engines constraint:
 
 | Pattern | When available | Example |
 |---|---|---|
-| `PUBLIC_*` | Build-time + runtime | `PUBLIC_API_BASE_URL` |
-| Build ARGs | Build-time only | API keys, secrets for build |
-| `import.meta.env.PUBLIC_*` | Client-side code | Front-end API URLs |
+| `PUBLIC_*` | Build-time + client-side | `PUBLIC_SITE_URL` |
+| Server-only (no prefix) | Build-time only | `API_BASE_URL`, `API_TOKEN` |
+| `import.meta.env.*` | Build-time code (SSG) | `import.meta.env.API_BASE_URL` |
 
-Astro inlines `PUBLIC_*` variables at build time. Pass them as Docker build args so they're available during `pnpm build`.
+Astro inlines all env vars at build time via Vite. Server-only vars (no `PUBLIC_` prefix) are not exposed to client bundles. Pass them as Docker build args so they're available during `pnpm build`.
 
 ## New Project Setup
 
@@ -212,6 +212,6 @@ dist/
 ## Key Rules
 
 - Always use `pnpm install --frozen-lockfile` in Docker builds — fails if lockfile is out of sync
-- Add new build ARGs for every `PUBLIC_*` env var
+- Add new build ARGs for every server-only env var (no `PUBLIC_` prefix)
 - `/_astro/*` assets can have immutable cache — Astro content-hashes filenames
 - PWA only: service worker JS must have no-cache headers, and use `error_page 404 /offline/index.html` for SPA/PWA offline navigation

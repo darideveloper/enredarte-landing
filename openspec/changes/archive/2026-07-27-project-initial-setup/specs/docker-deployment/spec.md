@@ -12,8 +12,8 @@ Build-time environment variables (PUBLIC_*) SHALL be passed as Docker build args
 - **THEN** the build SHALL complete with exit code 0 and produce a runnable image
 
 #### Scenario: Build args are available at build time
-- **WHEN** `--build-arg PUBLIC_API_BASE_URL=https://api.example.com` is passed
-- **THEN** the value SHALL be available as `import.meta.env.PUBLIC_API_BASE_URL` during `pnpm build`
+- **WHEN** `--build-arg API_BASE_URL=https://api.example.com` is passed
+- **THEN** the value SHALL be available as `import.meta.env.API_BASE_URL` during `pnpm build`
 
 ### Requirement: Nginx configuration
 The project SHALL include an `nginx.conf` with:

@@ -1,8 +1,8 @@
 FROM node:22-alpine AS build
 RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
 WORKDIR /app
-ARG PUBLIC_API_BASE_URL
-ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
+ARG API_BASE_URL
+ENV API_BASE_URL=$API_BASE_URL
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .

@@ -8,33 +8,46 @@ import { Artworks } from "@/components/organisms/Artworks"
 import ImageBanner from "@/components/molecules/ImageBanner.astro"
 import ImageRowCard from "@/components/molecules/ImageRowCard.astro"
 import CuratorCard from "@/components/molecules/CuratorCard.astro"
-import { galleries } from "@/data/galleries"
-import { filterGroups } from "@/data/catalog"
-import { getTranslations } from "@/lib/i18n/utils"
+import {
+  getFacetLabel,
+  resolveArtistName,
+  resolveGalleryArtworks,
+  resolveGalleryCurator,
+  toArtworkView,
+} from "@/data/api"
+import type { SiteData } from "@/data/api"
+import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
   lang: Lang
   gallerySlug: string
+  siteData: SiteData
 }
 
-const { lang, gallerySlug } = Astro.props
+const { lang, gallerySlug, siteData } = Astro.props
 const t = getTranslations(lang)
 
-const gallery = galleries.find((g) => g.slug === gallerySlug)
+const gallery = siteData.galleries.find((g) => g.slug === gallerySlug)
 if (!gallery) {
   throw new Error(`Unknown gallery slug: ${gallerySlug}`)
 }
 
-const localizedGroups = filterGroups
-  .filter((g) => g.key === "artist" || g.key === "technique")
+const curator = resolveGalleryCurator(gallery, siteData.curators)
+const galleryArtworks = resolveGalleryArtworks(gallery, siteData.artworks)
+const artworks = galleryArtworks.map((artwork) =>
+  toArtworkView(artwork, resolveArtistName(artwork.artist, siteData.artists), lang, siteData.filterGroups)
+)
+
+const localizedGroups = siteData.filterGroups
+  .filter((group) => group.key === "artist" || group.key === "technique")
   .map((group) => ({
     key: group.key,
-    label: group[lang],
-    options: group.options.map((option) => ({ value: option.slug, label: option[lang] })),
+    label: group.label[lang],
+    options: group.options.map((option) => ({ value: option.value, label: option.label[lang] })),
   }))
 
-const facets = gallery.artworks.map(({ artist, discipline, technique, theme, format, scale }) => ({
+const facets = artworks.map(({ artist, discipline, technique, theme, format, scale }) => ({
   artist,
   discipline,
   technique,
@@ -43,32 +56,37 @@ const facets = gallery.artworks.map(({ artist, discipline, technique, theme, for
   scale,
 }))
 
-const [featured, ...rest] = gallery.artworks
-const eyebrow = `${t("global.gallery.sala")} ${String(gallery.sortOrder).padStart(2, "0")}`
+const [featured, ...rest] = artworks
+const eyebrow = `${t("global.gallery.sala")} ${String(gallery.sort_order).padStart(2, "0")}`
+const galleryName = pickTranslation(gallery.translations, lang, "name") || gallery.slug
+const galleryDescription = pickTranslation(gallery.translations, lang, "description")
+const heroSrc = gallery.logo ?? featured?.src ?? ""
 ---
 
 <PageSEO
   lang={lang}
-  title={gallery.name[lang]}
-  description={gallery.description[lang]}
-  ogImage={gallery.logo}
+  title={galleryName}
+  description={galleryDescription}
+  ogImage={gallery.logo ?? featured?.src}
   slot="seo"
 />
 
 <section class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-10 overflow-hidden" transition:animate="none">
   <div class="max-w-6xl">
     <Headline color="muted" class="block mb-3 tracking-[0.2em]">{eyebrow}</Headline>
-    <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-6">{gallery.name[lang]}</h1>
-    <p class="text-[15px] text-[#7A7568] leading-[1.85] max-w-[560px] mb-10">{gallery.description[lang]}</p>
+    <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-6">{galleryName}</h1>
+    <p class="text-[15px] text-[#7A7568] leading-[1.85] max-w-[560px] mb-10">{galleryDescription}</p>
   </div>
   <div class="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-[#0D0D0D]">
-    <Image src={gallery.logo} alt={gallery.name[lang]} class="absolute inset-0 w-full h-full object-cover" />
+    <Image src={heroSrc} alt={galleryName} class="absolute inset-0 w-full h-full object-cover" />
   </div>
 </section>
 
-<section class="bg-paper px-6 md:px-14 pb-16 md:pb-24 overflow-hidden" transition:animate="none">
-  <CuratorCard curator={gallery.curator} lang={lang} />
-</section>
+{curator && (
+  <section class="bg-paper px-6 md:px-14 pb-16 md:pb-24 overflow-hidden" transition:animate="none">
+    <CuratorCard curator={curator} lang={lang} />
+  </section>
+)}
 
 <section id="sala-artworks" class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
   <div class="sala-artworks-header">
@@ -93,34 +111,40 @@ const eyebrow = `${t("global.gallery.sala")} ${String(gallery.sortOrder).padStar
     resetLabel={t("global.filters.reset")}
     gridClassName="grid-cols-1 sm:grid-cols-1 lg:grid-cols-1"
   >
-    <ImageBanner
-      src={featured.src}
-      alt={featured.alt}
-      aspectRatio="video"
-      title={featured.title}
-      artist={featured.meta}
-      price={featured.curator}
-      href={featured.href}
-      overlay="darker"
-      class="mb-1"
-      data-artist={featured.artist}
-      data-discipline={featured.discipline}
-      data-technique={featured.technique}
-      data-theme={featured.theme}
-      data-format={featured.format}
-      data-scale={featured.scale}
-    />
+    {featured && (
+      <ImageBanner
+        src={featured.src}
+        alt={featured.alt}
+        aspectRatio="video"
+        title={featured.title}
+        artist={featured.meta}
+        price={featured.price}
+        href={featured.href}
+        overlay="darker"
+        class="mb-1"
+        data-artist={featured.artist.join(" ")}
+        data-discipline={featured.discipline.join(" ")}
+        data-technique={featured.technique.join(" ")}
+        data-theme={featured.theme.join(" ")}
+        data-format={featured.format.join(" ")}
+        data-scale={featured.scale.join(" ")}
+      />
+    )}
     {rest.map((artwork, i) => (
       <ImageRowCard
         artwork={artwork}
-        lang={lang}
+        tags={[
+          getFacetLabel("discipline", artwork.discipline[0] ?? "", lang, siteData.filterGroups),
+          getFacetLabel("technique", artwork.technique[0] ?? "", lang, siteData.filterGroups),
+          getFacetLabel("theme", artwork.theme[0] ?? "", lang, siteData.filterGroups),
+        ]}
         reverse={i % 2 === 1}
-        data-artist={artwork.artist}
-        data-discipline={artwork.discipline}
-        data-technique={artwork.technique}
-        data-theme={artwork.theme}
-        data-format={artwork.format}
-        data-scale={artwork.scale}
+        data-artist={artwork.artist.join(" ")}
+        data-discipline={artwork.discipline.join(" ")}
+        data-technique={artwork.technique.join(" ")}
+        data-theme={artwork.theme.join(" ")}
+        data-format={artwork.format.join(" ")}
+        data-scale={artwork.scale.join(" ")}
       />
     ))}
   </Artworks>

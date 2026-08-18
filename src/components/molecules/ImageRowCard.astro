@@ -1,24 +1,18 @@
 ---
 import Image from "@/components/atoms/Image.astro"
 import CardSummary from "@/components/atoms/CardSummary.astro"
-import { getFacetLabel, type Artwork } from "@/data/catalog"
-import type { Lang } from "@/lib/api/types"
+import type { ArtworkView } from "@/data/api"
 import { cn } from "@/lib/utils"
 
 export interface Props {
-  artwork: Artwork
-  lang: Lang
+  artwork: ArtworkView
+  tags?: string[]
   reverse?: boolean
   class?: string
 }
 
-const { artwork, lang, reverse = false, class: className, ...props } = Astro.props
-
-const tags = [
-  getFacetLabel("discipline", artwork.discipline, lang),
-  getFacetLabel("technique", artwork.technique, lang),
-  getFacetLabel("theme", artwork.theme, lang),
-]
+const { artwork, tags = [], reverse = false, class: className, ...props } = Astro.props
+const visibleTags = tags.filter(Boolean)
 ---
 
 <div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme", className)} {...props}>
@@ -36,13 +30,15 @@ const tags = [
       reverse && "md:order-1"
     )}
   >
-    <div class="flex flex-wrap gap-2 mb-5">
-      {tags.map((tag) => (
-        <span class="text-[10px] uppercase tracking-[0.14em] text-muted border border-border-theme px-3 py-1.5">
-          {tag}
-        </span>
-      ))}
-    </div>
+    {visibleTags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-5">
+        {visibleTags.map((tag) => (
+          <span class="text-[10px] uppercase tracking-[0.14em] text-muted border border-border-theme px-3 py-1.5">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
     <CardSummary title={artwork.title} href={artwork.href} artist={artwork.meta} class="max-w-none w-full" />
   </div>
 </div>

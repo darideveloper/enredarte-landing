@@ -3,9 +3,8 @@ import { gsap } from "gsap"
 import { cn } from "@/lib/utils"
 import { FilterBtn } from "@/components/atoms/FilterBtn"
 import { FilterToggle } from "@/components/atoms/FilterToggle"
-import { computeViableOptions, useCatalogStore } from "@/store/catalog"
+import { computeViableOptions, useCatalogStore, type GroupKey } from "@/store/catalog"
 import type { ArtworkFacets } from "@/store/catalog"
-import type { GroupKey } from "@/data/catalog"
 
 export interface LocalizedFilterOption {
   value: string
