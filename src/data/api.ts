@@ -236,6 +236,7 @@ export function toSalaView(
   curators: ArtCurator[],
   artworks: Artwork[],
   lang: Lang,
+  index: number,
 ): SalaView {
   const t = getTranslations(lang)
   const name = pickTranslation(gallery.translations, lang, "name") || gallery.slug
@@ -248,8 +249,8 @@ export function toSalaView(
     alt: name,
     title: name,
     href: getLocalizedSalaPath(gallery.slug, lang),
-    isLarge: gallery.sort_order === 1,
-    subtitle: `${t("global.gallery.sala")} ${String(gallery.sort_order).padStart(2, "0")}`,
+    isLarge: index === 0,
+    subtitle: `${t("global.gallery.sala")} ${String(index + 1).padStart(2, "0")}`,
     meta: t(
       galleryArtworks.length === 1 ? "global.gallery.workCount" : "global.gallery.worksCount",
       { count: String(galleryArtworks.length) },

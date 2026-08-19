@@ -43,8 +43,8 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
   scale,
 }))
 
-const salas = siteData.galleries.map((gallery) =>
-  toSalaView(gallery, siteData.curators, siteData.artworks, lang)
+const salas = siteData.galleries.map((gallery, index) =>
+  toSalaView(gallery, siteData.curators, siteData.artworks, lang, index)
 )
 ---
 <PageSEO currentPage="home" lang={lang} slot="seo" />

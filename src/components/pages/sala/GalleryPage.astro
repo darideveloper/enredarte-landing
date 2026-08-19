@@ -57,7 +57,8 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
 }))
 
 const [featured, ...rest] = artworks
-const eyebrow = `${t("global.gallery.sala")} ${String(gallery.sort_order).padStart(2, "0")}`
+const galleryIndex = siteData.galleries.findIndex((g) => g.slug === gallery.slug)
+const eyebrow = `${t("global.gallery.sala")} ${String(galleryIndex + 1).padStart(2, "0")}`
 const galleryName = pickTranslation(gallery.translations, lang, "name") || gallery.slug
 const galleryDescription = pickTranslation(gallery.translations, lang, "description")
 const heroSrc = gallery.logo ?? featured?.src ?? ""
