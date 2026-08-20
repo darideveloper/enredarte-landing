@@ -1,6 +1,6 @@
 ---
 import Image from "@/components/atoms/Image.astro"
-import { cn } from "@/lib/utils"
+import { cn, stripUrlScheme } from "@/lib/utils"
 import type { ArtCurator, Lang } from "@/lib/api/types"
 import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
 
@@ -51,7 +51,7 @@ const initials = curator.name
         )}
         {curator.website && (
           <a href={curator.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
-            {curator.website}
+            {stripUrlScheme(curator.website)}
           </a>
         )}
       </div>
