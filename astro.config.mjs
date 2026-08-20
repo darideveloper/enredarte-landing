@@ -9,10 +9,10 @@ import { routes } from "./src/lib/i18n/routes.ts"
 
 /** @type {Record<string, string>} */
 const legacyRedirects = Object.values(routes).reduce((acc, route) => {
-  if (route.en === "") {
-    acc["/en"] = "/"
+  if (route.es === "") {
+    acc["/es"] = "/"
   } else {
-    acc[`/en/${route.en}`] = `/${route.en}`
+    acc[`/es/${route.es}`] = `/${route.es}`
   }
   return acc
 }, {})

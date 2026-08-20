@@ -4,8 +4,8 @@ import type { Lang, Translations } from "@/lib/api/types"
 
 export function getLangFromUrl(url: URL) {
   const [, firstSegment] = url.pathname.split("/")
-  if (firstSegment === "es") return "es"
-  return "en"
+  if (firstSegment === "en") return "en"
+  return "es"
 }
 
 export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
@@ -14,7 +14,7 @@ export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
 }
 
 export function getLocalizedSalaPath(slug: string, lang: keyof typeof ui) {
-  return lang === "es" ? `/es/salas/${slug}` : `/salas/${slug}`
+  return lang === "en" ? `/en/salas/${slug}` : `/salas/${slug}`
 }
 
 export function pickTranslation<T extends Record<string, string>>(

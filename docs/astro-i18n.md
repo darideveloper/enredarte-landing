@@ -1,6 +1,6 @@
 ---
 created: 2026-04-17
-updated: 2026-07-26
+updated: 2026-08-20
 tags:
   - astro
   - i18n
@@ -67,7 +67,7 @@ export const languages = {
   es: 'Español',
 };
 
-export const defaultLang = 'en';
+export const defaultLang = 'es';
 
 export const ui = {
   en,
@@ -82,8 +82,8 @@ Instead of creating separate folders for each language, we map "Page Keys" to lo
 ```typescript
 export const routes = {
   home: {
-    en: "",
-    es: "es",
+    en: "en",
+    es: "",
   },
   // ... more routes
 } as const;
@@ -91,19 +91,19 @@ export const routes = {
 export type PageKey = keyof typeof routes;
 ```
 
-Key pattern: English paths have **no language prefix** (the home page is `""` → root), Spanish paths use the `/es/` prefix (`es` → `/es`). The home page English path is `""` (root).
+Key pattern: Spanish paths have **no language prefix** (the home page is `""` → root), English paths use the `/en/` prefix (`en` → `/en`). The home page Spanish path is `""` (root).
 
 ### 4.1 Legacy Redirects
 
-When switching from prefixed English URLs (`/en/path`) to unprefixed (`/path`), add redirects to preserve SEO authority:
+When switching from prefixed Spanish URLs (`/es/path`) to unprefixed (`/path`), add redirects to preserve SEO authority:
 
 ```ts
 // astro.config.ts
 const legacyRedirects = Object.values(routes).reduce<Record<string, string>>((acc, route) => {
-  if (route.en === "") {
-    acc['/en'] = '/';
+  if (route.es === "") {
+    acc['/es'] = '/';
   } else {
-    acc[`/en/${route.en}`] = `/${route.en}`;
+    acc[`/es/${route.es}`] = `/${route.es}`;
   }
   return acc;
 }, {});
@@ -113,7 +113,7 @@ export default defineConfig({
 })
 ```
 
-This maps `/en/<path>` → `/<path>` for every route automatically.
+This maps `/es/<path>` → `/<path>` for every route automatically.
 
 > **Note:** The Astro config file is loaded directly by Node (not through Vite aliases), so the `@/` alias does not resolve there. Import `routes` with a relative path — e.g. `import { routes } from "./src/lib/i18n/routes.ts"`. If the config is `.mjs` (plain JS, not TS), drop the `reduce<...>` generic and type the accumulator with a JSDoc `/** @type {Record<string, string>} */` annotation instead.
 
@@ -134,14 +134,14 @@ import Reservation from '@/components/pages/store/Reservation.astro'
 export async function getStaticPaths() {
   const paths = []
   for (const [key, langPaths] of Object.entries(routes)) {
-    // English: path is undefined for home, the slug otherwise
+    // English: path always has the slug
     paths.push({
-      params: { path: langPaths.en === '' ? undefined : langPaths.en },
+      params: { path: langPaths.en },
       props: { pageKey: key, lang: 'en' },
     })
-    // Spanish: path always has the slug
+    // Spanish: path is undefined for home, the slug otherwise
     paths.push({
-      params: { path: langPaths.es },
+      params: { path: langPaths.es === '' ? undefined : langPaths.es },
       props: { pageKey: key, lang: 'es' },
     })
   }
@@ -174,12 +174,12 @@ The core i18n logic — URL parsing, path resolution, and the translation functi
 ```typescript
 export function getLangFromUrl(url: URL) {
   const [, firstSegment] = url.pathname.split("/");
-  if (firstSegment === "es") return "es";
-  return "en";
+  if (firstSegment === "en") return "en";
+  return "es";
 }
 ```
 
-Simple rule: if the URL starts with `/es`, it's Spanish. Everything else is English. Works because English paths have no prefix.
+Simple rule: if the URL starts with `/en`, it's English. Everything else is Spanish. Works because Spanish paths have no prefix.
 
 ### getLocalizedPath
 ```typescript
@@ -189,7 +189,7 @@ export function getLocalizedPath(pageKey: string, lang: keyof typeof ui) {
 }
 ```
 
-Looks up the route for the given page and language. Returns `"/"` for undefined paths (the English home page).
+Looks up the route for the given page and language. Returns `"/"` for undefined paths (the Spanish home page).
 
 ### getTranslations — The `t()` Function
 ```typescript
@@ -329,7 +329,7 @@ const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
 ---
 ```
 
-It also auto-generates `<link rel="alternate" hreflang="..." href="...">` tags using `getLocalizedPath(currentPage, "en")` and `getLocalizedPath(currentPage, "es")`.
+It also auto-generates `<link rel="alternate" hreflang="..." href="...">` tags using `getLocalizedPath(currentPage, "en")` and `getLocalizedPath(currentPage, "es")`. A `<link rel="alternate" hreflang="x-default">` tag points at the root (`/`), which Spanish now owns.
 
 ## 9. Build-Time Validation (Mandatory)
 
@@ -528,13 +528,13 @@ Then:
 
 ## 11. Key Rules
 
-- English paths have **no prefix** (home is root), Spanish has `/es/` prefix (e.g. `/es`)
-- Home page English path is `""` (root), Spanish is `"es"`
+- Spanish paths have **no prefix** (home is root), English has `/en/` prefix (e.g. `/en`)
+- Home page Spanish path is `""` (root), English is `"en"`
 - `Layout`, `Header`, `Footer`, and `LangBtns` derive page context from the URL (`getLangFromUrl`, `getPageKeyFromUrl`) — no i18n props flow through the `[...path].astro` → `Layout` → component chain
 - `lang`/`pageKey` are passed only from `[...path].astro` to the page component (`Home`) for translations and SEO; the standalone page component is the translation boundary
 - React components receive translations as **props**, never import i18n directly
 - Build-time validation is **mandatory** — wire it into the build pipeline on day one
-- Legacy redirects handle old `/en/...` URL patterns
+- Legacy redirects handle old `/es/...` URL patterns
 
 ## 12. Connection to Other Patterns
 

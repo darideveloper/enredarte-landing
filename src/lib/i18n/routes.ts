@@ -1,7 +1,7 @@
 export const routes = {
   home: {
-    en: "",
-    es: "es",
+    en: "en",
+    es: "",
   },
 } as const
 

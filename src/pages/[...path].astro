@@ -12,22 +12,22 @@ export async function getStaticPaths() {
   const paths = []
   for (const [key, langPaths] of Object.entries(routes)) {
     paths.push({
-      params: { path: langPaths.en === "" ? undefined : langPaths.en },
+      params: { path: langPaths.en },
       props: { pageKey: key, lang: "en", siteData },
     })
     paths.push({
-      params: { path: langPaths.es },
+      params: { path: langPaths.es === "" ? undefined : langPaths.es },
       props: { pageKey: key, lang: "es", siteData },
     })
   }
   for (const gallery of siteData.galleries) {
     paths.push({
       params: { path: `salas/${gallery.slug}` },
-      props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "en", siteData },
+      props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "es", siteData },
     })
     paths.push({
-      params: { path: `es/salas/${gallery.slug}` },
-      props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "es", siteData },
+      params: { path: `en/salas/${gallery.slug}` },
+      props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "en", siteData },
     })
   }
   return paths

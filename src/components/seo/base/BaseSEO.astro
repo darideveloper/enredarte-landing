@@ -18,7 +18,7 @@ export interface Props {
 
 const {
   currentPage,
-  lang = "en",
+  lang = "es",
   title,
   description,
   keywords,
@@ -59,6 +59,7 @@ const alternateUrls = currentPage
 <link rel="canonical" href={canonicalUrl} />
 {alternateUrls && <link rel="alternate" hreflang="en" href={alternateUrls.en} />}
 {alternateUrls && <link rel="alternate" hreflang="es" href={alternateUrls.es} />}
+{alternateUrls && <link rel="alternate" hreflang="x-default" href={`${BUSINESS_DATA.url}/`} />}
 <meta property="og:type" content="website" />
 <meta property="og:locale" content={LOCALE_MAP[lang]} />
 <meta property="og:title" content={pageTitle} />
