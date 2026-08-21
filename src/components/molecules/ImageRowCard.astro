@@ -16,13 +16,8 @@ const visibleTags = tags.filter(Boolean)
 ---
 
 <div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme", className)} {...props}>
-  <div
-    class={cn(
-      "relative min-h-[320px] md:min-h-[440px] overflow-hidden bg-[#0D0D0D]",
-      reverse && "md:order-2"
-    )}
-  >
-    <Image src={artwork.src} alt={artwork.alt} class="absolute inset-0 w-full h-full object-cover" />
+  <div class={cn(reverse && "md:order-2")}>
+    <Image src={artwork.src} alt={artwork.alt} height="auto" class="w-full" />
   </div>
   <div
     class={cn(

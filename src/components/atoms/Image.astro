@@ -5,10 +5,11 @@ export interface Props {
   src: string
   alt: string
   aspectRatio?: 'video' | 'square' | '4/5' | 'auto'
+  height?: 'full' | 'auto'
   class?: string
 }
 
-const { src, alt, aspectRatio = 'auto', class: className, ...props } = Astro.props
+const { src, alt, aspectRatio = 'auto', height = 'full', class: className, ...props } = Astro.props
 
 const aspectClasses = {
   'video': 'aspect-video',
@@ -16,12 +17,17 @@ const aspectClasses = {
   '4/5': 'aspect-[4/5]',
   'auto': 'aspect-auto',
 }
+
+const heightClasses = {
+  'full': 'h-full',
+  'auto': 'h-auto',
+}
 ---
 
 <img 
   src={src} 
   alt={alt} 
   title={alt}
-  class={cn("object-cover w-full h-full", aspectClasses[aspectRatio], className)} 
+  class={cn("object-cover w-full", heightClasses[height], aspectClasses[aspectRatio], className)} 
   {...props} 
 />

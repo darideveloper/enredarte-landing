@@ -1,7 +1,9 @@
+# image-atom Specification
+
 ## Purpose
 Defines the behavior and constraints for the Image atom component, which acts as a standard, responsive image container for the design system.
 
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Render image with standard properties
 The `Image` component SHALL render an HTML `<img>` tag and enforce accessibility and layout best practices.
@@ -15,6 +17,8 @@ The `Image` component SHALL render an HTML `<img>` tag and enforce accessibility
 - **WHEN** the `Image` component is passed `height="auto"`
 - **THEN** it applies `w-full h-auto` instead of `w-full h-full`, so the rendered image keeps its natural aspect ratio and is not cropped to fill a fixed container.
 
+## ADDED Requirements
+
 ### Requirement: Support configurable height mode
 The `Image` component SHALL support an optional `height` property with values `full` (default) or `auto`, controlling whether the image fills its container (`h-full`) or preserves its natural aspect ratio (`h-auto`).
 
@@ -26,13 +30,4 @@ The `Image` component SHALL support an optional `height` property with values `f
 - **WHEN** the `height` property is set to `auto`
 - **THEN** the image uses `h-auto`, preserving its natural aspect ratio.
 
-### Requirement: Support aspect ratio constraints
-The `Image` component SHALL support an optional `aspectRatio` property that wraps the image in a container enforcing the specified ratio (e.g., `4/5`, `16/9`, or `video`).
-
-#### Scenario: Aspect ratio is provided
-- **WHEN** the `aspectRatio` property is defined as `video`
-- **THEN** the image is contained within a wrapper that enforces the `aspect-video` class.
-
-#### Scenario: No aspect ratio is provided
-- **WHEN** the `aspectRatio` property is omitted
-- **THEN** the image is rendered without an explicit aspect ratio wrapper, allowing it to conform to its parent's dimensions.
+> Note: `aspectRatio` behavior is unchanged and remains defined by the existing "Support aspect ratio constraints" requirement in the main `image-atom` spec.
