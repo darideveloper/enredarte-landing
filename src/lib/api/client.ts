@@ -49,6 +49,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
   const headers = new Headers(init.headers)
   headers.set("Authorization", `Token ${token}`)
+  headers.set("Accept", "application/json")
   return safeFetch<T>(`${baseUrl}${path}`, { ...init, headers })
 }
 
