@@ -3,10 +3,28 @@ import H1 from '@/components/molecules/H1.astro'
 import Headline from '@/components/atoms/Headline.astro'
 import ImageBanner from '@/components/molecules/ImageBanner.astro'
 import Btn from '@/components/atoms/Btn.astro'
+import type { HeroView } from '@/data/api'
 
 export interface Props {
-  // We can pass props later if needed, but for now we'll hardcode the content 
-  // or accept it via slots as requested.
+  sala?: HeroView
+}
+
+const hero = Astro.props.sala
+
+const badge = hero ? `Sala ${hero.salaNumber} — Exhibición del mes` : "Sala 01 — Exhibición del mes"
+const title = hero?.title ?? "Tierra, mundo y memoria"
+const description =
+  hero?.description ??
+  "Seis artistas contemporáneos exploran el paisaje mexicano como archivo emocional — de los murales urbanos de Guadalajara a la abstracción costera de Los Cabos. Una sala, seis miradas, una sola pregunta: ¿de qué está hecho el lugar al que llamamos hogar?"
+const curator = hero?.curator ?? ""
+const galleryHref = hero?.galleryHref ?? "#"
+const artwork = hero?.artwork ?? {
+  src: "/images/hero-wood-geometry.jpg",
+  alt: "Obra insignia",
+  title: "Horizonte en tres tiempos",
+  artist: "Obra insignia de la sala",
+  price: "Desde consulta con curador",
+  href: "/salas/1/obras/1",
 }
 ---
 
@@ -14,37 +32,37 @@ export interface Props {
   <!-- Left Side: Editorial Content -->
   <div class="flex flex-col justify-center px-6 py-12 lg:px-16 lg:py-0">
     <H1 class="mb-6">
-      <Headline color="red" class="block mb-6 hero-badge">Sala 01 — Exhibición del mes</Headline>
-      <span class="block leading-[1.03] tracking-[-0.01em] hero-title">Tierra, mundo<br/>y <em class="text-crimson font-serif italic">memoria</em></span>
+      <Headline color="red" class="block mb-6 hero-badge">{badge}</Headline>
+      <span class="block leading-[1.03] tracking-[-0.01em] hero-title">{title}</span>
     </H1>
     
     <p class="text-[15px] text-[#7A7568] leading-[1.85] max-w-[420px] mb-10 font-sans hero-desc">
-      Seis artistas contemporáneos exploran el paisaje mexicano como archivo emocional — de los murales urbanos de Guadalajara a la abstracción costera de Los Cabos. Una sala, seis miradas, una sola pregunta: ¿de qué está hecho el lugar al que llamamos hogar?
+      {description}
     </p>
     
     <div class="flex flex-wrap gap-3.5 mb-11 hero-cta">
-      <Btn variant="primary">
+      <Btn variant="primary" href={galleryHref}>
         Entrar a la Sala
       </Btn>
-      <Btn variant="outline">
+      <Btn variant="outline" href={galleryHref}>
         Ver Manifiesto
       </Btn>
     </div>
     
     <div class="text-[11px] text-muted tracking-[0.04em] pt-6 border-t border-border-theme max-w-[420px] font-sans hero-meta">
-      Curaduría por <b class="text-[#4A4A4A] font-semibold">Álvaro Macias</b> — Guadalajara, JAL
+      {curator && <Fragment>Curaduría por <b class="text-[#4A4A4A] font-semibold">{curator}</b></Fragment>}
     </div>
   </div>
 
   <!-- Right Side: Featured Artwork -->
   <div class="relative overflow-hidden h-[50vh] lg:h-auto hero-banner">
     <ImageBanner 
-      src="/images/hero-wood-geometry.jpg"
-      alt="Obra insignia"
-      title="Horizonte en tres tiempos"
-      artist="Obra insignia de la sala"
-      price="Desde consulta con curador"
-      href="/salas/1/obras/1"
+      src={artwork.src}
+      alt={artwork.alt}
+      title={artwork.title}
+      artist={artwork.artist}
+      price={artwork.price}
+      href={artwork.href}
       overlay="darker"
       class="w-full h-full"
     />
@@ -52,9 +70,9 @@ export interface Props {
 </section>
 
 <script>
-  import { gsap, ScrollTrigger } from "@/lib/gsap"
+  import { gsap } from "@/lib/gsap"
 
-  let mm
+  let mm: gsap.MatchMedia | undefined
 
   const initHeroAnimation = () => {
     if (!document.querySelector(".hero-banner")) return

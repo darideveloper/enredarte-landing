@@ -77,6 +77,7 @@ export interface ArtworkLink {
 export interface Gallery extends Base {
   logo: string | null
   curator: Ref | null
+  is_primary: boolean
   translations: Translations<{ name: string; description: string }>
   artwork_links: ArtworkLink[]
 }

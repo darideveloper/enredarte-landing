@@ -231,6 +231,24 @@ export interface SalaView {
   curator?: string
 }
 
+export interface HeroArtworkView {
+  src: string
+  alt: string
+  title: string
+  artist: string
+  price?: string
+  href: string
+}
+
+export interface HeroView {
+  salaNumber: string
+  title: string
+  description: string
+  curator: string
+  galleryHref: string
+  artwork: HeroArtworkView
+}
+
 export function toSalaView(
   gallery: Gallery,
   curators: ArtCurator[],
@@ -256,5 +274,54 @@ export function toSalaView(
       { count: String(galleryArtworks.length) },
     ),
     curator: curator ? `${t("global.gallery.curatorship")}: ${curator.name}` : undefined,
+  }
+}
+
+function resolvePrimaryGallery(galleries: Gallery[]): { gallery: Gallery; index: number } {
+  const primaryIndex = galleries.findIndex((g) => g.is_primary)
+  const index = primaryIndex >= 0 ? primaryIndex : 0
+  return { gallery: galleries[index], index }
+}
+
+export function toHeroView(
+  galleries: Gallery[],
+  curators: ArtCurator[],
+  artworks: Artwork[],
+  artists: Artist[],
+  lang: Lang,
+): HeroView {
+  const { gallery, index } = resolvePrimaryGallery(galleries)
+  const title = pickTranslation(gallery.translations, lang, "name") || gallery.slug
+  const description = pickTranslation(gallery.translations, lang, "description") || ""
+
+  const curator = resolveGalleryCurator(gallery, curators)
+  const curatorName = curator ? curator.name : ""
+
+  const galleryArtworks = resolveGalleryArtworks(gallery, artworks)
+  const artwork = galleryArtworks[0]
+  const artworkImage = artwork?.images.find((img) => img.is_primary) ?? artwork?.images[0]
+  const artworkAlt = artworkImage
+    ? (lang === "es" ? artworkImage.alt_es : artworkImage.alt_en) || title
+    : title
+  const artworkTitle = artwork ? pickTranslation(artwork.translations, lang, "title") || artwork.slug : ""
+  const artworkArtist = artwork ? resolveArtistName(artwork.artist, artists) : ""
+
+  return {
+    salaNumber: String(index + 1).padStart(2, "0"),
+    title,
+    description,
+    curator: curatorName,
+    galleryHref: getLocalizedSalaPath(gallery.slug, lang),
+    artwork: {
+      src: primaryImage(artwork),
+      alt: artworkAlt,
+      title: artworkTitle,
+      artist: artworkArtist,
+      price:
+        artwork && artwork.price_usd > 0
+          ? `$${artwork.price_usd.toLocaleString("en-US")} USD`
+          : undefined,
+      href: getLocalizedSalaPath(gallery.slug, lang),
+    },
   }
 }

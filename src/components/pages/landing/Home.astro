@@ -9,7 +9,7 @@ import Headline from "@/components/atoms/Headline.astro"
 import { Filters } from "@/components/molecules/Filters"
 import { Artworks } from "@/components/organisms/Artworks"
 import ImageCard from "@/components/molecules/ImageCard.astro"
-import { resolveArtistName, toArtworkView, toSalaView } from "@/data/api"
+import { resolveArtistName, toArtworkView, toHeroView, toSalaView } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
 
@@ -46,10 +46,12 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
 const salas = siteData.galleries.map((gallery, index) =>
   toSalaView(gallery, siteData.curators, siteData.artworks, lang, index)
 )
+
+const hero = toHeroView(siteData.galleries, siteData.curators, siteData.artworks, siteData.artists, lang)
 ---
 <PageSEO currentPage="home" lang={lang} slot="seo" />
 
-<Hero />
+<Hero sala={hero} />
 
 <BannerBar />
 

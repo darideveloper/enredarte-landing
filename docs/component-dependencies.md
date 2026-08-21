@@ -52,9 +52,9 @@ src/pages/
 ### Home.astro tree
 
 ```
-Home.astro
+Home.astro ──────────────► data/api.ts (toHeroView → HeroView, resolved from primary gallery)
 ├── PageSEO.astro ─► BaseSEO.astro ─► { consts.ts, site-config.ts, lib/i18n/utils }
-├── Hero.astro
+├── Hero.astro ─────────────► data/api.ts (HeroView `sala` prop: title/description/curator/artwork)
 │   ├── H1.astro ──────────────► lib/utils (cn)
 │   ├── Headline.astro ────────► lib/utils
 │   ├── ImageBanner.astro
@@ -165,7 +165,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/i18n/ui.ts` — translation dictionaries
 - `lib/nav.ts` — `getNavLinks(lang)`, shared nav source for Header and Footer
 - `data/site-config.ts` — `BUSINESS_DATA`
-- `data/api.ts` — `buildSiteData()` (build-time fetch of all 10 backend resources), `SiteData`, and view builders (`toArtworkView`, `toSalaView`, `resolveGalleryArtworks`, `resolveGalleryCurator`, `resolveArtistName`, `getFacetLabel`)
+- `data/api.ts` — `buildSiteData()` (build-time fetch of all 10 backend resources), `SiteData`, and view builders (`toArtworkView`, `toSalaView`, `toHeroView`/`HeroView` (homepage hero from the primary `Gallery`), `resolveGalleryArtworks`, `resolveGalleryCurator`, `resolveArtistName`, `getFacetLabel`)
 - `lib/api/types.ts` — API-faithful types (`Base`, `Ref`, `Translations<T>`, `Paginated<T>`, `ApiError`, 10 resource interfaces)
 - `lib/api/client.ts` — `safeFetch`/`FetchError`/`apiFetch` (token-injecting fetch)
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
@@ -196,6 +196,12 @@ Everything below is a terminal dependency imported by multiple components:
 - **Homepage salas data**: the `Gallery` section now derives its cards from the galleries
   fetched via `buildSiteData()` (via `toSalaView`): real `href`s to detail pages, subtitles
   from `sort_order` only (no status suffix), and the curator line from the resolved curator.
+- **Homepage hero data**: the `Hero` organism (line ~52 of `Home.astro`) now receives a
+  `sala` prop resolved by `toHeroView()` in `data/api.ts` from the primary `Gallery`
+  (`is_primary === true`, falling back to the first gallery). It renders the gallery's
+  localized name/description, curator, and featured artwork; the badge "Sala NN" uses the
+  primary gallery's array index. `<Hero />` without props still renders via safe defaults
+  (design-system showcase).
 - **Build-time backend dependency**: `getStaticPaths` calls `buildSiteData()` which fetches
   the DRF API using `API_BASE_URL`/`API_TOKEN` (server-only, never `PUBLIC_*`). The backend
   must be reachable and the token valid during `astro build`; a failure surfaces a `FetchError`.
