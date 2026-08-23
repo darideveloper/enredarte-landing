@@ -29,7 +29,7 @@ The system SHALL provide one module per backend resource under `src/lib/api/` (`
 - **THEN** it requests `GET /apis/artworks/artworks/1/` and returns an `Artwork`
 
 ### Requirement: Token-injecting fetch client
-The system SHALL provide a fetch client that reads the backend base URL from `process.env.API_BASE_URL` and the DRF token from `process.env.API_TOKEN` (server-only, never a `PUBLIC_*` variable) and SHALL attach an `Authorization: Token <token>` header **and** an `Accept: application/json` header to every request. The client SHALL reuse the existing `safeFetch` wrapper (timeout, retry, `FetchError`), and SHALL be the only place the token is injected.
+The system SHALL provide a fetch client that reads the backend base URL from `process.env.API_BASE_URL` and the DRF token from `process.env.API_TOKEN` (server-only, never a `PUBLIC_*` variable) and SHALL attach an `Authorization: Token <token>` header **and** an `Accept: application/json` header to every request. The client SHALL reuse the existing `safeFetch` wrapper (timeout, retry, `FetchError`), and SHALL be the only place the token is injected. When `API_BASE_URL` and/or `API_TOKEN` is not set, the client SHALL throw a single error naming exactly which variable(s) are missing and instructing that they must be supplied as build-time environment variables (`--build-arg <NAME>=<value>`), rather than a generic error.
 
 #### Scenario: Authorization header injected
 - **GIVEN** `API_TOKEN` is set to `abc123`
@@ -44,6 +44,16 @@ The system SHALL provide a fetch client that reads the backend base URL from `pr
 #### Scenario: Token is server-only
 - **WHEN** the client is bundled
 - **THEN** the token is read from `process.env`, not from `import.meta.env.PUBLIC_*`, so it is not inlined into client bundles
+
+#### Scenario: Missing env var names the gap
+- **GIVEN** `API_TOKEN` is unset while `API_BASE_URL` is set
+- **WHEN** `apiFetch` runs
+- **THEN** it throws an error that names `API_TOKEN` as missing and says to pass it via `--build-arg API_TOKEN=<value>`
+
+#### Scenario: Both env vars missing
+- **GIVEN** neither `API_BASE_URL` nor `API_TOKEN` is set
+- **WHEN** `apiFetch` runs
+- **THEN** it throws a single error naming both `API_BASE_URL` and `API_TOKEN` as missing and instructs how to supply them as build-time arguments
 
 ### Requirement: Paginated fetch-all helper
 The system SHALL provide a `fetchAll` helper that fetches every page of a paginated resource (following `next` and `total_pages`, defaulting to `page_size=100`) and returns a flattened array of all results.

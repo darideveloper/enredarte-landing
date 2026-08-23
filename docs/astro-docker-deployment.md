@@ -31,8 +31,8 @@ ARG API_BASE_URL
 ENV API_BASE_URL=$API_BASE_URL
 
 # Add more as needed:
-# ARG API_TOKEN
-# ENV API_TOKEN=$API_TOKEN
+ARG API_TOKEN
+ENV API_TOKEN=$API_TOKEN
 
 # Install dependencies (cached layer — only invalidates on lockfile change)
 COPY package.json pnpm-lock.yaml ./
@@ -42,6 +42,8 @@ RUN pnpm install --frozen-lockfile
 
 # Build the static site
 COPY . .
+# Fail fast if any required build-time env var is missing
+RUN node -e 'const req=["API_BASE_URL","API_TOKEN"];const m=req.filter(v=>!process.env[v]);if(m.length){console.error("Missing build-time env var(s): "+m.join(", ")+"\nPass them with: --build-arg <NAME>=<value>");process.exit(1)}'
 RUN pnpm build
 
 # === Stage 2: Serve ===
@@ -120,6 +122,7 @@ The template works for both PWA and non-PWA projects. Delete every section marke
 # Build image (pass build args for server-only env vars)
 docker build \
   --build-arg API_BASE_URL=https://api.example.com \
+  --build-arg API_TOKEN=<your-token> \
   -t your-app:latest .
 
 # Run container
@@ -132,7 +135,7 @@ docker run -d -p 8080:80 your-app:latest
 
 1. Point to your Git repo
 2. Set build pack to **Dockerfile**
-3. Add environment variables as **Build Time** vars (server-only, no `PUBLIC_` prefix)
+3. Add `API_BASE_URL` and `API_TOKEN` as **Build Time** variables (server-only, no `PUBLIC_` prefix) — both are required or the build fails before `pnpm build`
 4. The Dockerfile uses `node:lts-alpine` — ensure the platform supports `corepack`
 
 ### CI/CD (GitHub Actions)
@@ -151,6 +154,7 @@ jobs:
         run: |
           docker build \
             --build-arg API_BASE_URL=${{ secrets.API_URL }} \
+            --build-arg API_TOKEN=${{ secrets.API_TOKEN }} \
             -t your-app:${{ github.sha }} .
       - name: Push to registry
         run: |
