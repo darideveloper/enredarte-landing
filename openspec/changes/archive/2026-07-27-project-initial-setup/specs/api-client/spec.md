@@ -30,8 +30,8 @@ Each backend endpoint SHALL have its own module in `src/lib/api/` that imports `
 - **THEN** it SHALL use `safeFetch` internally and return a typed promise
 
 ### Requirement: Base URL from environment
-The API base URL SHALL come from `import.meta.env.PUBLIC_API_BASE_URL`. It SHALL never be hardcoded.
+The API base URL SHALL come from `import.meta.env.API_BASE_URL`. It SHALL never be hardcoded.
 
 #### Scenario: Base URL uses env var
 - **WHEN** an endpoint module constructs a URL
-- **THEN** it SHALL use `import.meta.env.PUBLIC_API_BASE_URL` as the base
+- **THEN** it SHALL use `import.meta.env.API_BASE_URL` as the base

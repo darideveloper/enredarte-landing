@@ -134,7 +134,7 @@ import { safeFetch } from "./client"
 import type { LoginResponse } from "./types"
 
 export function login(email: string, password: string) {
-  const baseUrl = import.meta.env.PUBLIC_API_BASE_URL
+  const baseUrl = import.meta.env.API_BASE_URL
   return safeFetch<LoginResponse>(`${baseUrl}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -149,7 +149,7 @@ import { safeFetch } from "./client"
 import type { ItemsResponse } from "./types"
 
 export function getItems() {
-  const baseUrl = import.meta.env.PUBLIC_API_BASE_URL
+  const baseUrl = import.meta.env.API_BASE_URL
   return safeFetch<ItemsResponse>(`${baseUrl}/items`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -238,7 +238,7 @@ import { safeFetch } from "./client"
 import type { MyResponse } from "./types"
 
 export function myEndpoint(param: string) {
-  const baseUrl = import.meta.env.PUBLIC_API_BASE_URL
+  const baseUrl = import.meta.env.API_BASE_URL
   return safeFetch<MyResponse>(`${baseUrl}/endpoint`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -250,10 +250,11 @@ export function myEndpoint(param: string) {
 ## 8. Environment Variables
 
 ```env
-PUBLIC_API_BASE_URL=https://api.example.com
+API_BASE_URL=https://api.example.com
+API_TOKEN=<your-token>
 ```
 
-`PUBLIC_*` prefix makes it available in client-side code via `import.meta.env`.
+Server-only env vars (no `PUBLIC_` prefix) are accessed via `import.meta.env` in build-time code (SSG). Vite statically replaces them at build time.
 
 See [[astro-docker-deployment|Dockerized Deployment]] for how to pass build-time env vars in Docker.
 
@@ -264,7 +265,7 @@ See [[astro-docker-deployment|Dockerized Deployment]] for how to pass build-time
 - Use `FetchError` for typed error handling in components
 - Retry logic is in the client — component code doesn't need retry loops
 - Set reasonable timeouts (30s default) — infinite waits are the most common bug
-- Base URL from `import.meta.env.PUBLIC_*` — never hardcode
+- Base URL from `import.meta.env.API_BASE_URL` — never hardcode
 
 ## 10. Connection to Other Patterns
 

@@ -1,12 +1,15 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { matchesArtwork, useCatalogStore } from "@/store/catalog"
+import { matchesArtwork, useCatalogStore, type ArtworkFacets, type GroupKey } from "@/store/catalog"
+
+const GROUP_KEYS: GroupKey[] = ["artist", "discipline", "technique", "theme", "format", "scale"]
 
 export interface ArtworksProps {
   children: React.ReactNode
   loadingLabel?: string
   emptyLabel?: string
   resetLabel?: string
+  gridClassName?: string
   className?: string
 }
 
@@ -15,6 +18,7 @@ export function Artworks({
   loadingLabel = "Cargando…",
   emptyLabel = "No se encontraron obras con los filtros seleccionados.",
   resetLabel = "Reiniciar filtros",
+  gridClassName,
   className,
 }: ArtworksProps) {
   const gridRef = React.useRef<HTMLDivElement>(null)
@@ -30,7 +34,11 @@ export function Artworks({
     const cards = grid.querySelectorAll<HTMLElement>("[data-artist]")
     let visible = 0
     for (const card of cards) {
-      const matches = matchesArtwork(card.dataset, selections)
+      const facets = {} as ArtworkFacets
+      for (const key of GROUP_KEYS) {
+        facets[key] = (card.dataset[key] ?? "").split(" ").filter(Boolean)
+      }
+      const matches = matchesArtwork(facets, selections)
       card.hidden = !matches
       if (matches) visible += 1
     }
@@ -41,7 +49,7 @@ export function Artworks({
     <div className="relative">
       <div
         ref={gridRef}
-        className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[3px]", className)}
+        className={cn("grid gap-[3px]", gridClassName ?? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4", className)}
       >
         {children}
       </div>

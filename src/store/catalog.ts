@@ -1,6 +1,13 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { GroupKey } from "@/data/catalog"
+
+export type GroupKey =
+  | "artist"
+  | "discipline"
+  | "technique"
+  | "theme"
+  | "format"
+  | "scale"
 
 const EMPTY_SELECTIONS: Record<GroupKey, string[]> = {
   artist: [],
@@ -11,7 +18,7 @@ const EMPTY_SELECTIONS: Record<GroupKey, string[]> = {
   scale: [],
 }
 
-export type ArtworkFacets = Record<string, string | undefined>
+export type ArtworkFacets = Record<GroupKey, string[]>
 
 export interface CatalogStore {
   selections: Record<GroupKey, string[]>
@@ -78,8 +85,8 @@ export function matchesArtwork(
   return (Object.keys(selections) as GroupKey[]).every((group) => {
     const selected = selections[group]
     if (selected.length === 0) return true
-    const value = facets[group]
-    return value != null && selected.includes(value)
+    const values = facets[group]
+    return values != null && values.some((value) => selected.includes(value))
   })
 }
 

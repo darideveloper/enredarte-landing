@@ -7,9 +7,10 @@ import { ClientRouter } from "astro:transitions"
 
 export interface Props {
   preloadImage?: string
+  localizedPaths?: Record<"en" | "es", string>
 }
 
-const { preloadImage } = Astro.props
+const { preloadImage, localizedPaths } = Astro.props
 const lang = getLangFromUrl(Astro.url)
 ---
 <!doctype html>
@@ -25,7 +26,7 @@ const lang = getLangFromUrl(Astro.url)
     {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
   </head>
   <body class="flex min-h-screen flex-col font-sans">
-    <Header />
+    <Header localizedPaths={localizedPaths} />
     <main>
       <slot />
     </main>

@@ -120,15 +120,15 @@ These are **optional example patterns**, not files in the current project — th
 
 ## 3. Typed Environment Variables (`env.d.ts`)
 
-Astro projects handle `PUBLIC_*` env vars natively, but they're untyped by default. Add a type declaration file:
+Astro projects handle env vars natively via Vite, but they're untyped by default. Add a type declaration file:
 
 ```ts
 // env.d.ts
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly PUBLIC_API_BASE_URL: string;
-  readonly PUBLIC_ANALYTICS_ID?: string;
+  readonly API_BASE_URL: string;
+  readonly API_TOKEN: string;
 }
 
 interface ImportMeta {
@@ -136,7 +136,7 @@ interface ImportMeta {
 }
 ```
 
-Only `PUBLIC_*` variables belong in `ImportMetaEnv` — they're the ones exposed to client bundles via `import.meta.env`. Non-`PUBLIC_` variables (e.g. `SITE_URL`) are server-only and must be read via `process.env`, not `import.meta.env`. Without these declarations, `import.meta.env.PUBLIC_*` returns `any`. With them, you get autocomplete and type safety.
+All env vars (with or without `PUBLIC_` prefix) can be declared in `ImportMetaEnv` for type safety. Vite statically replaces `import.meta.env.*` at build time. `PUBLIC_*` vars are also available in client-side code; server-only vars (no prefix) are not exposed to client bundles. Without these declarations, `import.meta.env.*` returns `any`. With them, you get autocomplete and type safety.
 
 ## 4. Constants (`src/consts.ts`)
 
@@ -225,4 +225,4 @@ Then:
 ## 8. Connection to Other Patterns
 
 - `BUSINESS_DATA` is consumed by `BaseSEO.astro` for JSON-LD → see [[astro-seo]]
-- `PUBLIC_API_BASE_URL` env var is passed through Docker build args → see [[astro-docker-deployment]]
+- `API_BASE_URL` env var is passed through Docker build args → see [[astro-docker-deployment]]

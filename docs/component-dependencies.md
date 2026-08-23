@@ -18,9 +18,17 @@ src/pages/
 
 `[...path].astro` drives everything through `getStaticPaths()`:
 
-- Reads `routes` from `src/lib/i18n/routes.ts` → currently a single key: `home` (en `""` → root, es `es` → `/es`).
-- Looks up the page component in `COMPONENT_MAP` → currently `home: Home`.
-- Wraps the result in `Layout.astro`.
+- Calls `buildSiteData()` from `src/data/api.ts` once, which fetches every backend resource
+  (galleries, artists, art-curators, the five taxonomies, artworks) via the `src/lib/api/*`
+  endpoint modules and `fetchAll` pagination helper, then derives localized filter groups.
+- Emits the route-map pages, one detail page per gallery from the API
+  (`salas/<slug>` es / `en/salas/<slug>` en), and one detail page per artwork
+  (`obras/<slug>` es / `en/obras/<slug>` en), threading the shared `siteData` prop
+  through to `Home`/`GalleryPage`/`ArtworkPage`.
+- Looks up the page component in `COMPONENT_MAP` → `home: Home`, `gallery: GalleryPage`,
+  `artwork: ArtworkPage`.
+- Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery *or* artwork
+  URLs) to `Layout` → `Header` → `LangBtns` so the language switch preserves the gallery/artwork slug.
 
 ## Full dependency diagram
 
@@ -30,26 +38,26 @@ src/pages/
                             └──────────────┬───────────────┬───────────────┘
                                            │               │ routes (i18n)
                                            ▼               ▼
-                                     Home.astro      lib/i18n/routes.ts
-                                    (landing)
-                                           │
-                                           ▼
-                  ┌───────────────────────────────────────────────────┐
-                  │                    Layout.astro                    │
-                  │  global.css                                        │
-                  │  <body>                                            │
-                  │   ├─ Header.astro                                  │
-                  │   ├─ <slot/> = Home content                        │
-                  │   └─ Footer.astro                                  │
-                  └───────────────────────────────────────────────────┘
+           Home / GalleryPage / ArtworkPage       lib/i18n/routes.ts
+                            │               │          data/api.ts (buildSiteData)
+                            │               ▼          lib/api/* (10 endpoint modules,
+                            ▼        lib/i18n/utils      pagination.fetchAll)
+                   ┌───────────────────────────────────────────────────┐
+                   │                    Layout.astro                    │
+                   │  global.css                                        │
+                   │  <body>                                            │
+                   │   ├─ Header.astro (localizedPaths → LangBtns)      │
+                   │   ├─ <slot/> = page content                        │
+                   │   └─ Footer.astro                                  │
+                   └───────────────────────────────────────────────────┘
 ```
 
 ### Home.astro tree
 
 ```
-Home.astro
+Home.astro ──────────────► data/api.ts (toHeroView → HeroView, resolved from primary gallery)
 ├── PageSEO.astro ─► BaseSEO.astro ─► { consts.ts, site-config.ts, lib/i18n/utils }
-├── Hero.astro
+├── Hero.astro ─────────────► data/api.ts (HeroView `sala` prop: title/description/curator/artwork)
 │   ├── H1.astro ──────────────► lib/utils (cn)
 │   ├── Headline.astro ────────► lib/utils
 │   ├── ImageBanner.astro
@@ -67,9 +75,56 @@ Home.astro
 ├── Title.astro ────────────────► lib/utils (atoms)
 ├── Headline.astro
 ├── Filters.tsx (React island, client:load) ─► atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts, lib/utils
-│   └── data/catalog.ts (fixture groups + artwork facets, localized in Home.astro; viability via store/catalog.ts `computeViableOptions`)
+│   └── data/api.ts (API-derived groups + artwork facets, localized in Home.astro; viability via store/catalog.ts `computeViableOptions`)
 └── Artworks.tsx (React island, client:load) ─► store/catalog.ts, lib/utils
-    └── ImageCard.astro (slot children, stamped with data-* facets) ─► { Image, CardInfo }
+    └── ImageCard.astro (slot children, stamped with space-separated data-* facets) ─► { Image, CardInfo }
+```
+
+### GalleryPage.astro tree (per gallery, `/salas/<slug>` + `/es/salas/<slug>`)
+
+```
+GalleryPage.astro
+├── PageSEO.astro ─► BaseSEO.astro (explicit title/description/ogImage props)
+├── Headline.astro ───────► lib/utils
+├── Image.astro ───────────► lib/utils
+├── CuratorCard.astro (molecule)
+│   ├── Image.astro
+│   └── lib/i18n/utils (getTranslations, pickTranslation)
+├── Filters.tsx (React island, client:load; artist + technique groups only)
+│   └── atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts
+├── Artworks.tsx (React island, client:load; grid columns overridden via `gridClassName`)
+│   └── ImageBanner.astro (featured artwork, data-* facets)
+│       ├── Image.astro
+│       └── CardSummary.astro
+│   └── ImageRowCard.astro (remaining artworks, alternating image/info-card, data-* facets)
+│       ├── Image.astro
+│       ├── CardSummary.astro
+│       └── data/api.ts (ArtworkView + tag labels via getFacetLabel)
+├── data/api.ts (siteData prop: gallery lookup by slug, curator/artwork/artist resolution)
+│   ├── lib/api/*.ts (types, client, pagination, 10 endpoint modules)
+│   ├── store/catalog.ts (GroupKey)
+│   └── lib/i18n/utils (getTranslations, pickTranslation, getLocalizedSalaPath)
+└── lib/i18n/utils (getTranslations)
+```
+
+### ArtworkPage.astro tree (per artwork, `/obras/<slug>` + `/en/obras/<slug>`)
+
+```
+ArtworkPage.astro
+├── PageSEO.astro ─► BaseSEO.astro (explicit localized title/description/ogImage = primary image)
+├── ArtworkImageViewer.astro (molecule, left column)
+│   ├── Image.astro ──────────────► lib/utils
+│   └── lib/gsap.ts (ScrollTrigger pin+scrub timeline over layered .artwork-image children,
+│       gsap.matchMedia() desktop + prefers-reduced-motion branches, astro:after-swap revert
+│       + astro:page-load re-init lifecycle; single-image → no pin, static)
+└── ArtworkInfoPanel.astro (molecule, right column)
+    ├── Headline.astro ───────────► lib/utils
+    ├── Btn.astro ────────────────► lib/utils (mailto CTA via data/site-config EMAIL)
+    ├── lib/i18n/utils (getTranslations for status/spec labels)
+    └── data/api.ts (ArtworkDetailView prop)
+    data/api.ts (toArtworkDetailView → images/alt, title, description, artist,
+        year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel)
+    lib/i18n/utils (getLocalizedArtworkPath)
 ```
 
 ### Layout.astro tree (Header + Footer shared by every page)
@@ -83,11 +138,19 @@ Layout.astro
 │   │   └── lib/i18n/utils (getLocalizedPath)
 │   ├── Menu.astro
 │   │   └── Link.astro ─────────► lib/utils
+│   ├── lib/nav.ts ─────────────► lib/i18n/utils (getNavLinks)
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
-└── Footer.astro
-    ├── data/site-config.ts
+└── Footer.astro (dark ink palette)
+    ├── Logo.astro (bg-red-circle variant) ──► lib/utils (cn)
+    ├── Link.astro (footer variant) ─► lib/utils
+    ├── Headline.astro ───────────────► lib/utils
+    ├── LangBtns.astro (inverse variant)
+    │   └── lib/i18n/utils (getLocalizedPath)
+    ├── lib/nav.ts (shared getNavLinks with Header)
+    │   └── lib/i18n/utils
+    ├── data/site-config.ts (BUSINESS_DATA, SOCIAL_LINKS, PHONES, EMAIL)
     └── lib/i18n/utils (getLangFromUrl, getLocalizedPath, getTranslations)
 ```
 
@@ -120,23 +183,72 @@ Everything below is a terminal dependency imported by multiple components:
 
 - `lib/utils.ts` — `cn()` helper (nearly every component)
 - `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see `docs/gsap-scrolltrigger/`)
-- `lib/i18n/utils.ts` — `getTranslations`, `getLocalizedPath`
+- `lib/i18n/utils.ts` — `getTranslations`, `pickTranslation`, `getLocalizedPath`, `getLocalizedSalaPath`, `getLocalizedArtworkPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries
+- `lib/nav.ts` — `getNavLinks(lang)`, shared nav source for Header and Footer
 - `data/site-config.ts` — `BUSINESS_DATA`
+- `data/api.ts` — `buildSiteData()` (build-time fetch of all 10 backend resources), `SiteData`, and view builders (`toArtworkView`, `toArtworkDetailView`, `toSalaView`, `toHeroView`/`HeroView` (homepage hero from the primary `Gallery`), `resolveGalleryArtworks`, `resolveGalleryCurator`, `resolveArtistName`, `getFacetLabel`)
+- `lib/api/types.ts` — API-faithful types (`Base`, `Ref`, `Translations<T>`, `Paginated<T>`, `ApiError`, 10 resource interfaces)
+- `lib/api/client.ts` — `safeFetch`/`FetchError`/`apiFetch` (token-injecting fetch)
+- `lib/api/pagination.ts` — `fetchAll` pagination helper
+- `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks}.ts` — `list`/`detail` endpoint modules
+- `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
 - `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …)
 
 ## Notes
 
-- **Single page tree.** After the `remove-dummy-pages` cleanup the site serves only
-  `Home`; the generic `Services`/`About` pages, their `Button.tsx` atom, their routes,
-  and their translations were removed.
+- **Three page components.** The single catch-all `[...path].astro` now serves `Home`
+  (root `/` + `/es`), one `GalleryPage` per gallery fetched from the backend API
+  (`/salas/<slug>` + `/en/salas/<slug>`), and one `ArtworkPage` per artwork
+  (`/obras/<slug>` + `/en/obras/<slug>`). The generic `Services`/`About` pages were
+  removed in the `remove-dummy-pages` cleanup.
+- **Artwork detail pages**: `ArtworkPage.astro` renders `toArtworkDetailView` (all artwork
+  data from `buildSiteData()`) in a two-column layout — a scroll-driven `ArtworkImageViewer`
+  on the left (layered `.artwork-image` children crossfaded by a GSAP `ScrollTrigger`
+  pin+scrub timeline, `ease: "none"`, end derived from image count; single-image artworks
+  fall back to a static `Image` with no pin; disabled via `gsap.matchMedia()` for
+  `prefers-reduced-motion` and `max-width: 767px`) and a fixed `ArtworkInfoPanel` on the
+  right (title, artist, year/dimensions, description, price/status, taxonomy spec rows,
+  mailto CTA) that stays visually fixed because the whole section is pinned. Localized SEO
+  via `PageSEO` (`ogImage` = primary image). `LangBtns` `localizedPaths` preserve the
+  artwork slug across languages.
+- **Artwork card hrefs**: `toArtworkView` now emits `getLocalizedArtworkPath` (real links)
+  instead of `"#"`, so every `ImageCard` (homepage) and `ImageRowCard`/`ImageBanner`
+  (gallery) artwork navigates to its detail page.
+- **Gallery detail pages**: `GalleryPage.astro` renders a hero (eyebrow "Sala 0N" derived
+  from `sort_order` only), a `CuratorCard` (full gallery/curator data resolved from the
+  art-curators list), and an artworks section reusing the `Filters`/`Artworks` React
+  islands but limited to the `artist` + `technique` groups and the gallery's own artworks
+  (resolved from `artwork_links`, ordered by `sort_order`). The first artwork renders as a
+  featured `ImageBanner`, the rest as alternating `ImageRowCard`s; all carry space-separated
+  `data-*` facet values so the `Artworks` island parses them into arrays before matching.
+  `Artworks` accepts an optional `gridClassName` prop that replaces its default
+  `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` columns (GalleryPage passes a single-column grid).
+- **Language switch on gallery pages**: `LangBtns` accepts an optional `localizedPaths`
+  prop (the en/es gallery URLs), threaded through `Layout` → `Header` from
+  `[...path].astro` via `getLocalizedSalaPath`. Without the prop, behavior is the
+  route-map default (unchanged).
+- **Homepage salas data**: the `Gallery` section now derives its cards from the galleries
+  fetched via `buildSiteData()` (via `toSalaView`): real `href`s to detail pages, subtitles
+  from `sort_order` only (no status suffix), and the curator line from the resolved curator.
+- **Homepage hero data**: the `Hero` organism (line ~52 of `Home.astro`) now receives a
+  `sala` prop resolved by `toHeroView()` in `data/api.ts` from the primary `Gallery`
+  (`is_primary === true`, falling back to the first gallery). It renders the gallery's
+  localized name/description, curator, and featured artwork; the badge "Sala NN" uses the
+  primary gallery's array index. `<Hero />` without props still renders via safe defaults
+  (design-system showcase).
+- **Build-time backend dependency**: `getStaticPaths` calls `buildSiteData()` which fetches
+  the DRF API using `API_BASE_URL`/`API_TOKEN` (server-only, never `PUBLIC_*`). The backend
+  must be reachable and the token valid during `astro build`; a failure surfaces a `FetchError`.
+- **Nav anchors**: the `salas`/`obras`/`artistas` nav items still point at `#salas`,
+  `#obras`, `#artistas` homepage anchors — there is no salas index page in scope.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **Orphaned / not reachable from any page** (candidates for cleanup):
   - `molecules/GlobalLoader.tsx`
-  - `lib/api/` (`client.ts`, `types.ts`, `constants.ts`)
+- **`Image` atom height prop**: `atoms/Image.astro` supports an optional `height` prop (`"full"` default | `"auto"`). `ImageRowCard` uses `height="auto"` so each artwork renders at its natural aspect ratio (no fixed-height crop); all other consumers (`ImageCard`, `ImageBanner`, `Hero`) keep the default `full` behavior. `lib/utils` `cn` now composes via `clsx` + `tailwind-merge` (last-wins on conflicting utilities).
 - **Reference stateful atom**: `atoms/Input.tsx` is the store-bound form atom (vanilla, self-bound via `useField`, injectable hook prop). `atoms/ValidatedInput.tsx` no longer exists — its responsibilities folded into `Input`.
 - **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work. `store/catalog.ts` (zustand + persist, `useCatalog` hook, `matchesArtwork` predicate, `computeViableOptions` helper) is the shared filter-state store for the interactive collection section.
-- **Interactive collection**: `data/catalog.ts` holds fixture filter groups (bilingual) and artwork data. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store, and disables chips that can no longer match any artwork (`disabled` prop on `FilterBtn`, viability computed client-side from the `facets` prop via `computeViableOptions`); `Artworks` receives `ImageCard.astro` slot children stamped with `data-*` facet attributes, toggles their visibility, and renders a localized empty-state block (`emptyLabel`/`resetLabel` props) with a restart-filters button backed by the store's `reset` action when no card matches. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.
+- **Interactive collection**: filter groups and artwork data are derived from the backend API in `data/api.ts` and threaded into pages via the `siteData` prop. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store, and disables chips that can no longer match any artwork (`disabled` prop on `FilterBtn`, viability computed client-side from the `facets` prop via `computeViableOptions`); `Artworks` receives `ImageCard.astro` slot children stamped with space-separated `data-*` facet attributes (parsed into arrays before matching), toggles their visibility, and renders a localized empty-state block (`emptyLabel`/`resetLabel` props) with a restart-filters button backed by the store's `reset` action when no card matches. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.

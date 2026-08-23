@@ -8,9 +8,24 @@
     },
     "footer": {
       "links": "Links",
-      "contact": "Contact"
+      "contact": "Contact",
+      "rights": "All rights reserved.",
+      "poweredBy": "Powered by",
+      "social": {
+        "facebook": "Facebook",
+        "instagram": "Instagram"
+      }
     },
     "loading": "Loading…",
+    "gallery": {
+      "sala": "Sala",
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "curatorship": "Curated by",
+      "works": "Works of the room",
+      "workCount": "{count} Work",
+      "worksCount": "{count} Works"
+    },
     "filters": {
       "more": "Show more filters",
       "less": "Show fewer filters",
@@ -23,6 +38,21 @@
       "title": "EnredArte",
       "description": "Discover art in every corner",
       "keywords": "art, gallery, culture"
+    },
+    "artwork": {
+      "status": {
+        "available": "Available",
+        "reserved": "Reserved",
+        "sold": "Sold"
+      },
+      "spec": {
+        "discipline": "Discipline",
+        "technique": "Technique",
+        "theme": "Theme",
+        "format": "Format",
+        "scale": "Scale"
+      },
+      "cta": "Inquire"
     }
   }
 }

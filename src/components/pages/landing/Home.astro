@@ -9,64 +9,30 @@ import Headline from "@/components/atoms/Headline.astro"
 import { Filters } from "@/components/molecules/Filters"
 import { Artworks } from "@/components/organisms/Artworks"
 import ImageCard from "@/components/molecules/ImageCard.astro"
-import { artworks, filterGroups } from "@/data/catalog"
+import { resolveArtistName, toArtworkView, toHeroView, toSalaView } from "@/data/api"
+import type { SiteData } from "@/data/api"
+import type { Lang } from "@/lib/api/types"
 
-const salasData = [
-  {
-    src: "/images/abstract-landscape-oil.jpg",
-    alt: "Sala Tierra Mundo Memoria",
-    title: "Tierra, Mundo y Memoria",
-    href: "#",
-    isLarge: true,
-    subtitle: "Sala 01 · Activa",
-    meta: "6 Artistas · Los Cabos / GDL",
-    curator: "Curaduría: Álvaro Macias",
-  },
-  {
-    src: "/images/painting-abstract-details.jpg",
-    alt: "Sala Plástica Oaxaqueña",
-    title: "Plástica Oaxaqueña",
-    href: "#",
-    subtitle: "Sala 02 · Activa",
-    meta: "4 Artistas · Oaxaca",
-  },
-  {
-    src: "/images/cityscape-madrid-gran-via.jpg",
-    alt: "Sala Nuevas Voces",
-    title: "Nuevas Voces CDMX",
-    href: "#",
-    subtitle: "Sala 03 · Activa",
-    meta: "5 Artistas · Ciudad de México",
-  },
-  {
-    src: "/images/artist-street-exhibition.jpg",
-    alt: "Sala San Miguel de Allende",
-    title: "San Miguel de Allende",
-    href: "#",
-    subtitle: "Sala 04 · Próximamente",
-    meta: "Curaduría: Regina Ibarra",
-  },
-  {
-    src: "/images/abstract-mosaic-woman.jpg",
-    alt: "Sala Puerto Vallarta",
-    title: "Puerto Vallarta",
-    href: "#",
-    subtitle: "Sala 05 · Próximamente",
-    meta: "Territorio de Álvaro",
-  }
-]
+export interface Props {
+  lang: Lang
+  siteData: SiteData
+}
 
-const { lang } = Astro.props
+const { lang, siteData } = Astro.props
 const t = getTranslations(lang)
 
-const localizedGroups = filterGroups.map((group) => ({
+const localizedGroups = siteData.filterGroups.map((group) => ({
   key: group.key,
-  label: group[lang],
+  label: group.label[lang],
   options: group.options.map((option) => ({
-    value: option.slug,
-    label: option[lang],
+    value: option.value,
+    label: option.label[lang],
   })),
 }))
+
+const artworks = siteData.artworks.map((artwork) =>
+  toArtworkView(artwork, resolveArtistName(artwork.artist, siteData.artists), lang, siteData.filterGroups)
+)
 
 const facets = artworks.map(({ artist, discipline, technique, theme, format, scale }) => ({
   artist,
@@ -76,14 +42,20 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
   format,
   scale,
 }))
+
+const salas = siteData.galleries.map((gallery, index) =>
+  toSalaView(gallery, siteData.curators, siteData.artworks, lang, index)
+)
+
+const hero = toHeroView(siteData.galleries, siteData.curators, siteData.artworks, siteData.artists, lang)
 ---
 <PageSEO currentPage="home" lang={lang} slot="seo" />
 
-<Hero />
+<Hero sala={hero} />
 
 <BannerBar />
 
-<Gallery salas={salasData} />
+<Gallery salas={salas} />
 
 <section id="artworks-collection" class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
   <div class="artworks-header">
@@ -114,14 +86,14 @@ const facets = artworks.map(({ artist, discipline, technique, theme, format, sca
         title={artwork.title}
         href={artwork.href}
         meta={artwork.meta}
-        curator={artwork.curator}
+        curator={artwork.price}
         class="aspect-[4/5]"
-        data-artist={artwork.artist}
-        data-discipline={artwork.discipline}
-        data-technique={artwork.technique}
-        data-theme={artwork.theme}
-        data-format={artwork.format}
-        data-scale={artwork.scale}
+        data-artist={artwork.artist.join(" ")}
+        data-discipline={artwork.discipline.join(" ")}
+        data-technique={artwork.technique.join(" ")}
+        data-theme={artwork.theme.join(" ")}
+        data-format={artwork.format.join(" ")}
+        data-scale={artwork.scale.join(" ")}
       />
     ))}
   </Artworks>

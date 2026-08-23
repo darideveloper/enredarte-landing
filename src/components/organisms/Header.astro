@@ -3,22 +3,18 @@ import Logo from "@/components/atoms/Logo.astro"
 import LangBtns from "@/components/atoms/LangBtns.astro"
 import Menu from "@/components/molecules/Menu.astro"
 import { cn } from "@/lib/utils"
-import { getLangFromUrl, getLocalizedPath, getTranslations } from "@/lib/i18n/utils"
+import { getLangFromUrl, getLocalizedPath } from "@/lib/i18n/utils"
+import { getNavLinks } from "@/lib/nav"
 
 export interface Props {
   class?: string
+  localizedPaths?: Record<"en" | "es", string>
 }
 
-const { class: className } = Astro.props
+const { class: className, localizedPaths } = Astro.props
 const lang = getLangFromUrl(Astro.url)
-const t = getTranslations(lang)
 
-const navLinks = [
-  { label: t("global.nav.home"), href: getLocalizedPath("home", lang) },
-  { label: t("global.nav.obras"), href: "#obras" },
-  { label: t("global.nav.salas"), href: "#salas" },
-  { label: t("global.nav.artistas"), href: "#artistas" },
-]
+const navLinks = getNavLinks(lang)
 ---
 
 <header class={cn("sticky top-0 z-50 bg-paper border-b border-border-theme px-6 md:px-14 py-4.5", className)}>
@@ -31,7 +27,7 @@ const navLinks = [
 
     <!-- Right: Language Switcher & Hamburger Toggle -->
     <div class="flex items-center gap-4.5">
-      <LangBtns />
+      <LangBtns localizedPaths={localizedPaths} />
 
       <button id="mobile-menu-btn" class="md:hidden flex flex-col justify-center gap-1.5 w-6 h-6 z-50 relative" aria-label="Toggle menu">
         <span class="block w-full h-[2px] bg-ink transition-transform duration-300 origin-center"></span>

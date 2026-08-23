@@ -6,8 +6,8 @@
 - [x] 1.4 Update tsconfig.json with path aliases (@/*), React JSX config (jsx: "react-jsx", jsxImportSource: "react")
 - [x] 1.5 Add packageManager field and update engines in package.json
 - [x] 1.6 Update build script to run validate-i18n before astro build
-- [x] 1.7 Add .env.example with PUBLIC_API_BASE_URL placeholder
-- [x] 1.8 Create env.d.ts with ImportMetaEnv interface (SITE_URL, PUBLIC_API_BASE_URL)
+- [x] 1.7 Add .env.example with API_BASE_URL placeholder
+- [x] 1.8 Create env.d.ts with ImportMetaEnv interface (API_BASE_URL, API_TOKEN)
 
 ## 2. Tailwind & Styling
 

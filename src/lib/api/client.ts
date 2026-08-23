@@ -41,6 +41,18 @@ async function attemptFetch<T>(url: string, options: RequestInit, timeoutMs: num
   return data as T
 }
 
+export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const baseUrl = import.meta.env.API_BASE_URL as string | undefined
+  const token = import.meta.env.API_TOKEN as string | undefined
+  if (!baseUrl) throw new Error("API_BASE_URL is not set")
+  if (!token) throw new Error("API_TOKEN is not set")
+
+  const headers = new Headers(init.headers)
+  headers.set("Authorization", `Token ${token}`)
+  headers.set("Accept", "application/json")
+  return safeFetch<T>(`${baseUrl}${path}`, { ...init, headers })
+}
+
 export async function safeFetch<T>(
   url: string,
   options: RequestInit = {},

@@ -8,8 +8,8 @@
     "pnpm": ">=10.18.3"
   },
   "scripts": {
-    "dev": "portless enredarte-landing pnpm astro dev",
-    "build": "pnpm validate-i18n && pnpm validate-imports && astro build",
+    "dev": "NODE_OPTIONS=--use-openssl-ca portless enredarte-landing pnpm astro dev",
+    "build": "pnpm validate-i18n && pnpm validate-imports && NODE_OPTIONS=--use-openssl-ca astro build",
     "preview": "astro preview",
     "astro": "astro",
     "validate-i18n": "tsx scripts/validate-i18n.ts",
@@ -20,17 +20,21 @@
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.1.3",
+    "clsx": "^2.1.1",
     "gsap": "^3.12.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",
     "tw-animate-css": "^1.4.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "tsx": "^4.23.1"
+    "tsx": "^4.23.1",
+    "typescript": "^6.0.3"
   }
 }
