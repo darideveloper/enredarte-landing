@@ -38,6 +38,21 @@
       "title": "EnredArte",
       "description": "Discover art in every corner",
       "keywords": "art, gallery, culture"
+    },
+    "artwork": {
+      "status": {
+        "available": "Available",
+        "reserved": "Reserved",
+        "sold": "Sold"
+      },
+      "spec": {
+        "discipline": "Discipline",
+        "technique": "Technique",
+        "theme": "Theme",
+        "format": "Format",
+        "scale": "Scale"
+      },
+      "cta": "Inquire"
     }
   }
 }

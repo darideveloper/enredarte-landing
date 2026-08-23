@@ -1,0 +1,74 @@
+---
+import Headline from "@/components/atoms/Headline.astro"
+import Btn from "@/components/atoms/Btn.astro"
+import type { ArtworkDetailView } from "@/data/api"
+import type { Lang } from "@/lib/api/types"
+import { getTranslations } from "@/lib/i18n/utils"
+import { EMAIL } from "@/data/site-config"
+
+export interface Props {
+  artwork: ArtworkDetailView
+  lang: Lang
+}
+
+const { artwork, lang } = Astro.props
+const t = getTranslations(lang)
+
+const specRows: { label: string; values: string[] }[] = [
+  { label: t("pages.artwork.spec.discipline"), values: artwork.discipline },
+  { label: t("pages.artwork.spec.technique"), values: artwork.technique },
+  { label: t("pages.artwork.spec.theme"), values: artwork.theme },
+  { label: t("pages.artwork.spec.format"), values: artwork.format },
+  { label: t("pages.artwork.spec.scale"), values: artwork.scale },
+].filter((row) => row.values.length > 0)
+
+const price = artwork.priceUsd ?? artwork.priceMxn
+const statusLabel = t(`pages.artwork.status.${artwork.status}`)
+---
+
+<aside class="artwork-info-panel flex flex-col gap-8 border-t border-border-theme pt-8 md:border-t-0 md:pt-0">
+  <div>
+    <Headline color="muted" class="block mb-3 tracking-[0.2em]">{artwork.artist}</Headline>
+    <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-4">{artwork.title}</h1>
+    {(artwork.year || artwork.dimensions) && (
+      <p class="text-[12px] text-muted uppercase tracking-[0.14em] font-sans">
+        {[artwork.year, artwork.dimensions].filter(Boolean).join(" · ")}
+      </p>
+    )}
+  </div>
+
+  {artwork.description && (
+    <p class="text-[15px] text-[#7A7568] leading-[1.85] font-sans">{artwork.description}</p>
+  )}
+
+  {(price || artwork.status) && (
+    <div class="flex flex-col gap-2">
+      {price && <p class="text-sm text-ink font-sans font-medium">{price}</p>}
+      <p class="text-[11px] uppercase tracking-[0.14em] font-sans text-muted">{statusLabel}</p>
+    </div>
+  )}
+
+  {specRows.length > 0 && (
+    <dl class="border-t border-border-theme">
+      {specRows.map((row) => (
+        <div class="flex justify-between gap-4 border-b border-border-theme py-3.5 text-[12px] font-sans">
+          <dt class="uppercase tracking-[0.14em] text-muted">{row.label}</dt>
+          <dd class="text-right text-ink">{row.values.join(", ")}</dd>
+        </div>
+      ))}
+    </dl>
+  )}
+
+  <Btn variant="primary" href={EMAIL.href} class="self-start">
+    {t("pages.artwork.cta")}
+  </Btn>
+</aside>
+
+<style>
+  @media (min-width: 1024px) {
+    .artwork-info-panel {
+      height: calc(100vh - 9rem);
+      overflow-y: auto;
+    }
+  }
+</style>

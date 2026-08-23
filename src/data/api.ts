@@ -8,7 +8,12 @@ import { list as listScales } from "@/lib/api/scales"
 import { list as listTechniques } from "@/lib/api/techniques"
 import { list as listThemes } from "@/lib/api/themes"
 import { list as listArtworks } from "@/lib/api/artworks"
-import { getLocalizedSalaPath, getTranslations, pickTranslation } from "@/lib/i18n/utils"
+import {
+  getLocalizedArtworkPath,
+  getLocalizedSalaPath,
+  getTranslations,
+  pickTranslation,
+} from "@/lib/i18n/utils"
 import type { Lang } from "@/lib/api/types"
 import type {
   Artwork,
@@ -198,7 +203,7 @@ export function toArtworkView(
     src: image?.image ?? "",
     alt,
     title,
-    href: "#",
+    href: getLocalizedArtworkPath(artwork.slug, lang),
     meta: artistName,
     price,
     artist: [artwork.artist.slug],
@@ -207,6 +212,68 @@ export function toArtworkView(
     theme: slugs(artwork.themes),
     format: slugs(artwork.formats),
     scale: slugs(artwork.scales),
+  }
+}
+
+export interface ArtworkDetailImage {
+  src: string
+  alt: string
+  isPrimary: boolean
+}
+
+export interface ArtworkDetailView {
+  slug: string
+  title: string
+  description: string
+  artist: string
+  year: string
+  dimensions: string
+  images: ArtworkDetailImage[]
+  priceUsd?: string
+  priceMxn?: string
+  status: Artwork["status"]
+  discipline: string[]
+  technique: string[]
+  theme: string[]
+  format: string[]
+  scale: string[]
+}
+
+export function toArtworkDetailView(
+  artwork: Artwork,
+  siteData: SiteData,
+  lang: Lang,
+): ArtworkDetailView {
+  const title = pickTranslation(artwork.translations, lang, "title") || artwork.slug
+  const description = pickTranslation(artwork.translations, lang, "description")
+  const labels = (refs: Ref[], key: GroupKey) =>
+    refs.map((ref) => getFacetLabel(key, ref.slug, lang, siteData.filterGroups))
+  const imageAlt = (image: Artwork["images"][number]) =>
+    (lang === "es" ? image.alt_es : image.alt_en) || title
+
+  return {
+    slug: artwork.slug,
+    title,
+    description,
+    artist: resolveArtistName(artwork.artist, siteData.artists),
+    year: artwork.year ? String(artwork.year) : "",
+    dimensions: artwork.dimensions ?? "",
+    images: artwork.images
+      .slice()
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((image) => ({
+        src: image.image,
+        alt: imageAlt(image),
+        isPrimary: image.is_primary,
+      })),
+    priceUsd: artwork.price_usd > 0 ? `$${artwork.price_usd.toLocaleString("en-US")} USD` : undefined,
+    priceMxn: artwork.price_mxn > 0 ? `$${artwork.price_mxn.toLocaleString("es-MX")} MXN` : undefined,
+    status: artwork.status,
+    discipline: labels(artwork.disciplines, "discipline"),
+    technique: labels(artwork.techniques, "technique"),
+    theme: labels(artwork.themes, "theme"),
+    format: labels(artwork.formats, "format"),
+    scale: labels(artwork.scales, "scale"),
   }
 }
 
@@ -321,7 +388,9 @@ export function toHeroView(
         artwork && artwork.price_usd > 0
           ? `$${artwork.price_usd.toLocaleString("en-US")} USD`
           : undefined,
-      href: getLocalizedSalaPath(gallery.slug, lang),
+      href: artwork
+        ? getLocalizedArtworkPath(artwork.slug, lang)
+        : getLocalizedSalaPath(gallery.slug, lang),
     },
   }
 }

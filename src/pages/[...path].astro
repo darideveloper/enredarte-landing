@@ -3,9 +3,10 @@ import Layout from "@/layouts/Layout.astro"
 import { routes, type PageKey } from "@/lib/i18n/routes"
 import Home from "@/components/pages/landing/Home.astro"
 import GalleryPage from "@/components/pages/sala/GalleryPage.astro"
+import ArtworkPage from "@/components/pages/obra/ArtworkPage.astro"
 import { buildSiteData } from "@/data/api"
 import type { SiteData } from "@/data/api"
-import { getLocalizedSalaPath } from "@/lib/i18n/utils"
+import { getLocalizedArtworkPath, getLocalizedSalaPath } from "@/lib/i18n/utils"
 
 export async function getStaticPaths() {
   const siteData = await buildSiteData()
@@ -30,18 +31,30 @@ export async function getStaticPaths() {
       props: { pageKey: "gallery", gallerySlug: gallery.slug, lang: "en", siteData },
     })
   }
+  for (const artwork of siteData.artworks) {
+    paths.push({
+      params: { path: `obras/${artwork.slug}` },
+      props: { pageKey: "artwork", artworkSlug: artwork.slug, lang: "es", siteData },
+    })
+    paths.push({
+      params: { path: `en/obras/${artwork.slug}` },
+      props: { pageKey: "artwork", artworkSlug: artwork.slug, lang: "en", siteData },
+    })
+  }
   return paths
 }
 
 const COMPONENT_MAP: Record<string, any> = {
   home: Home,
   gallery: GalleryPage,
+  artwork: ArtworkPage,
 }
 
-const { pageKey, lang, gallerySlug, siteData } = Astro.props as {
+const { pageKey, lang, gallerySlug, artworkSlug, siteData } = Astro.props as {
   pageKey: PageKey
   lang: "es" | "en"
   gallerySlug?: string
+  artworkSlug?: string
   siteData: SiteData
 }
 const PageComponent = COMPONENT_MAP[pageKey as PageKey]
@@ -52,8 +65,21 @@ const localizedPaths =
         en: getLocalizedSalaPath(gallerySlug, "en"),
         es: getLocalizedSalaPath(gallerySlug, "es"),
       }
-    : undefined
+    : pageKey === "artwork" && artworkSlug
+      ? {
+          en: getLocalizedArtworkPath(artworkSlug, "en"),
+          es: getLocalizedArtworkPath(artworkSlug, "es"),
+        }
+      : undefined
 ---
 <Layout localizedPaths={localizedPaths}>
-  {PageComponent && <PageComponent lang={lang} pageKey={pageKey} gallerySlug={gallerySlug} siteData={siteData} />}
+  {PageComponent && (
+    <PageComponent
+      lang={lang}
+      pageKey={pageKey}
+      gallerySlug={gallerySlug}
+      artworkSlug={artworkSlug}
+      siteData={siteData}
+    />
+  )}
 </Layout>

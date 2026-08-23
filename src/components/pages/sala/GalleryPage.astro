@@ -16,7 +16,7 @@ import {
   toArtworkView,
 } from "@/data/api"
 import type { SiteData } from "@/data/api"
-import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
+import { getTranslations, pickTranslation, getLocalizedSalaPath } from "@/lib/i18n/utils"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -62,6 +62,10 @@ const eyebrow = `${t("global.gallery.sala")} ${String(galleryIndex + 1).padStart
 const galleryName = pickTranslation(gallery.translations, lang, "name") || gallery.slug
 const galleryDescription = pickTranslation(gallery.translations, lang, "description")
 const heroSrc = gallery.logo ?? featured?.src ?? ""
+const alternateUrls = {
+  en: getLocalizedSalaPath(gallery.slug, "en"),
+  es: getLocalizedSalaPath(gallery.slug, "es"),
+}
 ---
 
 <PageSEO
@@ -69,6 +73,7 @@ const heroSrc = gallery.logo ?? featured?.src ?? ""
   title={galleryName}
   description={galleryDescription}
   ogImage={gallery.logo ?? featured?.src}
+  alternateUrls={alternateUrls}
   slot="seo"
 />
 

@@ -17,6 +17,10 @@ export function getLocalizedSalaPath(slug: string, lang: keyof typeof ui) {
   return lang === "en" ? `/en/salas/${slug}` : `/salas/${slug}`
 }
 
+export function getLocalizedArtworkPath(slug: string, lang: keyof typeof ui) {
+  return lang === "en" ? `/en/obras/${slug}` : `/obras/${slug}`
+}
+
 export function pickTranslation<T extends Record<string, string>>(
   translations: Translations<T> | undefined,
   lang: Lang,

@@ -38,6 +38,21 @@
       "title": "EnredArte",
       "description": "Descubre el arte en cada rincón",
       "keywords": "arte, galería, cultura"
+    },
+    "artwork": {
+      "status": {
+        "available": "Disponible",
+        "reserved": "Reservada",
+        "sold": "Vendida"
+      },
+      "spec": {
+        "discipline": "Disciplina",
+        "technique": "Técnica",
+        "theme": "Temática",
+        "format": "Formato",
+        "scale": "Escala"
+      },
+      "cta": "Consultar"
     }
   }
 }

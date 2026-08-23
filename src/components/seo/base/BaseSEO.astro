@@ -12,6 +12,7 @@ export interface Props {
   jsonType?: string
   extraJson?: Record<string, any>
   ogImage?: string
+  alternateUrls?: { en: string; es: string }
   useTagLine?: boolean
   noIndex?: boolean
 }
@@ -25,6 +26,7 @@ const {
   jsonType = "LocalBusiness",
   extraJson = {},
   ogImage,
+  alternateUrls,
   useTagLine = true,
   noIndex,
 } = Astro.props
@@ -46,20 +48,20 @@ const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
 
 const socialImageUrl = ogImage ? `${BUSINESS_DATA.url}${ogImage}` : `${BUSINESS_DATA.url}${BUSINESS_DATA.ogImage}`
 
-const alternateUrls = currentPage
+const resolvedAlternateUrls = alternateUrls ?? (currentPage
   ? {
       en: `${BUSINESS_DATA.url}${getLocalizedPath(currentPage, "en")}`,
       es: `${BUSINESS_DATA.url}${getLocalizedPath(currentPage, "es")}`,
     }
-  : undefined
+  : undefined)
 ---
 <title>{pageTitle}</title>
 <meta name="description" content={resolvedDescription} />
 {resolvedKeywords && <meta name="keywords" content={resolvedKeywords} />}
 <link rel="canonical" href={canonicalUrl} />
-{alternateUrls && <link rel="alternate" hreflang="en" href={alternateUrls.en} />}
-{alternateUrls && <link rel="alternate" hreflang="es" href={alternateUrls.es} />}
-{alternateUrls && <link rel="alternate" hreflang="x-default" href={`${BUSINESS_DATA.url}/`} />}
+{resolvedAlternateUrls && <link rel="alternate" hreflang="en" href={resolvedAlternateUrls.en} />}
+{resolvedAlternateUrls && <link rel="alternate" hreflang="es" href={resolvedAlternateUrls.es} />}
+{resolvedAlternateUrls && <link rel="alternate" hreflang="x-default" href={`${BUSINESS_DATA.url}/`} />}
 <meta property="og:type" content="website" />
 <meta property="og:locale" content={LOCALE_MAP[lang]} />
 <meta property="og:title" content={pageTitle} />
