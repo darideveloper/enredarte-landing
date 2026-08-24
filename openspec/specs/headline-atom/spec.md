@@ -1,7 +1,7 @@
 ## Purpose
 Defines the behavior, inputs, and visual constraints for the Headline atom component, which acts as a fundamental typography block for category labels and highlighted text.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Render standard text content
 The `Headline` component MUST render text provided via its default slot as an inline element (such as a `<span>`).

@@ -1,7 +1,7 @@
 ## Purpose
 Defines the behavior and constraints for the Image atom component, which acts as a standard, responsive image container for the design system.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Render image with standard properties
 The `Image` component SHALL render an HTML `<img>` tag and enforce accessibility and layout best practices.
@@ -27,7 +27,7 @@ The `Image` component SHALL support an optional `height` property with values `f
 - **THEN** the image uses `h-auto`, preserving its natural aspect ratio.
 
 ### Requirement: Support aspect ratio constraints
-The `Image` component SHALL support an optional `aspectRatio` property that wraps the image in a container enforcing the specified ratio (e.g., `4/5`, `16/9`, or `video`).
+The `Image` component SHALL support an optional `aspectRatio` property that wraps the image in a container enforcing the specified ratio (e.g., `4/5`, `video`, or `square`).
 
 #### Scenario: Aspect ratio is provided
 - **WHEN** the `aspectRatio` property is defined as `video`
@@ -35,4 +35,4 @@ The `Image` component SHALL support an optional `aspectRatio` property that wrap
 
 #### Scenario: No aspect ratio is provided
 - **WHEN** the `aspectRatio` property is omitted
-- **THEN** the image is rendered without an explicit aspect ratio wrapper, allowing it to conform to its parent's dimensions.
+- **THEN** the image applies the `aspect-auto` class, allowing it to conform to its parent's dimensions.

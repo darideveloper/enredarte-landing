@@ -1,7 +1,7 @@
 ## Purpose
 Defines the behavior of the `ImageRowCard` molecule when rendering a single artwork row in the gallery view, including how it surfaces the artwork price through the shared `CardSummary` atom and how it preserves each artwork's natural aspect ratio.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Render artwork title, artist, and price
 The `ImageRowCard` molecule SHALL pass the artwork's title, `href`, artist metadata, and price to the `CardSummary` atom so the price is displayed consistently with other artwork cards.

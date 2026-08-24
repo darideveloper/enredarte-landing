@@ -3,7 +3,7 @@
 ## Purpose
 Defines the behavior of the shared `cn` utility, which composes Tailwind utility classes so that later classes reliably override earlier conflicting ones.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Merge conflicting Tailwind utilities (last-wins)
 The `cn` utility SHALL compose its arguments using `clsx` and de-duplicate conflicting Tailwind utility classes with `tailwind-merge`, so that when the same utility group (e.g. `h-*`, `object-*`, `aspect-*`) appears more than once, the later occurrence wins.

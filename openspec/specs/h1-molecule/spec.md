@@ -1,15 +1,15 @@
 ## Purpose
 Defines the behavior and layout constraints for the H1 molecule, the main editorial heading block in the Hero section.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Display main heading structure
-The H1 molecule SHALL display a composite heading structure consisting of a small uppercase eyebrow (Headline atom) and a large serif title.
+The H1 molecule SHALL render a vertically stacked container that wraps slotted content in a large serif heading, allowing consumers (e.g. the Hero section) to compose an uppercase eyebrow via the `Headline` atom alongside the main title.
 
 #### Scenario: Normal rendering
-- **WHEN** the component is rendered with a main title and an eyebrow text
-- **THEN** it displays the eyebrow text using the Headline atom styled with the `muted` color variant
-- **AND** it displays the main title below the eyebrow using the large serif styling (`font-serif text-5xl md:text-7xl font-normal text-ink`).
+- **WHEN** the component is rendered with a `Headline` eyebrow and a main title passed through its slot
+- **THEN** it applies a vertical gap (`gap-4`) between the eyebrow and the main title
+- **AND** the main title uses the large serif styling (`font-serif text-5xl md:text-7xl font-normal text-ink`).
 
 ### Requirement: Support responsive layout
 The H1 molecule SHALL apply appropriate responsive spacing and sizing to its internal elements.

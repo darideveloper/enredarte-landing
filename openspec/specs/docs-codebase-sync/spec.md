@@ -55,7 +55,7 @@ The Astro config SHALL generate redirects from `/en/<path>` to `/<path>` for eve
 - **THEN** its `/en/` legacy redirect is generated automatically without config changes
 
 ### Requirement: env.d.ts type declarations match documentation
-The `docs/astro-site-config.md` §3 example SHALL show only types that are actually valid for `ImportMetaEnv`. `SITE_URL` (server-only, accessed via `process.env`) SHALL NOT appear in `ImportMetaEnv`. `PUBLIC_ANALYTICS_ID` SHALL be marked as optional.
+The `docs/astro-site-config.md` §3 example SHALL show only types that are actually valid for `ImportMetaEnv`. `SITE_URL` SHALL NOT appear in `ImportMetaEnv`. `PUBLIC_ANALYTICS_ID` SHALL be marked as optional.
 
 #### Scenario: SITE_URL removed from ImportMetaEnv example
 - **WHEN** the env.d.ts example in the docs is read

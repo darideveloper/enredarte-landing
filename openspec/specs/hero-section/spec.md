@@ -24,7 +24,7 @@ The `Hero` component SHALL pass dynamic content to its internal `H1` molecule vi
 - **THEN** it renders the slotted content correctly within the left column's `H1` molecule.
 
 ### Requirement: Choreographed GSAP entrance timeline
-The `Hero` organism SHALL trigger a synchronized GSAP entrance animation sequence exactly once via the `astro:page-load` event and a direct `init()` call for first paint, SHALL respect `prefers-reduced-motion` via `gsap.matchMedia()`, SHALL animate the artwork banner using only `transform` (never hiding it with `opacity: 0`), SHALL carry `transition:animate="none"` on its root element to prevent View Transition cross-fade from competing with the GSAP fromTo reveal, SHALL revert its `gsap.matchMedia()` context on `astro:after-swap` before re-initializing, and SHALL skip the entrance animation on subsequent VT navigations within the same session (using `sessionStorage`) so the above-fold content appears instantly on return visits.
+The `Hero` organism SHALL trigger a synchronized GSAP entrance sequence exactly once (via `astro:page-load` and a direct `init()` for first paint), respect `prefers-reduced-motion` via `gsap.matchMedia()`, animate the artwork banner using only `transform` (never `opacity: 0`), carry `transition:animate="none"` on its root to avoid competing with the GSAP reveal, and skip the entrance on later VT navigations (via `sessionStorage`) so above-fold content appears instantly.
 
 #### Scenario: First-load entrance animation
 - **WHEN** the `Hero` component loads for the first time in a browser session and `prefers-reduced-motion` is `no-preference`
@@ -37,6 +37,9 @@ The `Hero` organism SHALL trigger a synchronized GSAP entrance animation sequenc
 #### Scenario: Reduced motion preference honored
 - **WHEN** the user's operating system sets `prefers-reduced-motion: reduce`
 - **THEN** the hero content is revealed without movement (elements jump to their final visible state) and no entrance timeline is played.
+
+### Requirement: Revert context on navigation away
+The `Hero` organism SHALL revert its `gsap.matchMedia()` context on `astro:after-swap`, killing all GSAP tweens and ScrollTriggers created for the Hero section.
 
 #### Scenario: View Transition cleanup on navigation away
 - **WHEN** `astro:after-swap` fires during a client-side navigation away from the home page

@@ -72,7 +72,7 @@ The catalog store SHALL expose a single shared hook (mirroring the `useField` pa
 - **THEN** it SHALL read/write the catalog store through the shared hook rather than creating its own store instance
 
 ### Requirement: Artwork filtering predicate
-The store SHALL expose a pure filtering predicate that, given artwork facet metadata and the current selections, determines whether the artwork matches: within a group an artwork matches when its facet array contains at least one selected value, across groups with AND, and an empty group matches everything. Facet metadata SHALL be represented as arrays of slugs per group, where single-valued facets such as `artist` are one-element arrays (an artwork belongs to multiple disciplines/techniques/themes/formats/scales).
+The store SHALL expose a pure filtering predicate that, given artwork facet metadata and the current selections, determines whether the artwork matches: within a group an artwork matches when its facet array contains at least one selected value, across groups with AND, and an empty group matches everything.
 
 #### Scenario: Match within a group via array membership
 - **WHEN** an artwork's group array contains at least one of the selected values in that group
@@ -93,6 +93,13 @@ The store SHALL expose a pure filtering predicate that, given artwork facet meta
 #### Scenario: Match across all groups
 - **WHEN** an artwork satisfies every non-empty group
 - **THEN** the predicate returns a match
+
+### Requirement: Facet metadata shape
+Facet metadata SHALL be represented as arrays of slugs per group, where single-valued facets such as `artist` are one-element arrays (an artwork belongs to multiple disciplines/techniques/themes/formats/scales).
+
+#### Scenario: Single-valued facet is a one-element array
+- **GIVEN** an artwork with one artist
+- **THEN** its `artist` facet is a one-element array containing that artist's slug
 
 ### Requirement: Persisted expand/collapse preference
 The catalog store SHALL own a boolean `isExpanded` flag that records whether the full set of filter groups is shown, together with an action to toggle it. The flag SHALL default to `false`, SHALL flip each time the toggle action is invoked, and SHALL be persisted to browser storage alongside `selections` via the existing `persist`/`partialize` mechanism under the same `enredarte-catalog-storage` key.

@@ -1,7 +1,7 @@
 ## Purpose
 Defines the behavior and presentation constraints for the CardSummary atom, which is used as an overlaid badge on artworks.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Display artwork metadata and link
 The `CardSummary` atom SHALL accept and display a title, an optional artist name, an optional price, and a required `href` link.
@@ -22,7 +22,7 @@ The `CardSummary` atom SHALL present itself as a semi-transparent dark overlay w
 - **THEN** it applies a dark semi-transparent background (e.g., `bg-black/88`) and a backdrop blur.
 
 ### Requirement: Interactive hover feedback and transform effects
-The `CardSummary` molecule SHALL provide visible interactive feedback on hover, including scaling, vertical translation, shadow depth, and backdrop opacity shifts using smooth transition timing.
+The `CardSummary` atom SHALL provide visible interactive feedback on hover, including scaling, vertical translation, shadow depth, and backdrop opacity shifts using smooth transition timing.
 
 #### Scenario: Hovering CardSummary overlay badge
 - **WHEN** the user hovers over the `CardSummary` element

@@ -36,7 +36,7 @@ The artwork page SHALL render a two-part layout: the artwork images on the **lef
 - **THEN** the title and description render in Spanish (from the artwork's translation dictionary)
 
 ### Requirement: Scroll-driven multi-image viewer
-For an artwork with more than one image, the image viewer SHALL be pinned via the installed GSAP `ScrollTrigger` while a scrubbed timeline cycles through the artwork's images (crossfading and/or translating) as the user scrolls, with the right info panel remaining fixed for the duration of the pin. The pin SHALL end once the last image has been reached. The scrubbed timeline SHALL use `ease: "none"`, SHALL animate the image children (never the pinned element itself), and SHALL be reverted on `astro:after-swap` and re-initialized on `astro:page-load`, following the existing `src/lib/gsap.ts` lifecycle.
+For an artwork with more than one image, the image viewer SHALL be pinned via the installed GSAP `ScrollTrigger` while a scrubbed timeline cycles through the artwork's images (crossfading and/or translating) as the user scrolls, with the right info panel remaining fixed for the duration of the pin. The pin SHALL end once the last image has been reached. The scrubbed timeline SHALL use `ease: "none"` and SHALL animate the image children, never the pinned element itself.
 
 #### Scenario: Multiple images scrub on scroll
 - **GIVEN** an artwork with three images
@@ -48,6 +48,14 @@ For an artwork with more than one image, the image viewer SHALL be pinned via th
 - **GIVEN** the user has `prefers-reduced-motion: reduce` active
 - **WHEN** the artwork detail page renders
 - **THEN** the images display without the pin-and-scrub effect (e.g. stacked or shown statically), via `gsap.matchMedia()`
+
+### Requirement: Viewer lifecycle follows the shared GSAP pattern
+The scrubbed timeline SHALL be reverted on `astro:after-swap` and re-initialized on `astro:page-load`, following the existing `src/lib/gsap.ts` lifecycle.
+
+#### Scenario: Lifecycle hooks revert and re-initialize
+- **WHEN** `astro:after-swap` fires during a client-side navigation
+- **THEN** the previous `gsap.matchMedia()` context is reverted
+- **AND** when `astro:page-load` fires, the scrubbed timeline is re-initialized for the new page
 
 ### Requirement: Render the editorial info panel
 The right info panel SHALL show the artwork's localized title, the artist name, the year, the dimensions, a localized description, the price (USD and/or MXN when present), the availability status, and a spec list of its localized discipline, technique, theme, format, and scale labels.

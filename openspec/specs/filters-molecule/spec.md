@@ -5,7 +5,7 @@ Defines the requirement for the `Filters` molecule component.
 
 ## Requirements
 ### Requirement: Faceted Filters Rendering
-The system SHALL provide a React `Filters` molecule component that renders one facet row per filter group. Each row SHALL display the group's localized label at the left and its option chips filling the remaining width, with horizontal overflow and a hidden scrollbar. On viewports below `md`, the label SHALL stack above the chips and the chips SHALL span the full row width. The component SHALL receive the localized facet group definitions as a prop from the Astro caller and render a self-bound `FilterBtn` per option.
+The system SHALL provide a React `Filters` molecule component that renders one facet row per filter group. Each row SHALL display the group's localized label at the left and its option chips filling the remaining width, with horizontal overflow and a hidden scrollbar. On viewports below `md`, the label SHALL stack above the chips and the chips SHALL span the full row width.
 
 #### Scenario: Multiple facet rows rendered
 - **WHEN** `Filters` is rendered with six localized facet group definitions (artist, discipline, technique, theme, format, scale)
@@ -38,6 +38,9 @@ The system SHALL provide a React `Filters` molecule component that renders one f
 #### Scenario: Multi-select per row
 - **WHEN** a user clicks an option chip in a row
 - **THEN** the chip's selection toggles independently of the other chips in the same row, allowing multiple active options per row
+
+### Requirement: Group definitions sourced from the Astro caller
+The component SHALL receive the localized facet group definitions as a prop from the Astro caller and render a self-bound `FilterBtn` per option.
 
 #### Scenario: Localized labels passed from Astro
 - **WHEN** `Filters` is rendered on a page for a given locale

@@ -110,11 +110,11 @@ The build pipeline documentation SHALL include every validation step that actual
 - **THEN** every validation command in the `build` script is listed and explained
 
 ### Requirement: Environment variable type correctness
-Documented `ImportMetaEnv` type declarations SHALL distinguish between server-only env vars (accessed via `process.env`) and client-accessible vars (accessed via `import.meta.env`). Server-only vars SHALL NOT appear in `ImportMetaEnv`.
+Documented `ImportMetaEnv` type declarations SHALL declare every env var the app reads via `import.meta.env`, including server-only vars (e.g. `API_BASE_URL`, `API_TOKEN`). Server-only vars SHALL NOT be `PUBLIC_*`-prefixed, so they are never exposed to client bundles; `PUBLIC_*` vars SHALL be documented as available in client-side code.
 
-#### Scenario: Server-only vars excluded from ImportMetaEnv
+#### Scenario: Server-only vars typed in ImportMetaEnv
 - **WHEN** the env.d.ts example is shown in documentation
-- **THEN** only `PUBLIC_*` prefixed variables appear in `ImportMetaEnv`
+- **THEN** server-only vars (no `PUBLIC_` prefix) appear in `ImportMetaEnv` and are documented as not exposed to client bundles
 
 ### Requirement: Doc code conventions match codebase
 When docs specify code conventions (formatting, semicolons, quotes), the actual codebase SHALL follow those conventions. A convention documented as the project standard SHALL be enforced across all source files.

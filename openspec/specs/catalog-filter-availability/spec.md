@@ -5,7 +5,7 @@ Defines how the "Colección completa" filters expose availability (viable vs. no
 
 ## Requirements
 ### Requirement: Viable option determination
-The system SHALL expose a pure function `computeViableOptions(groups, facets, selections)` that returns, per filter group, the set of option values that can still match at least one artwork given the current selections. An option `o` in group `g` SHALL be considered viable if and only if there exists an artwork whose facets match the current selections with group `g` replaced by the single value `o`. This preserves within-group OR semantics (an option in a group is evaluated independently of the group's own selections) while applying cross-group AND constraints via the existing `matchesArtwork` predicate.
+The system SHALL expose a pure function `computeViableOptions(groups, facets, selections)` that returns, per filter group, the set of option values that can still match at least one artwork given the current selections. An option `o` in group `g` SHALL be considered viable if and only if there exists an artwork whose facets match the current selections with group `g` replaced by the single value `o`.
 
 #### Scenario: Option matches under current selections
 - **WHEN** selections are empty
@@ -18,6 +18,9 @@ The system SHALL expose a pure function `computeViableOptions(groups, facets, se
 #### Scenario: Cross-group constraint makes an option non-viable
 - **WHEN** the current selections constrain other groups such that no artwork combines them with the candidate option
 - **THEN** the candidate option is non-viable
+
+### Requirement: Group semantics in viability
+The viability check SHALL preserve within-group OR semantics, so an option in a group is evaluated independently of the group's own selections, while applying cross-group AND constraints via the existing `matchesArtwork` predicate.
 
 #### Scenario: Sibling options in the same group stay viable
 - **WHEN** a group has one or more selections
