@@ -71,8 +71,17 @@ const localizedPaths =
           es: getLocalizedArtworkPath(artworkSlug, "es"),
         }
       : undefined
+
+const preloadImage =
+  artworkSlug
+    ? (() => {
+        const a = siteData.artworks.find((x) => x.slug === artworkSlug)
+        const img = a?.images.find((i) => i.is_primary) ?? a?.images[0]
+        return img?.image ?? ""
+      })()
+    : undefined
 ---
-<Layout localizedPaths={localizedPaths}>
+<Layout localizedPaths={localizedPaths} preloadImage={preloadImage}>
   {PageComponent && (
     <PageComponent
       lang={lang}

@@ -21,7 +21,7 @@ const multi = images.length > 1
           class="artwork-image absolute inset-0"
           style={i === 0 ? undefined : { opacity: 0, visibility: "hidden" }}
         >
-          <Image src={image.src} alt={image.alt} class="w-full h-full object-cover" />
+          <Image src={image.src} alt={image.alt} aspectRatio="4/5" class="w-full h-full object-cover" />
         </div>
       ))}
       {images.length > 1 && (
@@ -32,7 +32,7 @@ const multi = images.length > 1
     </div>
   ) : (
     <div class="aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
-      <Image src={images[0].src} alt={images[0].alt} class="w-full h-full object-cover" />
+      <Image src={images[0].src} alt={images[0].alt} aspectRatio="4/5" class="w-full h-full object-cover" />
     </div>
   )}
 </div>
@@ -109,11 +109,12 @@ const multi = images.length > 1
         stack?.classList.remove("is-stacked")
       }
     })
+
+    ScrollTrigger.refresh()
   }
 
   document.addEventListener("astro:after-swap", () => mm?.revert())
   document.addEventListener("astro:page-load", initScrub)
-  initScrub()
 </script>
 
 <style>
