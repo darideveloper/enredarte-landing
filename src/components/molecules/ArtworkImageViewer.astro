@@ -11,28 +11,28 @@ const { images } = artwork
 const multi = images.length > 1
 ---
 
-<div class="artwork-viewer" data-count={images.length}>
+<div class="artwork-viewer h-full" data-count={images.length}>
   {images.length === 0 ? (
     <p class="flex h-full items-center justify-center text-muted font-sans text-sm">—</p>
   ) : multi ? (
-    <div class="relative aspect-[4/5] overflow-hidden bg-[#0D0D0D] artwork-images" data-scrub>
+    <div class="artwork-images relative overflow-hidden bg-[#0D0D0D] h-full" data-scrub>
       {images.map((image, i) => (
         <div
           class="artwork-image absolute inset-0"
           style={i === 0 ? undefined : { opacity: 0, visibility: "hidden" }}
         >
-          <Image src={image.src} alt={image.alt} aspectRatio="4/5" class="w-full h-full object-cover" />
+          <Image src={image.src} alt={image.alt} class="w-full h-full object-cover" />
         </div>
       ))}
       {images.length > 1 && (
-        <span class="absolute bottom-4 right-4 z-10 bg-paper/90 px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] font-sans text-ink artwork-counter">
+        <span class="artwork-counter absolute bottom-6 right-6 z-10 bg-paper/90 px-4 py-2 text-[10px] uppercase tracking-[0.14em] font-sans text-ink">
           1 / {images.length}
         </span>
       )}
     </div>
   ) : (
-    <div class="aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
-      <Image src={images[0].src} alt={images[0].alt} aspectRatio="4/5" class="w-full h-full object-cover" />
+    <div class="overflow-hidden bg-[#0D0D0D] h-full">
+      <Image src={images[0].src} alt={images[0].alt} class="w-full h-full object-cover" />
     </div>
   )}
 </div>
@@ -56,12 +56,12 @@ const multi = images.length > 1
     mm?.revert()
     mm = gsap.matchMedia()
 
-    mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+    mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const tl = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: section,
-          start: "top top",
+          start: "top 80px",
           end: () => `+=${(images.length - 1) * 100}%`,
           pin: true,
           scrub: 1,
@@ -96,7 +96,7 @@ const multi = images.length > 1
       }
     })
 
-    mm.add("(prefers-reduced-motion: reduce), (max-width: 767px)", () => {
+    mm.add("(prefers-reduced-motion: reduce), (max-width: 1023px)", () => {
       const stack = viewer.querySelector<HTMLElement>(".artwork-images")
       stack?.classList.add("is-stacked")
       images.forEach((img, i) => {
@@ -118,6 +118,16 @@ const multi = images.length > 1
 </script>
 
 <style>
+  .artwork-viewer {
+    min-height: 60vh;
+  }
+
+  @media (min-width: 1024px) {
+    .artwork-viewer {
+      min-height: 100vh;
+    }
+  }
+
   .artwork-images.is-stacked {
     display: flex;
     flex-direction: column;
@@ -129,5 +139,9 @@ const multi = images.length > 1
     height: auto;
     visibility: visible;
     opacity: 1;
+  }
+
+  .artwork-images.is-stacked .artwork-image :global(img) {
+    aspect-ratio: 4/5;
   }
 </style>

@@ -26,10 +26,10 @@ const price = artwork.priceUsd ?? artwork.priceMxn
 const statusLabel = t(`pages.artwork.status.${artwork.status}`)
 ---
 
-<aside class="artwork-info-panel flex flex-col gap-8 border-t border-border-theme pt-8 md:border-t-0 md:pt-0">
+<aside class="artwork-info-panel flex flex-col gap-8 border-l border-border-theme px-8 lg:px-12 xl:px-14 py-12 lg:py-16 lg:sticky lg:top-0 lg:h-[calc(100vh-80px)] lg:overflow-y-auto">
   <div>
-    <Headline color="muted" class="block mb-3 tracking-[0.2em]">{artwork.artist}</Headline>
-    <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-4">{artwork.title}</h1>
+    <Headline color="muted" class="block mb-4 tracking-[0.2em]">{artwork.artist}</Headline>
+    <h1 class="font-serif text-4xl md:text-5xl lg:text-[2.75rem] text-ink leading-[1.08] mb-5">{artwork.title}</h1>
     {(artwork.year || artwork.dimensions) && (
       <p class="text-[12px] text-muted uppercase tracking-[0.14em] font-sans">
         {[artwork.year, artwork.dimensions].filter(Boolean).join(" · ")}
@@ -38,7 +38,7 @@ const statusLabel = t(`pages.artwork.status.${artwork.status}`)
   </div>
 
   {artwork.description && (
-    <p class="text-[15px] text-[#7A7568] leading-[1.85] font-sans">{artwork.description}</p>
+    <p class="text-[15px] text-description leading-[1.85] font-sans">{artwork.description}</p>
   )}
 
   {(price || artwork.status) && (
@@ -65,10 +65,16 @@ const statusLabel = t(`pages.artwork.status.${artwork.status}`)
 </aside>
 
 <style>
-  @media (min-width: 1024px) {
+  .artwork-info-panel {
+    background: var(--color-paper, #F2EDE4);
+  }
+
+  @media (max-width: 1023px) {
     .artwork-info-panel {
-      height: calc(100vh - 9rem);
-      overflow-y: auto;
+      border-left: none;
+      border-top: 1px solid var(--color-border-theme, #E0DDD8);
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
   }
 </style>

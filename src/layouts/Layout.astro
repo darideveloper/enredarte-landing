@@ -25,7 +25,7 @@ const lang = getLangFromUrl(Astro.url)
     <slot name="seo" />
     {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
   </head>
-  <body class="flex min-h-screen flex-col font-sans">
+  <body class="flex min-h-screen flex-col font-sans bg-paper">
     <Header localizedPaths={localizedPaths} />
     <main>
       <slot />
