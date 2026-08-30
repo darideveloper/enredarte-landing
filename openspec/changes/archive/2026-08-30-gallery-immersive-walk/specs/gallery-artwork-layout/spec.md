@@ -1,9 +1,4 @@
-# gallery-artwork-layout Specification
-
-## Purpose
-Presents the gallery's artworks on the detail page as immersive, full-bleed alternating rows — every artwork renders through `ImageRowCard` in `immersive` mode with its info card pinned near the middle of the viewport — while remaining filterable through the existing `Artworks` island.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Render remaining artworks as alternating image/info-card rows
 
@@ -44,3 +39,11 @@ Each artwork row SHALL carry the same `data-*` facet attributes (`artist`, `disc
 - **GIVEN** the user selects the `artist` filter value matching only some gallery artworks
 - **WHEN** the filter is applied
 - **THEN** only the matching rows remain visible and the non-matching rows are hidden
+
+## REMOVED Requirements
+
+### Requirement: Render the first artwork as a featured banner
+
+**Reason**: Replaced by the immersive walk — the gallery now presents every artwork through the same alternating full-bleed `ImageRowCard` in `immersive` mode, so the featured `ImageBanner` special-case is no longer rendered on the gallery page.
+
+**Migration**: No replacement behavior is required for the featured position; all artworks (including what used to be the featured one) render as immersive alternating rows. `ImageBanner` remains available and continues to be used by `Hero.astro` and `ArtistPage.astro`.

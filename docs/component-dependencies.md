@@ -94,10 +94,7 @@ GalleryPage.astro
 ├── Filters.tsx (React island, client:load; artist + technique groups only)
 │   └── atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts
 ├── Artworks.tsx (React island, client:load; grid columns overridden via `gridClassName`)
-│   └── ImageBanner.astro (featured artwork, data-* facets)
-│       ├── Image.astro
-│       └── CardSummary.astro
-│   └── ImageRowCard.astro (remaining artworks, alternating image/info-card, data-* facets)
+│   └── ImageRowCard.astro (all artworks, `immersive` mode, alternating image/info-card, data-* facets)
 │       ├── Image.astro
 │       ├── CardSummary.astro
 │       └── data/api.ts (ArtworkView + tag labels via getFacetLabel)
@@ -246,11 +243,18 @@ Everything below is a terminal dependency imported by multiple components:
   from `sort_order` only), a `CuratorCard` (full gallery/curator data resolved from the
   art-curators list), and an artworks section reusing the `Filters`/`Artworks` React
   islands but limited to the `artist` + `technique` groups and the gallery's own artworks
-  (resolved from `artwork_links`, ordered by `sort_order`). The first artwork renders as a
-  featured `ImageBanner`, the rest as alternating `ImageRowCard`s; all carry space-separated
-  `data-*` facet values so the `Artworks` island parses them into arrays before matching.
-  `Artworks` accepts an optional `gridClassName` prop that replaces its default
-  `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` columns (GalleryPage passes a single-column grid).
+  (resolved from `artwork_links`, ordered by `sort_order`). The hero image and the artworks
+  section are full-bleed (edge-to-edge): every artwork renders as an `immersive`
+  `ImageRowCard` — a full-width 50/50 split where the image keeps its natural aspect
+  (`height="auto"`, dynamic/auto height, bleeding to the viewport edge) and the info card
+  is vertically centered in the row and pinned near the middle of the viewport while
+  scrolling (`md:sticky md:top-[35svh]` inside a `justify-center` column, alternating
+  sides). All cards carry space-separated `data-*` facet values so the `Artworks` island
+  parses them into arrays before matching. `Artworks` accepts an optional `gridClassName`
+  prop that replaces its default `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` columns
+  (GalleryPage passes a single-column grid). `ImageRowCard`'s non-immersive mode (no
+  `immersive` prop) preserves the original contained 2-column editorial layout for
+  `ArtistPage`.
 - **Language switch on gallery pages**: `LangBtns` accepts an optional `localizedPaths`
   prop (the en/es gallery URLs), threaded through `Layout` → `Header` from
   `[...path].astro` via `getLocalizedSalaPath`. Without the prop, behavior is the

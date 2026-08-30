@@ -8,32 +8,68 @@ export interface Props {
   artwork: ArtworkView
   tags?: string[]
   reverse?: boolean
+  immersive?: boolean
   class?: string
 }
 
-const { artwork, tags = [], reverse = false, class: className, ...props } = Astro.props
+const { artwork, tags = [], reverse = false, immersive = false, class: className, ...props } = Astro.props
 const visibleTags = tags.filter(Boolean)
 ---
 
-<div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme", className)} {...props}>
-  <div class={cn(reverse && "md:order-2")}>
-    <Image src={artwork.src} alt={artwork.alt} height="auto" class="w-full" />
-  </div>
-  <div
-    class={cn(
-      "flex flex-col items-start justify-center p-8 md:p-12 bg-white/50",
-      reverse && "md:order-1"
-    )}
-  >
-    {visibleTags.length > 0 && (
-      <div class="flex flex-wrap gap-2 mb-5">
-        {visibleTags.map((tag) => (
-          <span class="text-[10px] uppercase tracking-[0.14em] text-muted border border-border-theme px-3 py-1.5">
-            {tag}
-          </span>
-        ))}
+{
+  immersive ? (
+    <div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme bg-paper", className)} {...props}>
+      <div class={cn(reverse && "md:order-2")}>
+        <Image src={artwork.src} alt={artwork.alt} height="auto" class="w-full" />
       </div>
-    )}
-    <CardSummary title={artwork.title} href={artwork.href} artist={artwork.meta} price={artwork.price} class="max-w-none w-full" />
-  </div>
-</div>
+      <div
+        class={cn(
+          "flex flex-col justify-center p-8 md:p-16 bg-paper",
+          reverse && "md:order-1"
+        )}
+      >
+        <div class="md:sticky md:top-[35svh]">
+          {visibleTags.length > 0 && (
+            <div class="flex flex-wrap gap-2 mb-5">
+              {visibleTags.map((tag) => (
+                <span class="text-[10px] uppercase tracking-[0.14em] text-muted border border-border-theme px-3 py-1.5">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <CardSummary
+            title={artwork.title}
+            href={artwork.href}
+            artist={artwork.meta}
+            price={artwork.price}
+            class="max-w-none w-full"
+          />
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme", className)} {...props}>
+      <div class={cn(reverse && "md:order-2")}>
+        <Image src={artwork.src} alt={artwork.alt} height="auto" class="w-full" />
+      </div>
+      <div
+        class={cn(
+          "flex flex-col items-start justify-center p-8 md:p-12 bg-white/50",
+          reverse && "md:order-1"
+        )}
+      >
+        {visibleTags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mb-5">
+            {visibleTags.map((tag) => (
+              <span class="text-[10px] uppercase tracking-[0.14em] text-muted border border-border-theme px-3 py-1.5">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <CardSummary title={artwork.title} href={artwork.href} artist={artwork.meta} price={artwork.price} class="max-w-none w-full" />
+      </div>
+    </div>
+  )
+}
