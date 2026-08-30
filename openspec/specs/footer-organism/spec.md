@@ -30,7 +30,7 @@ The `Footer` MUST source its navigation links from the same shared `getNavLinks(
 - **WHEN** the `Footer` is rendered
 - **THEN** it outputs exactly four navigation links: **Home**, **Obras**, **Salas**, **Artistas**
 - **THEN** the **Home** link points to the localized home page path (e.g. `/` for English, `/es` for Spanish)
-- **THEN** the **Obras**, **Salas**, and **Artistas** links render as the same UI-only anchor placeholders as the header (`#obras`, `#salas`, `#artistas`)
+- **THEN** the **Obras** and **Artistas** links point to the homepage collection section anchor (`#artworks-collection`), and the **Salas** link points to the homepage gallery section anchor (`#salas-gallery`) — the same real in-page targets as the header
 
 ### Requirement: Localized Column Headings and Tagline
 The `Footer` SHALL localize its column headings and tagline through the i18n layer.

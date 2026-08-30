@@ -4,6 +4,7 @@ import { list as listArtists } from "@/lib/api/artists"
 import { list as listDisciplines } from "@/lib/api/disciplines"
 import { list as listFormats } from "@/lib/api/formats"
 import { list as listGalleries } from "@/lib/api/galleries"
+import { list as listLocations } from "@/lib/api/locations"
 import { list as listScales } from "@/lib/api/scales"
 import { list as listTechniques } from "@/lib/api/techniques"
 import { list as listThemes } from "@/lib/api/themes"
@@ -22,6 +23,7 @@ import type {
   Discipline,
   Format,
   Gallery,
+  Location,
   Ref,
   Scale,
   Technique,
@@ -44,6 +46,7 @@ export interface SiteData {
   galleries: Gallery[]
   artists: Artist[]
   curators: ArtCurator[]
+  locations: Location[]
   artworks: Artwork[]
   filterGroups: FilterGroup[]
 }
@@ -122,23 +125,35 @@ function buildFilterGroups({
 }
 
 export async function buildSiteData(): Promise<SiteData> {
-  const [galleries, artists, curators, artworks, disciplines, techniques, themes, formats, scales] =
-    await Promise.all([
-      fetchAll(listGalleries),
-      fetchAll(listArtists),
-      fetchAll(listArtCurators),
-      fetchAll(listArtworks),
-      fetchAll(listDisciplines),
-      fetchAll(listTechniques),
-      fetchAll(listThemes),
-      fetchAll(listFormats),
-      fetchAll(listScales),
-    ])
+  const [
+    galleries,
+    artists,
+    curators,
+    locations,
+    artworks,
+    disciplines,
+    techniques,
+    themes,
+    formats,
+    scales,
+  ] = await Promise.all([
+    fetchAll(listGalleries),
+    fetchAll(listArtists),
+    fetchAll(listArtCurators),
+    fetchAll(listLocations),
+    fetchAll(listArtworks),
+    fetchAll(listDisciplines),
+    fetchAll(listTechniques),
+    fetchAll(listThemes),
+    fetchAll(listFormats),
+    fetchAll(listScales),
+  ])
 
   return {
     galleries,
     artists,
     curators,
+    locations,
     artworks,
     filterGroups: buildFilterGroups({ artists, disciplines, techniques, themes, formats, scales }),
   }
@@ -161,6 +176,38 @@ export function resolveGalleryArtworks(gallery: Gallery, artworks: Artwork[]): A
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((link) => bySlug.get(link.artwork.slug))
     .filter((artwork): artwork is Artwork => artwork != null)
+}
+
+export function resolveArtistArtworks(artist: Artist, artworks: Artwork[]): Artwork[] {
+  return artworks
+    .filter((artwork) => artwork.artist.id === artist.id)
+    .slice()
+    .sort((a, b) => Number(b.is_highlighted) - Number(a.is_highlighted))
+}
+
+export function resolveArtistGalleries(
+  artist: Artist,
+  galleries: Gallery[],
+  artworks: Artwork[],
+): Gallery[] {
+  const byId = new Map(galleries.map((gallery) => [gallery.id, gallery]))
+  const seen = new Set<number>()
+  for (const artwork of resolveArtistArtworks(artist, artworks)) {
+    for (const link of artwork.gallery_links) {
+      const gallery = byId.get(link.gallery.id)
+      if (gallery && gallery.is_active) seen.add(gallery.id)
+    }
+  }
+  return galleries
+    .filter((gallery) => seen.has(gallery.id))
+    .slice()
+    .sort((a, b) => Number(b.is_primary) - Number(a.is_primary))
+}
+
+export function resolveLocationName(ref: Ref | null, locations: Location[], lang: Lang): string {
+  if (!ref) return ""
+  const location = locations.find((l) => l.id === ref.id)
+  return location ? pickTranslation(location.translations, lang, "name") || ref.slug : ref.slug
 }
 
 function primaryImage(artwork: Artwork | undefined): string {
@@ -226,6 +273,7 @@ export interface ArtworkDetailView {
   title: string
   description: string
   artist: string
+  artistSlug: string
   year: string
   dimensions: string
   images: ArtworkDetailImage[]
@@ -256,6 +304,7 @@ export function toArtworkDetailView(
     title,
     description,
     artist: resolveArtistName(artwork.artist, siteData.artists),
+    artistSlug: artwork.artist.slug,
     year: artwork.year ? String(artwork.year) : "",
     dimensions: artwork.dimensions ?? "",
     images: artwork.images

@@ -4,9 +4,14 @@ import { routes, type PageKey } from "@/lib/i18n/routes"
 import Home from "@/components/pages/landing/Home.astro"
 import GalleryPage from "@/components/pages/sala/GalleryPage.astro"
 import ArtworkPage from "@/components/pages/obra/ArtworkPage.astro"
-import { buildSiteData } from "@/data/api"
+import ArtistPage from "@/components/pages/artista/ArtistPage.astro"
+import { buildSiteData, resolveArtistArtworks } from "@/data/api"
 import type { SiteData } from "@/data/api"
-import { getLocalizedArtworkPath, getLocalizedSalaPath } from "@/lib/i18n/utils"
+import {
+  getLocalizedArtworkPath,
+  getLocalizedArtistPath,
+  getLocalizedSalaPath,
+} from "@/lib/i18n/utils"
 
 export async function getStaticPaths() {
   const siteData = await buildSiteData()
@@ -41,6 +46,16 @@ export async function getStaticPaths() {
       props: { pageKey: "artwork", artworkSlug: artwork.slug, lang: "en", siteData },
     })
   }
+  for (const artist of siteData.artists) {
+    paths.push({
+      params: { path: `artistas/${artist.slug}` },
+      props: { pageKey: "artist", artistSlug: artist.slug, lang: "es", siteData },
+    })
+    paths.push({
+      params: { path: `en/artistas/${artist.slug}` },
+      props: { pageKey: "artist", artistSlug: artist.slug, lang: "en", siteData },
+    })
+  }
   return paths
 }
 
@@ -48,13 +63,15 @@ const COMPONENT_MAP: Record<string, any> = {
   home: Home,
   gallery: GalleryPage,
   artwork: ArtworkPage,
+  artist: ArtistPage,
 }
 
-const { pageKey, lang, gallerySlug, artworkSlug, siteData } = Astro.props as {
+const { pageKey, lang, gallerySlug, artworkSlug, artistSlug, siteData } = Astro.props as {
   pageKey: PageKey
   lang: "es" | "en"
   gallerySlug?: string
   artworkSlug?: string
+  artistSlug?: string
   siteData: SiteData
 }
 const PageComponent = COMPONENT_MAP[pageKey as PageKey]
@@ -70,7 +87,12 @@ const localizedPaths =
           en: getLocalizedArtworkPath(artworkSlug, "en"),
           es: getLocalizedArtworkPath(artworkSlug, "es"),
         }
-      : undefined
+      : pageKey === "artist" && artistSlug
+        ? {
+            en: getLocalizedArtistPath(artistSlug, "en"),
+            es: getLocalizedArtistPath(artistSlug, "es"),
+          }
+        : undefined
 
 const preloadImage =
   artworkSlug
@@ -79,7 +101,15 @@ const preloadImage =
         const img = a?.images.find((i) => i.is_primary) ?? a?.images[0]
         return img?.image ?? ""
       })()
-    : undefined
+    : artistSlug
+      ? (() => {
+          const artist = siteData.artists.find((x) => x.slug === artistSlug)
+          if (artist?.photo) return artist.photo
+          const work = artist ? resolveArtistArtworks(artist, siteData.artworks)[0] : undefined
+          const img = work?.images.find((i) => i.is_primary) ?? work?.images[0]
+          return img?.image ?? ""
+        })()
+      : undefined
 ---
 <Layout localizedPaths={localizedPaths} preloadImage={preloadImage}>
   {PageComponent && (
@@ -88,6 +118,7 @@ const preloadImage =
       pageKey={pageKey}
       gallerySlug={gallerySlug}
       artworkSlug={artworkSlug}
+      artistSlug={artistSlug}
       siteData={siteData}
     />
   )}

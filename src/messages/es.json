@@ -26,6 +26,11 @@
       "workCount": "{count} Obra",
       "worksCount": "{count} Obras"
     },
+    "artist": {
+      "label": "Artista",
+      "works": "Obras",
+      "activeIn": "Activa en"
+    },
     "filters": {
       "more": "Ver más filtros",
       "less": "Ver menos filtros",

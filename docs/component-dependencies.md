@@ -22,11 +22,12 @@ src/pages/
   (galleries, artists, art-curators, the five taxonomies, artworks) via the `src/lib/api/*`
   endpoint modules and `fetchAll` pagination helper, then derives localized filter groups.
 - Emits the route-map pages, one detail page per gallery from the API
-  (`salas/<slug>` es / `en/salas/<slug>` en), and one detail page per artwork
-  (`obras/<slug>` es / `en/obras/<slug>` en), threading the shared `siteData` prop
-  through to `Home`/`GalleryPage`/`ArtworkPage`.
+  (`salas/<slug>` es / `en/salas/<slug>` en), one detail page per artwork
+  (`obras/<slug>` es / `en/obras/<slug>` en), and one detail page per artist
+  (`artistas/<slug>` es / `en/artistas/<slug>` en), threading the shared `siteData`
+  prop through to `Home`/`GalleryPage`/`ArtworkPage`/`ArtistPage`.
 - Looks up the page component in `COMPONENT_MAP` → `home: Home`, `gallery: GalleryPage`,
-  `artwork: ArtworkPage`.
+  `artwork: ArtworkPage`, `artist: ArtistPage`.
 - Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery *or* artwork
   URLs) to `Layout` → `Header` → `LangBtns` so the language switch preserves the gallery/artwork slug.
 
@@ -38,18 +39,18 @@ src/pages/
                             └──────────────┬───────────────┬───────────────┘
                                            │               │ routes (i18n)
                                            ▼               ▼
-           Home / GalleryPage / ArtworkPage       lib/i18n/routes.ts
-                            │               │          data/api.ts (buildSiteData)
-                            │               ▼          lib/api/* (10 endpoint modules,
-                            ▼        lib/i18n/utils      pagination.fetchAll)
-                   ┌───────────────────────────────────────────────────┐
-                   │                    Layout.astro                    │
-                   │  global.css                                        │
-                   │  <body>                                            │
-                   │   ├─ Header.astro (localizedPaths → LangBtns)      │
-                   │   ├─ <slot/> = page content                        │
-                   │   └─ Footer.astro                                  │
-                   └───────────────────────────────────────────────────┘
+   Home / GalleryPage / ArtworkPage / ArtistPage   lib/i18n/routes.ts
+                             │               │          data/api.ts (buildSiteData)
+                             │               ▼          lib/api/* (10 endpoint modules,
+                             ▼        lib/i18n/utils      pagination.fetchAll)
+                    ┌───────────────────────────────────────────────────┐
+                    │                    Layout.astro                    │
+                    │  global.css                                        │
+                    │  <body>                                            │
+                    │   ├─ Header.astro (localizedPaths → LangBtns)      │
+                    │   ├─ <slot/> = page content                        │
+                    │   └─ Footer.astro                                  │
+                    └───────────────────────────────────────────────────┘
 ```
 
 ### Home.astro tree
@@ -123,8 +124,31 @@ ArtworkPage.astro
     ├── lib/i18n/utils (getTranslations for status/spec labels)
     └── data/api.ts (ArtworkDetailView prop)
     data/api.ts (toArtworkDetailView → images/alt, title, description, artist,
-        year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel)
+        artistSlug, year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel)
     lib/i18n/utils (getLocalizedArtworkPath)
+```
+
+### ArtistPage.astro tree (per artist, `/artistas/<slug>` + `/en/artistas/<slug>`)
+
+```
+ArtistPage.astro
+├── PageSEO.astro ─► BaseSEO.astro (explicit localized title/description/ogImage = photo ?? featured artwork)
+├── Headline.astro ──────────► lib/utils
+├── Title.astro ─────────────► lib/utils (atoms)
+├── Image.astro ─────────────► lib/utils
+├── ImageBanner.astro (featured artwork)
+│   ├── Image.astro
+│   └── CardSummary.astro
+├── ImageRowCard.astro (remaining artworks, alternating, discipline/technique/theme tags via getFacetLabel)
+│   ├── Image.astro
+│   ├── CardSummary.astro
+│   └── data/api.ts (ArtworkView prop)
+├── ImageCard.astro (active galleries, from toSalaView, isLarge stripped)
+│   ├── Image.astro
+│   └── CardInfo.astro
+├── data/api.ts (artist lookup by slug, resolveArtistArtworks, resolveArtistGalleries,
+│   resolveLocationName, toArtworkView, toSalaView)
+└── lib/i18n/utils (getTranslations, pickTranslation, getLocalizedArtistPath)
 ```
 
 ### Layout.astro tree (Header + Footer shared by every page)
@@ -183,12 +207,12 @@ Everything below is a terminal dependency imported by multiple components:
 
 - `lib/utils.ts` — `cn()` helper (nearly every component)
 - `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see `docs/gsap-scrolltrigger/`)
-- `lib/i18n/utils.ts` — `getTranslations`, `pickTranslation`, `getLocalizedPath`, `getLocalizedSalaPath`, `getLocalizedArtworkPath`
+- `lib/i18n/utils.ts` — `getTranslations`, `pickTranslation`, `getLocalizedPath`, `getLocalizedSalaPath`, `getLocalizedArtworkPath`, `getLocalizedArtistPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries
 - `lib/nav.ts` — `getNavLinks(lang)`, shared nav source for Header and Footer
 - `data/site-config.ts` — `BUSINESS_DATA`
-- `data/api.ts` — `buildSiteData()` (build-time fetch of all 10 backend resources), `SiteData`, and view builders (`toArtworkView`, `toArtworkDetailView`, `toSalaView`, `toHeroView`/`HeroView` (homepage hero from the primary `Gallery`), `resolveGalleryArtworks`, `resolveGalleryCurator`, `resolveArtistName`, `getFacetLabel`)
+- `data/api.ts` — `buildSiteData()` (build-time fetch of all 11 backend resources), `SiteData`, and view builders (`toArtworkView`, `toArtworkDetailView`, `toSalaView`, `toHeroView`/`HeroView` (homepage hero from the primary `Gallery`), `resolveGalleryArtworks`, `resolveGalleryCurator`, `resolveArtistName`, `resolveArtistArtworks`, `resolveArtistGalleries`, `resolveLocationName`, `getFacetLabel`)
 - `lib/api/types.ts` — API-faithful types (`Base`, `Ref`, `Translations<T>`, `Paginated<T>`, `ApiError`, 10 resource interfaces)
 - `lib/api/client.ts` — `safeFetch`/`FetchError`/`apiFetch` (token-injecting fetch)
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
@@ -199,10 +223,11 @@ Everything below is a terminal dependency imported by multiple components:
 
 ## Notes
 
-- **Three page components.** The single catch-all `[...path].astro` now serves `Home`
+- **Four page components.** The single catch-all `[...path].astro` now serves `Home`
   (root `/` + `/es`), one `GalleryPage` per gallery fetched from the backend API
-  (`/salas/<slug>` + `/en/salas/<slug>`), and one `ArtworkPage` per artwork
-  (`/obras/<slug>` + `/en/obras/<slug>`). The generic `Services`/`About` pages were
+  (`/salas/<slug>` + `/en/salas/<slug>`), one `ArtworkPage` per artwork
+  (`/obras/<slug>` + `/en/obras/<slug>`), and one `ArtistPage` per artist
+  (`/artistas/<slug>` + `/en/artistas/<slug>`). The generic `Services`/`About` pages were
   removed in the `remove-dummy-pages` cleanup.
 - **Artwork detail pages**: `ArtworkPage.astro` renders `toArtworkDetailView` (all artwork
   data from `buildSiteData()`) in a two-column layout — a scroll-driven `ArtworkImageViewer`
@@ -242,8 +267,18 @@ Everything below is a terminal dependency imported by multiple components:
 - **Build-time backend dependency**: `getStaticPaths` calls `buildSiteData()` which fetches
   the DRF API using `API_BASE_URL`/`API_TOKEN` (server-only, never `PUBLIC_*`). The backend
   must be reachable and the token valid during `astro build`; a failure surfaces a `FetchError`.
-- **Nav anchors**: the `salas`/`obras`/`artistas` nav items still point at `#salas`,
-  `#obras`, `#artistas` homepage anchors — there is no salas index page in scope.
+- **Nav anchors**: the `obras`/`artistas` nav items point at the homepage collection
+  section (`#artworks-collection`) and `salas` at the homepage gallery section
+  (`#salas-gallery`) — real in-page targets, shared by Header and Footer via `getNavLinks`.
+  There is no salas or artists index page in scope.
+- **Artist detail pages**: `ArtistPage.astro` renders an artist hero (photo/initials,
+  localized bio, years · location metadata, contact/social links), their artworks as a
+  static editorial list (featured `ImageBanner` + alternating `ImageRowCard`s with
+  discipline/technique/theme tags; no `Filters` island), and their currently-active
+  galleries as an `ImageCard` grid built from `toSalaView` (derived from the artist's
+  artworks' `gallery_links`, deduped, `is_active` only, primary-first). The artist name on
+  artwork detail pages links back to the artist page. `LangBtns` `localizedPaths` preserve
+  the artist slug across languages.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **Orphaned / not reachable from any page** (candidates for cleanup):

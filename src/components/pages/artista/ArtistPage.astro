@@ -1,0 +1,186 @@
+---
+import PageSEO from "@/components/seo/PageSEO.astro"
+import Headline from "@/components/atoms/Headline.astro"
+import Title from "@/components/atoms/Title.astro"
+import Image from "@/components/atoms/Image.astro"
+import ImageBanner from "@/components/molecules/ImageBanner.astro"
+import ImageRowCard from "@/components/molecules/ImageRowCard.astro"
+import ImageCard from "@/components/molecules/ImageCard.astro"
+import {
+  getFacetLabel,
+  resolveArtistArtworks,
+  resolveArtistGalleries,
+  resolveArtistName,
+  resolveLocationName,
+  toArtworkView,
+  toSalaView,
+} from "@/data/api"
+import type { SiteData } from "@/data/api"
+import { getTranslations, getLocalizedArtistPath, pickTranslation } from "@/lib/i18n/utils"
+import { stripUrlScheme } from "@/lib/utils"
+import type { Lang } from "@/lib/api/types"
+
+export interface Props {
+  lang: Lang
+  artistSlug: string
+  siteData: SiteData
+}
+
+const { lang, artistSlug, siteData } = Astro.props
+const t = getTranslations(lang)
+
+const artist = siteData.artists.find((a) => a.slug === artistSlug)
+if (!artist) {
+  throw new Error(`Unknown artist slug: ${artistSlug}`)
+}
+
+const bio = pickTranslation(artist.translations, lang, "bio")
+const locationName = resolveLocationName(artist.location, siteData.locations, lang)
+const artworks = resolveArtistArtworks(artist, siteData.artworks).map((artwork) =>
+  toArtworkView(artwork, resolveArtistName(artwork.artist, siteData.artists), lang, siteData.filterGroups)
+)
+const [featured, ...rest] = artworks
+
+const activeGalleries = resolveArtistGalleries(artist, siteData.galleries, siteData.artworks)
+const salas = activeGalleries.map((gallery) =>
+  toSalaView(
+    gallery,
+    siteData.curators,
+    siteData.artworks,
+    lang,
+    siteData.galleries.findIndex((g) => g.id === gallery.id),
+  )
+)
+
+const initials = artist.name
+  .split(/\s+/)
+  .map((word) => word[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase()
+
+const years = artist.birth_year
+  ? `${artist.birth_year}${artist.death_year ? `–${artist.death_year}` : ""}`
+  : artist.death_year
+    ? String(artist.death_year)
+    : ""
+const metadata = [years, locationName].filter(Boolean).join(" · ")
+
+const socialLabel = (platform: string) => {
+  const label = t(`global.footer.social.${platform.toLowerCase()}`)
+  return typeof label === "string" && !label.startsWith("MISSING:") ? label : platform
+}
+
+const alternateUrls = {
+  en: getLocalizedArtistPath(artistSlug, "en"),
+  es: getLocalizedArtistPath(artistSlug, "es"),
+}
+---
+
+<PageSEO
+  lang={lang}
+  title={artist.name}
+  description={bio || artist.name}
+  ogImage={artist.photo ?? featured?.src}
+  alternateUrls={alternateUrls}
+  slot="seo"
+/>
+
+<section class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-10 overflow-hidden" transition:animate="none">
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-start max-w-6xl">
+    <div class="min-w-0">
+      <Headline color="muted" class="block mb-3 tracking-[0.2em]">{t("global.artist.label")}</Headline>
+      <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-6">{artist.name}</h1>
+      {bio && <p class="text-[15px] text-description leading-[1.85] max-w-[560px] mb-8">{bio}</p>}
+      {metadata && (
+        <p class="text-[12px] text-muted uppercase tracking-[0.14em] font-sans mb-6">{metadata}</p>
+      )}
+      {(artist.email || artist.website || artist.social_links.length > 0) && (
+        <div class="flex flex-wrap gap-6 text-[11px] tracking-[0.06em] uppercase">
+          {artist.email && (
+            <a href={`mailto:${artist.email}`} class="text-crimson hover:underline">
+              {artist.email}
+            </a>
+          )}
+          {artist.website && (
+            <a href={artist.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
+              {stripUrlScheme(artist.website)}
+            </a>
+          )}
+          {artist.social_links.map((link) => (
+            <a
+              key={link.id}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-crimson hover:underline"
+            >
+              {socialLabel(link.platform)}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+    <div class="relative aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
+      {artist.photo ? (
+        <Image src={artist.photo} alt={artist.name} class="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <span class="absolute inset-0 flex items-center justify-center text-paper/30 font-serif text-5xl">
+          {initials}
+        </span>
+      )}
+    </div>
+  </div>
+</section>
+
+{artworks.length > 0 && (
+  <section id="artista-obras" class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
+    <Title>
+      <Headline color="muted" class="block mb-2 tracking-[0.2em]">Explora</Headline>
+      {t("global.artist.works")}
+    </Title>
+
+    <div class="grid gap-[3px] grid-cols-1">
+      {featured && (
+        <ImageBanner
+          src={featured.src}
+          alt={featured.alt}
+          aspectRatio="video"
+          title={featured.title}
+          artist={featured.meta}
+          price={featured.price}
+          href={featured.href}
+          overlay="darker"
+          class="mb-1"
+        />
+      )}
+      {rest.map((artwork, i) => (
+        <ImageRowCard
+          artwork={artwork}
+          tags={[
+            getFacetLabel("discipline", artwork.discipline[0] ?? "", lang, siteData.filterGroups),
+            getFacetLabel("technique", artwork.technique[0] ?? "", lang, siteData.filterGroups),
+            getFacetLabel("theme", artwork.theme[0] ?? "", lang, siteData.filterGroups),
+          ]}
+          reverse={i % 2 === 1}
+        />
+      ))}
+    </div>
+  </section>
+)}
+
+{salas.length > 0 && (
+  <section id="artista-salas" class="bg-paper px-6 md:px-14 pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
+    <Title>
+      <Headline color="muted" class="block mb-2 tracking-[0.2em]">{t("global.artist.activeIn")}</Headline>
+      {t("global.nav.salas")}
+    </Title>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 auto-rows-[280px] md:auto-rows-[340px] gap-1">
+      {salas.map((sala) => {
+        const { isLarge, ...salaData } = sala
+        return <ImageCard {...salaData} />
+      })}
+    </div>
+  </section>
+)}

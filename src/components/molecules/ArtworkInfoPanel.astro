@@ -3,7 +3,7 @@ import Headline from "@/components/atoms/Headline.astro"
 import Btn from "@/components/atoms/Btn.astro"
 import type { ArtworkDetailView } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
-import { getTranslations } from "@/lib/i18n/utils"
+import { getTranslations, getLocalizedArtistPath } from "@/lib/i18n/utils"
 import { EMAIL } from "@/data/site-config"
 
 export interface Props {
@@ -28,7 +28,9 @@ const statusLabel = t(`pages.artwork.status.${artwork.status}`)
 
 <aside class="artwork-info-panel flex flex-col gap-8 border-l border-border-theme px-8 lg:px-12 xl:px-14 py-12 lg:py-16 lg:sticky lg:top-0 lg:h-[calc(100vh-80px)] lg:overflow-y-auto">
   <div>
-    <Headline color="muted" class="block mb-4 tracking-[0.2em]">{artwork.artist}</Headline>
+    <a href={getLocalizedArtistPath(artwork.artistSlug, lang)} class="block w-fit hover:underline">
+      <Headline color="muted" class="block mb-4 tracking-[0.2em]">{artwork.artist}</Headline>
+    </a>
     <h1 class="font-serif text-4xl md:text-5xl lg:text-[2.75rem] text-ink leading-[1.08] mb-5">{artwork.title}</h1>
     {(artwork.year || artwork.dimensions) && (
       <p class="text-[12px] text-muted uppercase tracking-[0.14em] font-sans">
