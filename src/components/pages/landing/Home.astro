@@ -12,6 +12,7 @@ import ImageCard from "@/components/molecules/ImageCard.astro"
 import { resolveArtistName, toArtworkView, toHeroView, toSalaView } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
+import { currencyForLang, formatPrice, pickPrice } from "@/lib/format/price"
 
 export interface Props {
   lang: Lang
@@ -48,10 +49,13 @@ const salas = siteData.galleries.map((gallery, index) =>
 )
 
 const hero = toHeroView(siteData.galleries, siteData.curators, siteData.artworks, siteData.artists, lang)
+const homeCurrency = currencyForLang(lang)
+const homePrice = (mxn: number | undefined, usd: number | undefined) =>
+  formatPrice(pickPrice(mxn, usd, homeCurrency), homeCurrency)
 ---
 <PageSEO currentPage="home" lang={lang} slot="seo" />
 
-<Hero sala={hero} />
+<Hero lang={lang} sala={hero} />
 
 <BannerBar />
 
@@ -86,7 +90,7 @@ const hero = toHeroView(siteData.galleries, siteData.curators, siteData.artworks
         title={artwork.title}
         href={artwork.href}
         meta={artwork.meta}
-        curator={artwork.price}
+        price={homePrice(artwork.priceMxn, artwork.priceUsd)}
         class="aspect-[4/5]"
         data-artist={artwork.artist.join(" ")}
         data-discipline={artwork.discipline.join(" ")}

@@ -1,15 +1,21 @@
 ---
 import { cn } from "@/lib/utils"
+import { formatPrice, pickPrice, currencyForLang } from "@/lib/format/price"
+import type { Lang } from "@/lib/api/types"
 
 export interface Props {
     title: string
     href: string
     artist?: string
-    price?: string
+    priceMxn?: number
+    priceUsd?: number
+    lang: Lang
+    priceFallback?: string
     class?: string
 }
 
-const { title, href, artist, price, class: className, ...props } = Astro.props
+const { title, href, artist, priceMxn, priceUsd, lang, priceFallback, class: className, ...props } = Astro.props
+const price = formatPrice(pickPrice(priceMxn, priceUsd, currencyForLang(lang)), currencyForLang(lang)) || priceFallback
 ---
 
 <a

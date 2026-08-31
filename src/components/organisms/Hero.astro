@@ -4,12 +4,16 @@ import Headline from '@/components/atoms/Headline.astro'
 import ImageBanner from '@/components/molecules/ImageBanner.astro'
 import Btn from '@/components/atoms/Btn.astro'
 import type { HeroView } from '@/data/api'
+import type { Lang } from '@/lib/api/types'
+import { getTranslations } from '@/lib/i18n/utils'
 
 export interface Props {
+  lang: Lang
   sala?: HeroView
 }
 
-const hero = Astro.props.sala
+const { lang, sala: hero } = Astro.props
+const t = getTranslations(lang)
 
 const badge = hero ? `Sala ${hero.salaNumber} — Exhibición del mes` : "Sala 01 — Exhibición del mes"
 const title = hero?.title ?? "Tierra, mundo y memoria"
@@ -23,9 +27,13 @@ const artwork = hero?.artwork ?? {
   alt: "Obra insignia",
   title: "Horizonte en tres tiempos",
   artist: "Obra insignia de la sala",
-  price: "Desde consulta con curador",
+  priceMxn: undefined,
+  priceUsd: undefined,
   href: "/salas/1/obras/1",
 }
+const showConsultCurator =
+  artwork.priceMxn == null && artwork.priceUsd == null
+const priceFallback = showConsultCurator ? t("pages.home.hero.consultCurator") : undefined
 ---
 
 <section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden" transition:animate="none">
@@ -56,12 +64,15 @@ const artwork = hero?.artwork ?? {
 
   <!-- Right Side: Featured Artwork -->
   <div class="relative overflow-hidden h-[50vh] lg:h-auto hero-banner">
-    <ImageBanner 
+    <ImageBanner
       src={artwork.src}
       alt={artwork.alt}
       title={artwork.title}
       artist={artwork.artist}
-      price={artwork.price}
+      priceMxn={artwork.priceMxn}
+      priceUsd={artwork.priceUsd}
+      lang={lang}
+      priceFallback={priceFallback}
       href={artwork.href}
       overlay="darker"
       class="w-full h-full"

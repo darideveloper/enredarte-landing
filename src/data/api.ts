@@ -223,7 +223,8 @@ export interface ArtworkView {
   title: string
   href: string
   meta: string
-  price?: string
+  priceMxn?: number
+  priceUsd?: number
   artist: string[]
   discipline: string[]
   technique: string[]
@@ -242,8 +243,6 @@ export function toArtworkView(
   const title = pickTranslation(artwork.translations, lang, "title") || artwork.slug
   const image = artwork.images.find((img) => img.is_primary) ?? artwork.images[0]
   const alt = image ? (lang === "es" ? image.alt_es : image.alt_en) || title : title
-  const price =
-    artwork.price_usd > 0 ? `$${artwork.price_usd.toLocaleString("en-US")} USD` : undefined
 
   return {
     slug: artwork.slug,
@@ -252,7 +251,8 @@ export function toArtworkView(
     title,
     href: getLocalizedArtworkPath(artwork.slug, lang),
     meta: artistName,
-    price,
+    priceMxn: artwork.price_mxn > 0 ? artwork.price_mxn : undefined,
+    priceUsd: artwork.price_usd > 0 ? artwork.price_usd : undefined,
     artist: [artwork.artist.slug],
     discipline: slugs(artwork.disciplines),
     technique: slugs(artwork.techniques),
@@ -277,8 +277,8 @@ export interface ArtworkDetailView {
   year: string
   dimensions: string
   images: ArtworkDetailImage[]
-  priceUsd?: string
-  priceMxn?: string
+  priceMxn?: number
+  priceUsd?: number
   status: Artwork["status"]
   discipline: string[]
   technique: string[]
@@ -315,8 +315,8 @@ export function toArtworkDetailView(
         alt: imageAlt(image),
         isPrimary: image.is_primary,
       })),
-    priceUsd: artwork.price_usd > 0 ? `$${artwork.price_usd.toLocaleString("en-US")} USD` : undefined,
-    priceMxn: artwork.price_mxn > 0 ? `$${artwork.price_mxn.toLocaleString("es-MX")} MXN` : undefined,
+    priceMxn: artwork.price_mxn > 0 ? artwork.price_mxn : undefined,
+    priceUsd: artwork.price_usd > 0 ? artwork.price_usd : undefined,
     status: artwork.status,
     discipline: labels(artwork.disciplines, "discipline"),
     technique: labels(artwork.techniques, "technique"),
@@ -352,7 +352,8 @@ export interface HeroArtworkView {
   alt: string
   title: string
   artist: string
-  price?: string
+  priceMxn?: number
+  priceUsd?: number
   href: string
 }
 
@@ -433,10 +434,8 @@ export function toHeroView(
       alt: artworkAlt,
       title: artworkTitle,
       artist: artworkArtist,
-      price:
-        artwork && artwork.price_usd > 0
-          ? `$${artwork.price_usd.toLocaleString("en-US")} USD`
-          : undefined,
+      priceMxn: artwork && artwork.price_mxn > 0 ? artwork.price_mxn : undefined,
+      priceUsd: artwork && artwork.price_usd > 0 ? artwork.price_usd : undefined,
       href: artwork
         ? getLocalizedArtworkPath(artwork.slug, lang)
         : getLocalizedSalaPath(gallery.slug, lang),

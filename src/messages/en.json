@@ -42,7 +42,10 @@
     "home": {
       "title": "EnredArte",
       "description": "Discover art in every corner",
-      "keywords": "art, gallery, culture"
+      "keywords": "art, gallery, culture",
+      "hero": {
+        "consultCurator": "By consultation with the curator"
+      }
     },
     "artwork": {
       "status": {

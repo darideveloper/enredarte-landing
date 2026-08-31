@@ -405,10 +405,11 @@ const showcaseFacets = [
             <div class="space-y-2">
               <span class="block text-[10px] uppercase text-muted font-mono">Full props (title, artist, price, href)</span>
               <div class="p-6 bg-[url('/images/hero-1.png')] bg-cover bg-center rounded">
-                <CardSummary 
-                  title="El silencio de la tierra" 
-                  artist="Martín Chirino" 
-                  price="12,500 €" 
+                <CardSummary
+                  title="El silencio de la tierra"
+                  artist="Martín Chirino"
+                  priceMxn={12500}
+                  lang="es"
                   href="/obras/1"
                 />
               </div>
@@ -418,9 +419,10 @@ const showcaseFacets = [
             <div class="space-y-2">
               <span class="block text-[10px] uppercase text-muted font-mono">Title and href only</span>
               <div class="p-6 bg-[url('/images/hero-2.png')] bg-cover bg-center rounded">
-                <CardSummary 
-                  title="Construcción en el espacio" 
+                <CardSummary
+                  title="Construcción en el espacio"
                   href="/obras/2"
+                  lang="es"
                 />
               </div>
             </div>
@@ -434,13 +436,14 @@ const showcaseFacets = [
             <div class="space-y-2">
               <span class="block text-[10px] uppercase text-muted font-mono">Full data</span>
               <div class="border border-dashed border-border-theme overflow-hidden">
-                <ImageBanner 
+                <ImageBanner
                   src="/images/hero-1.png"
                   alt="Artwork 1"
                   aspectRatio="square"
-                  title="El silencio de la tierra" 
-                  artist="Martín Chirino" 
-                  price="12,500 €" 
+                  title="El silencio de la tierra"
+                  artist="Martín Chirino"
+                  priceMxn={12500}
+                  lang="es"
                   href="/obras/1"
                 />
               </div>
@@ -450,11 +453,12 @@ const showcaseFacets = [
             <div class="space-y-2">
               <span class="block text-[10px] uppercase text-muted font-mono">Partial data (No artist/price)</span>
               <div class="border border-dashed border-border-theme overflow-hidden">
-                <ImageBanner 
+                <ImageBanner
                   src="/images/hero-2.png"
                   alt="Artwork 2"
                   aspectRatio="square"
-                  title="Construcción en el espacio" 
+                  title="Construcción en el espacio"
+                  lang="es"
                   href="/obras/2"
                 />
               </div>

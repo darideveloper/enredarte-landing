@@ -4,6 +4,7 @@ import Btn from "@/components/atoms/Btn.astro"
 import type { ArtworkDetailView } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
 import { getTranslations, getLocalizedArtistPath } from "@/lib/i18n/utils"
+import { formatPrice, pickPrice, currencyForLang } from "@/lib/format/price"
 import { EMAIL } from "@/data/site-config"
 
 export interface Props {
@@ -22,7 +23,8 @@ const specRows: { label: string; values: string[] }[] = [
   { label: t("pages.artwork.spec.scale"), values: artwork.scale },
 ].filter((row) => row.values.length > 0)
 
-const price = artwork.priceUsd ?? artwork.priceMxn
+const currency = currencyForLang(lang)
+const price = formatPrice(pickPrice(artwork.priceMxn, artwork.priceUsd, currency), currency)
 const statusLabel = t(`pages.artwork.status.${artwork.status}`)
 ---
 

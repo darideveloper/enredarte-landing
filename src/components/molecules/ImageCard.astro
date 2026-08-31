@@ -12,24 +12,26 @@ export interface Props {
   subtitle?: string
   meta?: string
   curator?: string
+  price?: string
   overlay?: 'hover' | 'darker' | 'always' | 'none'
   darkenOnHover?: boolean
   class?: string
 }
 
-const { 
-  src, 
-  alt, 
-  title, 
-  href, 
-  isLarge = false, 
-  subtitle, 
-  meta, 
-  curator, 
+const {
+  src,
+  alt,
+  title,
+  href,
+  isLarge = false,
+  subtitle,
+  meta,
+  curator,
+  price,
   overlay = 'hover',
   darkenOnHover,
-  class: className, 
-  ...props 
+  class: className,
+  ...props
 } = Astro.props
 
 const overlayMode = darkenOnHover !== undefined ? (darkenOnHover ? 'hover' : 'none') : overlay
@@ -63,6 +65,7 @@ const overlayStyles = {
     subtitle={subtitle}
     meta={meta}
     curator={curator}
+    price={price}
     class={cn(isLarge && "[&>h2]:text-[32px]")}
   />
 </div>

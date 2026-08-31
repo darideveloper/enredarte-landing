@@ -63,7 +63,7 @@ Home.astro ──────────────► data/api.ts (toHeroView
 │   ├── Headline.astro ────────► lib/utils
 │   ├── ImageBanner.astro
 │   │   ├── Image.astro ────────► lib/utils
-│   │   └── CardSummary.astro ──► lib/utils
+│   │   └── CardSummary.astro ──► lib/utils, lib/format/price (formatPrice + pickPrice + currencyForLang)
 │   └── Btn.astro ─────────────► lib/utils
 ├── BannerBar.astro
 │   └── BannerText.astro ───────► lib/utils
@@ -78,7 +78,7 @@ Home.astro ──────────────► data/api.ts (toHeroView
 ├── Filters.tsx (React island, client:load) ─► atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts, lib/utils
 │   └── data/api.ts (API-derived groups + artwork facets, localized in Home.astro; viability via store/catalog.ts `computeViableOptions`)
 └── Artworks.tsx (React island, client:load) ─► store/catalog.ts, lib/utils
-    └── ImageCard.astro (slot children, stamped with space-separated data-* facets) ─► { Image, CardInfo }
+    └── ImageCard.astro (slot children, stamped with space-separated data-* facets, formatted `price` from `lang`) ─► { Image, CardInfo }
 ```
 
 ### GalleryPage.astro tree (per gallery, `/salas/<slug>` + `/es/salas/<slug>`)
@@ -96,7 +96,7 @@ GalleryPage.astro
 ├── Artworks.tsx (React island, client:load; grid columns overridden via `gridClassName`)
 │   └── ImageRowCard.astro (all artworks, `immersive` mode, alternating image/info-card, data-* facets)
 │       ├── Image.astro
-│       ├── CardSummary.astro
+│       ├── CardSummary.astro ──► lib/utils, lib/format/price
 │       └── data/api.ts (ArtworkView + tag labels via getFacetLabel)
 ├── data/api.ts (siteData prop: gallery lookup by slug, curator/artwork/artist resolution)
 │   ├── lib/api/*.ts (types, client, pagination, 10 endpoint modules)
@@ -119,6 +119,7 @@ ArtworkPage.astro
     ├── Headline.astro ───────────► lib/utils
     ├── Btn.astro ────────────────► lib/utils (mailto CTA via data/site-config EMAIL)
     ├── lib/i18n/utils (getTranslations for status/spec labels)
+    ├── lib/format/price (formatPrice + pickPrice + currencyForLang on `lang`)
     └── data/api.ts (ArtworkDetailView prop)
     data/api.ts (toArtworkDetailView → images/alt, title, description, artist,
         artistSlug, year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel)
@@ -135,10 +136,10 @@ ArtistPage.astro
 ├── Image.astro ─────────────► lib/utils
 ├── ImageBanner.astro (featured artwork)
 │   ├── Image.astro
-│   └── CardSummary.astro
+│   └── CardSummary.astro ──► lib/utils, lib/format/price
 ├── ImageRowCard.astro (remaining artworks, alternating, discipline/technique/theme tags via getFacetLabel)
 │   ├── Image.astro
-│   ├── CardSummary.astro
+│   ├── CardSummary.astro ──► lib/utils, lib/format/price
 │   └── data/api.ts (ArtworkView prop)
 ├── ImageCard.astro (active galleries, from toSalaView, isLarge stripped)
 │   ├── Image.astro
@@ -204,6 +205,7 @@ Everything below is a terminal dependency imported by multiple components:
 
 - `lib/utils.ts` — `cn()` helper (nearly every component)
 - `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see `docs/gsap-scrolltrigger/`)
+- `lib/format/price.ts` — `Currency = "MXN" | "USD"`, `currencyForLang(lang)`, `formatPrice(amount, currency, locale?)` (uses `Intl.NumberFormat` with `{ style: "currency", currency }`, returns "" for zero/undefined), `pickPrice(mxn, usd, currency)` (per-currency fallback). Drives the lang→currency rule used by every price-rendering atom/molecule/organism: `es → MXN`, `en → USD`.
 - `lib/i18n/utils.ts` — `getTranslations`, `pickTranslation`, `getLocalizedPath`, `getLocalizedSalaPath`, `getLocalizedArtworkPath`, `getLocalizedArtistPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries
@@ -290,4 +292,5 @@ Everything below is a terminal dependency imported by multiple components:
 - **`Image` atom height prop**: `atoms/Image.astro` supports an optional `height` prop (`"full"` default | `"auto"`). `ImageRowCard` uses `height="auto"` so each artwork renders at its natural aspect ratio (no fixed-height crop); all other consumers (`ImageCard`, `ImageBanner`, `Hero`) keep the default `full` behavior. `lib/utils` `cn` now composes via `clsx` + `tailwind-merge` (last-wins on conflicting utilities).
 - **Reference stateful atom**: `atoms/Input.tsx` is the store-bound form atom (vanilla, self-bound via `useField`, injectable hook prop). `atoms/ValidatedInput.tsx` no longer exists — its responsibilities folded into `Input`.
 - **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work. `store/catalog.ts` (zustand + persist, `useCatalog` hook, `matchesArtwork` predicate, `computeViableOptions` helper) is the shared filter-state store for the interactive collection section.
+- **Currency display is language-driven**: artwork prices are no longer pre-formatted server-side. `ArtworkView` / `ArtworkDetailView` / `HeroArtworkView` carry the raw `priceMxn` / `priceUsd` numbers from the DRF API; each leaf renderer (`CardSummary` → `ImageBanner` / `ImageRowCard`, `ArtworkInfoPanel`, `Hero`, plus `CardInfo` on the homepage collection grid via a pre-formatted `price` string from `Home.astro`) calls `formatPrice(pickPrice(priceMxn, priceUsd, currencyForLang(lang)), currencyForLang(lang))` so the URL language is the only source of truth (`es → MX$`, `en → US$`, via `Intl.NumberFormat`). The previously-invisible homepage collection grid now displays prices for the first time. `CardInfo` / `ImageCard` expose a `price` slot for that grid. The hero's hardcoded Spanish fallback ("Desde consulta con curador") was moved to `pages.home.hero.consultCurator` in `src/messages/{es,en}.json` and surfaces only when no featured artwork has a price.
 - **Interactive collection**: filter groups and artwork data are derived from the backend API in `data/api.ts` and threaded into pages via the `siteData` prop. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store, and disables chips that can no longer match any artwork (`disabled` prop on `FilterBtn`, viability computed client-side from the `facets` prop via `computeViableOptions`); `Artworks` receives `ImageCard.astro` slot children stamped with space-separated `data-*` facet attributes (parsed into arrays before matching), toggles their visibility, and renders a localized empty-state block (`emptyLabel`/`resetLabel` props) with a restart-filters button backed by the store's `reset` action when no card matches. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.

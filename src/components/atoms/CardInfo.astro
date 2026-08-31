@@ -7,15 +7,16 @@ export interface Props {
   subtitle?: string
   meta?: string
   curator?: string
+  price?: string
   class?: string
 }
 
-const { title, href, subtitle, meta, curator, class: className, ...props } = Astro.props
+const { title, href, subtitle, meta, curator, price, class: className, ...props } = Astro.props
 ---
 
-<a 
-  href={href} 
-  class={cn("absolute inset-0 flex flex-col justify-end p-7 z-10", className)} 
+<a
+  href={href}
+  class={cn("absolute inset-0 flex flex-col justify-end p-7 z-10", className)}
   {...props}
 >
   {
@@ -42,6 +43,13 @@ const { title, href, subtitle, meta, curator, class: className, ...props } = Ast
     curator && (
       <p class="text-[10px] text-[#999] italic mt-1.5">
         {curator}
+      </p>
+    )
+  }
+  {
+    price && (
+      <p class="text-[11px] text-paper tracking-[0.06em] font-sans font-medium mt-1.5">
+        {price}
       </p>
     )
   }

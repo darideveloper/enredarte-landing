@@ -1,8 +1,5 @@
-# card-info-molecule Specification
+## MODIFIED Requirements
 
-## Purpose
-Lets developers render a consistent text overlay (title, subtitle, meta, and curator) as a clickable link over a card's background.
-## Requirements
 ### Requirement: Render card information as a link
 The system SHALL render the card information atom as an HTML `<a>` tag pointing to the provided `href`.
 

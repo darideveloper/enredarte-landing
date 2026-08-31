@@ -148,7 +148,9 @@ const alternateUrls = {
           aspectRatio="video"
           title={featured.title}
           artist={featured.meta}
-          price={featured.price}
+          priceMxn={featured.priceMxn}
+          priceUsd={featured.priceUsd}
+          lang={lang}
           href={featured.href}
           overlay="darker"
           class="mb-1"
@@ -157,6 +159,7 @@ const alternateUrls = {
       {rest.map((artwork, i) => (
         <ImageRowCard
           artwork={artwork}
+          lang={lang}
           tags={[
             getFacetLabel("discipline", artwork.discipline[0] ?? "", lang, siteData.filterGroups),
             getFacetLabel("technique", artwork.technique[0] ?? "", lang, siteData.filterGroups),

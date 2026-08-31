@@ -2,19 +2,23 @@
 import Image from '@/components/atoms/Image.astro'
 import CardSummary from '@/components/atoms/CardSummary.astro'
 import { cn } from "@/lib/utils"
+import type { Lang } from "@/lib/api/types"
 
 export interface Props {
   // Image props
   src: string
   alt: string
   aspectRatio?: 'square' | 'video' | 'portrait' | 'auto'
-  
+
   // Card summary props
   title: string
   href: string
   artist?: string
-  price?: string
-  
+  priceMxn?: number
+  priceUsd?: number
+  lang: Lang
+  priceFallback?: string
+
   // Overlay props
   overlay?: 'hover' | 'darker' | 'always' | 'none'
   darkenOnHover?: boolean
@@ -23,18 +27,21 @@ export interface Props {
   class?: string
 }
 
-const { 
-  src, 
-  alt, 
+const {
+  src,
+  alt,
   aspectRatio = 'auto',
-  title, 
-  href, 
-  artist, 
-  price,
+  title,
+  href,
+  artist,
+  priceMxn,
+  priceUsd,
+  lang,
+  priceFallback,
   overlay = 'hover',
   darkenOnHover,
   class: className,
-  ...props 
+  ...props
 } = Astro.props
 
 const overlayMode = darkenOnHover !== undefined ? (darkenOnHover ? 'hover' : 'none') : overlay
@@ -48,24 +55,27 @@ const overlayStyles = {
 ---
 
 <div class={cn("relative overflow-hidden group", className)} {...props}>
-  <Image 
-    src={src} 
-    alt={alt} 
+  <Image
+    src={src}
+    alt={alt}
     title={alt}
     aspectRatio={aspectRatio}
     class="w-full h-full object-cover"
   />
-  
+
   {overlayMode !== 'none' && (
     <div class={cn("absolute inset-0 pointer-events-none z-[1]", overlayStyles[overlayMode])} />
   )}
-  
+
   <div class="absolute bottom-0 left-0 p-4 md:p-6 lg:p-8 w-full flex items-end z-10">
-    <CardSummary 
+    <CardSummary
       title={title}
       href={href}
       artist={artist}
-      price={price}
+      priceMxn={priceMxn}
+      priceUsd={priceUsd}
+      lang={lang}
+      priceFallback={priceFallback}
     />
   </div>
 </div>

@@ -2,17 +2,19 @@
 import Image from "@/components/atoms/Image.astro"
 import CardSummary from "@/components/atoms/CardSummary.astro"
 import type { ArtworkView } from "@/data/api"
+import type { Lang } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
 
 export interface Props {
   artwork: ArtworkView
+  lang: Lang
   tags?: string[]
   reverse?: boolean
   immersive?: boolean
   class?: string
 }
 
-const { artwork, tags = [], reverse = false, immersive = false, class: className, ...props } = Astro.props
+const { artwork, lang, tags = [], reverse = false, immersive = false, class: className, ...props } = Astro.props
 const visibleTags = tags.filter(Boolean)
 ---
 
@@ -42,7 +44,9 @@ const visibleTags = tags.filter(Boolean)
             title={artwork.title}
             href={artwork.href}
             artist={artwork.meta}
-            price={artwork.price}
+            priceMxn={artwork.priceMxn}
+            priceUsd={artwork.priceUsd}
+            lang={lang}
             class="max-w-none w-full"
           />
         </div>
@@ -68,7 +72,7 @@ const visibleTags = tags.filter(Boolean)
             ))}
           </div>
         )}
-        <CardSummary title={artwork.title} href={artwork.href} artist={artwork.meta} price={artwork.price} class="max-w-none w-full" />
+        <CardSummary title={artwork.title} href={artwork.href} artist={artwork.meta} priceMxn={artwork.priceMxn} priceUsd={artwork.priceUsd} lang={lang} class="max-w-none w-full" />
       </div>
     </div>
   )

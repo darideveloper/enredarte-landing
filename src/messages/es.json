@@ -42,7 +42,10 @@
     "home": {
       "title": "EnredArte",
       "description": "Descubre el arte en cada rincón",
-      "keywords": "arte, galería, cultura"
+      "keywords": "arte, galería, cultura",
+      "hero": {
+        "consultCurator": "Desde consulta con curador"
+      }
     },
     "artwork": {
       "status": {
