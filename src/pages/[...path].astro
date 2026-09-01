@@ -66,15 +66,16 @@ const COMPONENT_MAP: Record<string, any> = {
   artist: ArtistPage,
 }
 
+type AllPageKeys = PageKey | "gallery" | "artwork" | "artist"
 const { pageKey, lang, gallerySlug, artworkSlug, artistSlug, siteData } = Astro.props as {
-  pageKey: PageKey
+  pageKey: AllPageKeys
   lang: "es" | "en"
   gallerySlug?: string
   artworkSlug?: string
   artistSlug?: string
   siteData: SiteData
 }
-const PageComponent = COMPONENT_MAP[pageKey as PageKey]
+const PageComponent = COMPONENT_MAP[pageKey as string]
 
 const localizedPaths =
   pageKey === "gallery" && gallerySlug

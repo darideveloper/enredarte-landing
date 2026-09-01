@@ -17,9 +17,9 @@ const { class: className, ...props } = Astro.props
 </div>
 
 <script>
-  import { gsap, ScrollTrigger } from "@/lib/gsap"
+  import { gsap } from "@/lib/gsap"
 
-  let mm
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
 
   const initBannerBarAnimation = () => {
     if (!document.querySelector("#banner-bar")) return

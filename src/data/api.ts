@@ -237,7 +237,7 @@ export function toArtworkView(
   artwork: Artwork,
   artistName: string,
   lang: Lang,
-  filterGroups: FilterGroup[],
+  _filterGroups: FilterGroup[],
 ): ArtworkView {
   const slugs = (refs: Ref[]) => refs.map((ref) => ref.slug)
   const title = pickTranslation(artwork.translations, lang, "title") || artwork.slug

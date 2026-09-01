@@ -137,3 +137,22 @@ export interface Artwork extends Base {
   images: ArtworkImage[]
   gallery_links: GalleryLink[]
 }
+
+export interface PostSummary {
+  id: number
+  slug: string
+  author: string
+  banner_image: string | null
+  published_at: string | null
+  title_es: string
+  title_en: string
+  description_es: string
+  description_en: string
+  keywords_es: string
+  keywords_en: string
+}
+
+export interface Post extends PostSummary {
+  content_es: string
+  content_en: string
+}

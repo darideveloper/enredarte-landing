@@ -41,9 +41,9 @@ const { salas, class: className, ...props } = Astro.props
 </section>
 
 <script>
-  import { gsap, ScrollTrigger } from "@/lib/gsap"
+  import { gsap } from "@/lib/gsap"
 
-  let mm
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
 
   const initGalleryAnimation = () => {
     if (!document.querySelector("#salas-gallery")) return

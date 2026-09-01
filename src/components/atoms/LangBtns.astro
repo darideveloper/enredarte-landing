@@ -1,11 +1,12 @@
 ---
 import { getLangFromUrl, getLocalizedPath, getPageKeyFromUrl } from "@/lib/i18n/utils"
 import { cn } from "@/lib/utils"
+import type { Lang } from "@/lib/api/types"
 
 export interface Props {
-  lang?: string
+  lang?: Lang
   pageKey?: string
-  localizedPaths?: Record<"en" | "es", string>
+  localizedPaths?: Record<Lang, string>
   class?: string
   variant?: "default" | "inverse"
 }
@@ -29,7 +30,7 @@ const variantStyles = {
 
 const styles = variantStyles[variant]
 
-const languages = [
+const languages: { code: Lang; label: string }[] = [
   { code: "es", label: "ES" },
   { code: "en", label: "EN" },
 ]

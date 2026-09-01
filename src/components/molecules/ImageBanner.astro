@@ -58,8 +58,7 @@ const overlayStyles = {
   <Image
     src={src}
     alt={alt}
-    title={alt}
-    aspectRatio={aspectRatio}
+    aspectRatio={aspectRatio === "portrait" ? "4/5" : aspectRatio}
     class="w-full h-full object-cover"
   />
 

@@ -15,7 +15,7 @@ function buildFieldSchemaMap(schemas: z.ZodObject<any>[]): Map<string, z.ZodType
 
 const exampleSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
+  email: z.email("Invalid email"),
 })
 
 export type FormValues = z.infer<typeof exampleSchema>
