@@ -4,7 +4,8 @@
       "home": "Home",
       "obras": "Works",
       "salas": "Rooms",
-      "artistas": "Artists"
+      "artistas": "Artists",
+      "curadores": "Curators"
     },
     "footer": {
       "links": "Links",
@@ -31,6 +32,11 @@
       "less": "Show fewer filters",
       "noResults": "No artworks match your selected filters.",
       "reset": "Restart filters"
+    },
+    "curator": {
+      "curator": "Curatorship",
+      "curatedSalas": "Curated rooms",
+      "noSalas": "No rooms currently assigned."
     }
   },
   "pages": {
@@ -38,6 +44,10 @@
       "title": "EnredArte",
       "description": "Discover art in every corner",
       "keywords": "art, gallery, culture"
+    },
+    "curator": {
+      "title": "Curatorship",
+      "description": "Meet our art curators"
     },
     "artwork": {
       "status": {

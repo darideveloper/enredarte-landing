@@ -4,7 +4,8 @@
       "home": "Inicio",
       "obras": "Obras",
       "salas": "Salas",
-      "artistas": "Artistas"
+      "artistas": "Artistas",
+      "curadores": "Curadores"
     },
     "footer": {
       "links": "Enlaces",
@@ -31,6 +32,11 @@
       "less": "Ver menos filtros",
       "noResults": "No se encontraron obras con los filtros seleccionados.",
       "reset": "Reiniciar filtros"
+    },
+    "curator": {
+      "curator": "Curaduría",
+      "curatedSalas": "Salas curadas",
+      "noSalas": "No hay salas asignadas actualmente."
     }
   },
   "pages": {
@@ -38,6 +44,10 @@
       "title": "EnredArte",
       "description": "Descubre el arte en cada rincón",
       "keywords": "arte, galería, cultura"
+    },
+    "curator": {
+      "title": "Curaduría",
+      "description": "Conoce a nuestros curadores de arte"
     },
     "artwork": {
       "status": {

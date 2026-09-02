@@ -4,9 +4,10 @@ import { routes, type PageKey } from "@/lib/i18n/routes"
 import Home from "@/components/pages/landing/Home.astro"
 import GalleryPage from "@/components/pages/sala/GalleryPage.astro"
 import ArtworkPage from "@/components/pages/obra/ArtworkPage.astro"
+import CuratorPage from "@/components/pages/curador/CuratorPage.astro"
 import { buildSiteData } from "@/data/api"
 import type { SiteData } from "@/data/api"
-import { getLocalizedArtworkPath, getLocalizedSalaPath } from "@/lib/i18n/utils"
+import { getLocalizedArtworkPath, getLocalizedCuratorPath, getLocalizedSalaPath } from "@/lib/i18n/utils"
 
 export async function getStaticPaths() {
   const siteData = await buildSiteData()
@@ -41,6 +42,16 @@ export async function getStaticPaths() {
       props: { pageKey: "artwork", artworkSlug: artwork.slug, lang: "en", siteData },
     })
   }
+  for (const curator of siteData.curators) {
+    paths.push({
+      params: { path: `curadores/${curator.slug}` },
+      props: { pageKey: "curator", curatorSlug: curator.slug, lang: "es", siteData },
+    })
+    paths.push({
+      params: { path: `en/curadores/${curator.slug}` },
+      props: { pageKey: "curator", curatorSlug: curator.slug, lang: "en", siteData },
+    })
+  }
   return paths
 }
 
@@ -48,13 +59,15 @@ const COMPONENT_MAP: Record<string, any> = {
   home: Home,
   gallery: GalleryPage,
   artwork: ArtworkPage,
+  curator: CuratorPage,
 }
 
-const { pageKey, lang, gallerySlug, artworkSlug, siteData } = Astro.props as {
+const { pageKey, lang, gallerySlug, artworkSlug, curatorSlug, siteData } = Astro.props as {
   pageKey: PageKey
   lang: "es" | "en"
   gallerySlug?: string
   artworkSlug?: string
+  curatorSlug?: string
   siteData: SiteData
 }
 const PageComponent = COMPONENT_MAP[pageKey as PageKey]
@@ -70,7 +83,12 @@ const localizedPaths =
           en: getLocalizedArtworkPath(artworkSlug, "en"),
           es: getLocalizedArtworkPath(artworkSlug, "es"),
         }
-      : undefined
+      : pageKey === "curator" && curatorSlug
+        ? {
+            en: getLocalizedCuratorPath(curatorSlug, "en"),
+            es: getLocalizedCuratorPath(curatorSlug, "es"),
+          }
+        : undefined
 ---
 <Layout localizedPaths={localizedPaths}>
   {PageComponent && (
@@ -79,6 +97,7 @@ const localizedPaths =
       pageKey={pageKey}
       gallerySlug={gallerySlug}
       artworkSlug={artworkSlug}
+      curatorSlug={curatorSlug}
       siteData={siteData}
     />
   )}

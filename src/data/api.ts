@@ -154,6 +154,10 @@ export function resolveGalleryCurator(gallery: Gallery, curators: ArtCurator[]):
   return curators.find((curator) => curator.id === gallery.curator!.id) ?? null
 }
 
+export function resolveCuratorGalleries(curator: ArtCurator, galleries: Gallery[]): Gallery[] {
+  return galleries.filter((gallery) => gallery.curator?.id === curator.id)
+}
+
 export function resolveGalleryArtworks(gallery: Gallery, artworks: Artwork[]): Artwork[] {
   const bySlug = new Map(artworks.map((artwork) => [artwork.slug, artwork]))
   return gallery.artwork_links

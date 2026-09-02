@@ -8,5 +8,6 @@ export function getNavLinks(lang: keyof typeof ui) {
     { label: t("global.nav.obras"), href: "#obras" },
     { label: t("global.nav.salas"), href: "#salas" },
     { label: t("global.nav.artistas"), href: "#artistas" },
+    { label: t("global.nav.curadores"), href: "#curadores" },
   ]
 }
