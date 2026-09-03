@@ -14,4 +14,24 @@
   --color-banner-text: #5C5748;
   --color-banner-bg: #EAE4D8;
   --color-description: #7A7568;
+  --color-card-dark: #0D0D0D;
+}
+
+/* Gallery Salon — browser surfaces (craft floor) */
+::selection {
+  background: #C41E3A;
+  color: #F2EDE4;
+}
+* {
+  caret-color: oklch(0.62 0.18 20);
+  scrollbar-width: thin;
+  scrollbar-color: #8A8478 #F2EDE4;
+}
+:focus-visible {
+  outline: 2px solid oklch(0.62 0.18 20);
+  outline-offset: 2px;
+}
+a {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
 }

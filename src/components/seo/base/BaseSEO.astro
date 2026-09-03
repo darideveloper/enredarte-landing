@@ -46,7 +46,9 @@ const pageTitle = useTagLine && resolvedTitle !== BUSINESS_DATA.name && currentP
 const canonicalPath = currentPage ? getLocalizedPath(currentPage, lang) : Astro.url.pathname
 const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
 
-const socialImageUrl = ogImage ? `${BUSINESS_DATA.url}${ogImage}` : `${BUSINESS_DATA.url}${BUSINESS_DATA.ogImage}`
+const socialImageUrl = ogImage
+  ? (ogImage.startsWith("http://") || ogImage.startsWith("https://") ? ogImage : `${BUSINESS_DATA.url}${ogImage}`)
+  : `${BUSINESS_DATA.url}${BUSINESS_DATA.ogImage}`
 
 const resolvedAlternateUrls = alternateUrls ?? (currentPage
   ? {

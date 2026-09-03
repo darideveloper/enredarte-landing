@@ -26,31 +26,38 @@ src/pages/
   (`obras/<slug>` es / `en/obras/<slug>` en), and one detail page per artist
   (`artistas/<slug>` es / `en/artistas/<slug>` en), threading the shared `siteData`
   prop through to `Home`/`GalleryPage`/`ArtworkPage`/`ArtistPage`.
+- Isolated blog fetch (Option A, outside `buildSiteData`): calls `fetchAll(listPosts)` from `src/lib/api/posts.ts`,
+  filters `published_at != null`, derives `total_pages = ceil(count/12)`, emits paginated index pages
+  (`/blog` + `/blog/page/2` … es, `/en/blog` + `/en/blog/page/2` … en, page 1 is base path, 12-item slices,
+  empty-state when `count==0`) and per-post detail pages (`/blog/:slug` es / `/en/blog/:slug` en, drafts excluded).
+  Detail pages fetch full `Post` via `detail(slug)` and thread `post: Post` + `postSlug` to `BlogPost`.
 - Looks up the page component in `COMPONENT_MAP` → `home: Home`, `gallery: GalleryPage`,
-  `artwork: ArtworkPage`, `artist: ArtistPage`.
-- Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery *or* artwork
-  URLs) to `Layout` → `Header` → `LangBtns` so the language switch preserves the gallery/artwork slug.
+  `artwork: ArtworkPage`, `artist: ArtistPage`, `blog: BlogIndex`, `post: BlogPost`.
+- Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery/artwork/artist *or*
+  blog page/post URLs via `getLocalizedSalaPath`/`getLocalizedArtworkPath`/`getLocalizedArtistPath`/
+  `getLocalizedBlogPath`/`getLocalizedBlogPagePath`/`getLocalizedPostPath`) to `Layout` → `Header` → `LangBtns`
+  so the language switch preserves the slug/page, and `preloadImage` prefers `Post.banner_image` (prefixed with `API_BASE_URL`) for post detail.
 
 ## Full dependency diagram
 
 ```
-                            ┌──────────────────────────────────────────────┐
-                            │                [...path].astro               │
-                            └──────────────┬───────────────┬───────────────┘
-                                           │               │ routes (i18n)
-                                           ▼               ▼
-   Home / GalleryPage / ArtworkPage / ArtistPage   lib/i18n/routes.ts
-                             │               │          data/api.ts (buildSiteData)
-                             │               ▼          lib/api/* (10 endpoint modules,
-                             ▼        lib/i18n/utils      pagination.fetchAll)
-                    ┌───────────────────────────────────────────────────┐
-                    │                    Layout.astro                    │
-                    │  global.css                                        │
-                    │  <body>                                            │
-                    │   ├─ Header.astro (localizedPaths → LangBtns)      │
-                    │   ├─ <slot/> = page content                        │
-                    │   └─ Footer.astro                                  │
-                    └───────────────────────────────────────────────────┘
+                             ┌──────────────────────────────────────────────┐
+                             │                [...path].astro               │
+                             └──────────────┬───────────────┬───────────────┘
+                                            │               │ routes (i18n)
+                                            ▼               ▼
+ Home / GalleryPage / ArtworkPage / ArtistPage / BlogIndex / BlogPost   lib/i18n/routes.ts
+                              │               │          data/api.ts (buildSiteData)
+                              │               ▼          lib/api/* (10 endpoint modules + posts, pagination.fetchAll)
+                              ▼        lib/i18n/utils (getLocalizedBlogPath/PagePath/PostPath)
+                     ┌───────────────────────────────────────────────────┐
+                     │                    Layout.astro                    │
+                     │  global.css                                        │
+                     │  <body>                                            │
+                     │   ├─ Header.astro (localizedPaths → LangBtns)      │
+                     │   ├─ <slot/> = page content                        │
+                     │   └─ Footer.astro                                  │
+                     └───────────────────────────────────────────────────┘
 ```
 
 ### Home.astro tree
@@ -149,6 +156,36 @@ ArtistPage.astro
 └── lib/i18n/utils (getTranslations, pickTranslation, getLocalizedArtistPath)
 ```
 
+### BlogIndex.astro tree (paginated, `/blog` + `/blog/page/N` and `/en/blog` …)
+
+```
+BlogIndex.astro
+├── PageSEO.astro ─► BaseSEO.astro (title/description/keywords from pages.blog.*, alternateUrls via getLocalizedBlogPagePath)
+├── Headline.astro (eyebrow Revista/Journal) ─► lib/utils
+├── Btn.astro (empty-state CTA, ghost) ─► lib/utils
+├── PostCard.astro (per PostSummary in slice; featured lg:col-span-2 on last page only)
+│   ├── lib/api/posts (pickPostField for title/description)
+│   ├── lib/i18n/utils (getLocalizedPostPath for href, Intl.DateTimeFormat for date, API_BASE_URL+banner_image, getTranslations for readMore)
+│   └── Featured variant: overlay title + readMore CTA, accent bar + lift on regular
+└── PaginationNav.astro (molecule, hidden when total_pages<=1; md: full numbered, <md: collapsed Prev — page/total — Next)
+    └── lib/i18n/utils (getLocalizedBlogPagePath, page 1 ↔ base path, getTranslations for prev/next/page)
+    lib/i18n/utils (getLocalizedPostPath, getLocalizedBlogPath for empty-state)
+    lib/api/types (PostSummary, Lang)
+```
+
+### BlogPost.astro tree (per post, `/blog/:slug` + `/en/blog/:slug`)
+
+```
+BlogPost.astro
+├── PageSEO.astro ─► BaseSEO.astro (title=title_*, description=description_*, keywords=keywords_*, ogImage=API_BASE_URL+banner_image, alternateUrls via getLocalizedPostPath)
+├── Headline.astro (eyebrow Revista/Journal) ─► lib/utils
+├── Btn.astro (ghost backToBlog) ─► lib/utils
+├── marked (marked.parse at build, set:html, trusted CMS → blog-prose)
+├── lib/api/posts (pickPostField for title/description/keywords/content)
+├── lib/i18n/utils (getLocalizedPostPath, getLocalizedBlogPath, getTranslations for back/share/readingTime)
+└── aside sticky meta (Headline + Btn + banner thumb, lg only) + share script (navigator.share → clipboard)
+```
+
 ### Layout.astro tree (Header + Footer shared by every page)
 
 ```
@@ -206,7 +243,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/utils.ts` — `cn()` helper (nearly every component)
 - `lib/gsap.ts` — Central GSAP instance & SSR-safe plugin registration (see `docs/gsap-scrolltrigger/`)
 - `lib/format/price.ts` — `Currency = "MXN" | "USD"`, `currencyForLang(lang)`, `formatPrice(amount, currency, locale?)` (uses `Intl.NumberFormat` with `{ style: "currency", currency }`, returns "" for zero/undefined), `pickPrice(mxn, usd, currency)` (per-currency fallback). Drives the lang→currency rule used by every price-rendering atom/molecule/organism: `es → MXN`, `en → USD`.
-- `lib/i18n/utils.ts` — `getTranslations`, `pickTranslation`, `getLocalizedPath`, `getLocalizedSalaPath`, `getLocalizedArtworkPath`, `getLocalizedArtistPath`
+- `lib/i18n/utils.ts` — `getTranslations`, `pickTranslation`, `getLocalizedPath`, `getLocalizedSalaPath`, `getLocalizedArtworkPath`, `getLocalizedArtistPath`, `getLocalizedBlogPath`, `getLocalizedBlogPagePath`, `getLocalizedPostPath`
 - `lib/i18n/routes.ts` — `routes` map, `PageKey` type
 - `lib/i18n/ui.ts` — translation dictionaries
 - `lib/nav.ts` — `getNavLinks(lang)`, shared nav source for Header and Footer
@@ -215,18 +252,18 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/api/types.ts` — API-faithful types (`Base`, `Ref`, `Translations<T>`, `Paginated<T>`, `ApiError`, 10 resource interfaces)
 - `lib/api/client.ts` — `safeFetch`/`FetchError`/`apiFetch` (token-injecting fetch)
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
-- `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks}.ts` — `list`/`detail` endpoint modules
+- `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`, `marked` for Markdown)
 - `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
 - `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …)
 
 ## Notes
 
-- **Four page components.** The single catch-all `[...path].astro` now serves `Home`
-  (root `/` + `/es`), one `GalleryPage` per gallery fetched from the backend API
-  (`/salas/<slug>` + `/en/salas/<slug>`), one `ArtworkPage` per artwork
-  (`/obras/<slug>` + `/en/obras/<slug>`), and one `ArtistPage` per artist
-  (`/artistas/<slug>` + `/en/artistas/<slug>`). The generic `Services`/`About` pages were
+- **Six page components.** The single catch-all `[...path].astro` now serves `Home`
+  (root `/` + `/es`), one `GalleryPage` per gallery (`/salas/<slug>` + `/en/salas/<slug>`),
+  one `ArtworkPage` per artwork (`/obras/<slug>` + `/en/obras/<slug>`), one `ArtistPage` per artist
+  (`/artistas/<slug>` + `/en/artistas/<slug>`), a paginated `BlogIndex` (`/blog` + `/blog/page/N` and `/en/blog` …)
+  and a per-post `BlogPost` (`/blog/:slug` + `/en/blog/:slug`). The generic `Services`/`About` pages were
   removed in the `remove-dummy-pages` cleanup.
 - **Artwork detail pages**: `ArtworkPage.astro` renders `toArtworkDetailView` (all artwork
   data from `buildSiteData()`) in a two-column layout — a scroll-driven `ArtworkImageViewer`
@@ -270,12 +307,14 @@ Everything below is a terminal dependency imported by multiple components:
   localized name/description, curator, and featured artwork; the badge "Sala NN" uses the
   primary gallery's array index. `<Hero />` without props still renders via safe defaults
   (design-system showcase).
-- **Build-time backend dependency**: `getStaticPaths` calls `buildSiteData()` which fetches
-  the DRF API using `API_BASE_URL`/`API_TOKEN` (server-only, never `PUBLIC_*`). The backend
-  must be reachable and the token valid during `astro build`; a failure surfaces a `FetchError`.
+- **Build-time backend dependency**: `getStaticPaths` calls `buildSiteData()` plus an isolated blog fetch
+  (`fetchAll(listPosts)` + `detail(slug)` per post) which fetches the DRF API using `API_BASE_URL`/`API_TOKEN`
+  (server-only, never `PUBLIC_*`). The backend must be reachable and the token valid during `astro build`;
+  a failure surfaces a `FetchError` (no silent fallback, blog outage fails whole build).
 - **Nav anchors**: the `obras`/`artistas` nav items point at the homepage collection
   section (`#artworks-collection`) and `salas` at the homepage gallery section
   (`#salas-gallery`) — real in-page targets, shared by Header and Footer via `getNavLinks`.
+  The `Blog` nav item points to `getLocalizedBlogPath(lang)` (`/blog` es / `/en/blog` en), after Salas (`home → obras → salas → blog → artistas`).
   There is no salas or artists index page in scope.
 - **Artist detail pages**: `ArtistPage.astro` renders an artist hero (photo/initials,
   localized bio, years · location metadata, contact/social links), their artworks as a
@@ -285,6 +324,7 @@ Everything below is a terminal dependency imported by multiple components:
   artworks' `gallery_links`, deduped, `is_active` only, primary-first). The artist name on
   artwork detail pages links back to the artist page. `LangBtns` `localizedPaths` preserve
   the artist slug across languages.
+- **Blog pages (polished Salon)**: `BlogIndex.astro` renders an editorial header (`Headline` eyebrow `pages.blog.eyebrow` Revista/Journal + serif `h1` + `pages.blog.description` + count meta + hairline), a mosaic `grid gap-[3px] md:gap-4` of `PostCard`s — `PostCard` now a `bg-card-dark` salon card with `aspect-[4/3]` image, `brightness-[0.92]→[0.72]` + `scale-[1.05]` + `shadow-2xl -translate-y-1` on hover, `from-black/75` gradient, top-left date badge, `Headline`/`Btn` tokens, crimson accent bar sliding in and `pl-3` indent, featured `lg:col-span-2 aspect-[16/10]` with overlay title/cta for the first post of the **last** page only (`isLastPage && posts.length>1`). `PaginationNav.astro` is now bilingual (`pages.blog.pagination.prev/next/page`) and responsive: `md` shows full numbered + Prev (ink/ghost) / Next (crimson) with `focus:ring-brand-500`, `<md` collapses to `Prev — page/total — Next` full-width; hidden when `total_pages<=1`. Empty-state is a centered editorial block (`Headline` eyebrow, serif `h2`, `pages.blog.noPostsHint` + ghost `Btn` to `getLocalizedBlogPath`). `BlogPost.astro` renders a `bg-card-dark` hero (`h-[48svh] md:h-[62svh]` with `from-black/75 via-black/35` gradient, bottom-anchored `Headline` eyebrow + serif title + back link), description as left-bordered crimson quote, meta `author • date • readingTime` (`wordCount/200` via `pages.blog.readingTime`), `h-px` divider, `blog-prose` (`prose-headings:font-serif`, `prose-a:text-crimson underline-offset-4`, `blockquote border-crimson`, `code bg-white border`, `pre bg-card-dark`, `lead 1.85`, `measure 72ch`), share `navigator.share→clipboard` + `Btn ghost`, and a `lg:sticky` aside (title/meta/description + `Btn` + banner thumb). `PageSEO` uses `pages.blog.eyebrow` via `pickPostField` and `ogImage`; `LangBtns` `localizedPaths` + `preloadImage` preserved. Drafts excluded. Global `::selection` crimson/paper, `caret-color brand-500`, `scrollbar-color`, `focus-visible` and `text-underline-offset:3px` themed in `styles/global.css`.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **Orphaned / not reachable from any page** (candidates for cleanup):

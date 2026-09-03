@@ -5,17 +5,25 @@ import Home from "@/components/pages/landing/Home.astro"
 import GalleryPage from "@/components/pages/sala/GalleryPage.astro"
 import ArtworkPage from "@/components/pages/obra/ArtworkPage.astro"
 import ArtistPage from "@/components/pages/artista/ArtistPage.astro"
+import BlogIndex from "@/components/pages/blog/BlogIndex.astro"
+import BlogPost from "@/components/pages/blog/BlogPost.astro"
 import { buildSiteData, resolveArtistArtworks } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import {
   getLocalizedArtworkPath,
   getLocalizedArtistPath,
   getLocalizedSalaPath,
+  getLocalizedBlogPath,
+  getLocalizedBlogPagePath,
+  getLocalizedPostPath,
 } from "@/lib/i18n/utils"
+import { fetchAll } from "@/lib/api/pagination"
+import { list as listPosts, detail as detailPost } from "@/lib/api/posts"
+import type { Post } from "@/lib/api/types"
 
 export async function getStaticPaths() {
   const siteData = await buildSiteData()
-  const paths = []
+  const paths: any[] = []
   for (const [key, langPaths] of Object.entries(routes)) {
     paths.push({
       params: { path: langPaths.en },
@@ -56,6 +64,53 @@ export async function getStaticPaths() {
       props: { pageKey: "artist", artistSlug: artist.slug, lang: "en", siteData },
     })
   }
+
+  // Blog: isolated fetch (Option A) — outside buildSiteData, fails loudly on FetchError/missing env
+  const allPosts = await fetchAll(listPosts)
+  const published = allPosts.filter((p) => p.published_at != null)
+  const pageSize = 12
+  const total_pages = Math.ceil(published.length / pageSize)
+  const count = published.length
+  const pagesToEmit = total_pages || 1
+
+  for (let page = 1; page <= pagesToEmit; page++) {
+    const start = (page - 1) * pageSize
+    const slice = published.slice(start, start + pageSize)
+    const pagination = { page, total_pages, count }
+    const esPath = page === 1 ? "blog" : `blog/page/${page}`
+    const enPath = page === 1 ? "en/blog" : `en/blog/page/${page}`
+    paths.push({
+      params: { path: esPath },
+      props: { pageKey: "blog", lang: "es", siteData, blogPage: page, posts: slice, pagination },
+    })
+    paths.push({
+      params: { path: enPath },
+      props: { pageKey: "blog", lang: "en", siteData, blogPage: page, posts: slice, pagination },
+    })
+  }
+
+  // Detail pages: one per published post, both languages
+  // Fetch full Post for each slug to provide content_* to BlogPost (parallel for build speed)
+  const detailResults = published.length
+    ? await Promise.all(published.map((s) => detailPost(s.slug)))
+    : []
+  const detailMap = new Map<string, Post>()
+  for (const post of detailResults) {
+    // Defensive: also exclude drafts if detail returns unpublished (should not happen)
+    if (post.published_at == null) continue
+    detailMap.set(post.slug, post)
+  }
+  for (const [slug, post] of detailMap) {
+    paths.push({
+      params: { path: `blog/${slug}` },
+      props: { pageKey: "post", lang: "es", siteData, postSlug: slug, post },
+    })
+    paths.push({
+      params: { path: `en/blog/${slug}` },
+      props: { pageKey: "post", lang: "en", siteData, postSlug: slug, post },
+    })
+  }
+
   return paths
 }
 
@@ -64,15 +119,22 @@ const COMPONENT_MAP: Record<string, any> = {
   gallery: GalleryPage,
   artwork: ArtworkPage,
   artist: ArtistPage,
+  blog: BlogIndex,
+  post: BlogPost,
 }
 
-type AllPageKeys = PageKey | "gallery" | "artwork" | "artist"
-const { pageKey, lang, gallerySlug, artworkSlug, artistSlug, siteData } = Astro.props as {
+type AllPageKeys = PageKey | "gallery" | "artwork" | "artist" | "blog" | "post"
+const { pageKey, lang, gallerySlug, artworkSlug, artistSlug, blogPage, posts, pagination, postSlug, post, siteData } = Astro.props as {
   pageKey: AllPageKeys
   lang: "es" | "en"
   gallerySlug?: string
   artworkSlug?: string
   artistSlug?: string
+  blogPage?: number
+  posts?: import("@/lib/api/types").PostSummary[]
+  pagination?: { page: number; total_pages: number; count: number }
+  postSlug?: string
+  post?: Post
   siteData: SiteData
 }
 const PageComponent = COMPONENT_MAP[pageKey as string]
@@ -93,27 +155,50 @@ const localizedPaths =
             en: getLocalizedArtistPath(artistSlug, "en"),
             es: getLocalizedArtistPath(artistSlug, "es"),
           }
-        : undefined
+        : pageKey === "blog" && blogPage
+          ? {
+              en: getLocalizedBlogPagePath(blogPage, "en"),
+              es: getLocalizedBlogPagePath(blogPage, "es"),
+            }
+          : pageKey === "post" && postSlug
+            ? {
+                en: getLocalizedPostPath(postSlug, "en"),
+                es: getLocalizedPostPath(postSlug, "es"),
+              }
+            : undefined
 
 const preloadImage =
-  artworkSlug
-    ? (() => {
-        const a = siteData.artworks.find((x) => x.slug === artworkSlug)
-        const img = a?.images.find((i) => i.is_primary) ?? a?.images[0]
-        return img?.image ?? ""
-      })()
-    : artistSlug
+  postSlug && post?.banner_image
+    ? `${import.meta.env.API_BASE_URL ?? ""}${post.banner_image}`
+    : artworkSlug
       ? (() => {
-          const artist = siteData.artists.find((x) => x.slug === artistSlug)
-          if (artist?.photo) return artist.photo
-          const work = artist ? resolveArtistArtworks(artist, siteData.artworks)[0] : undefined
-          const img = work?.images.find((i) => i.is_primary) ?? work?.images[0]
+          const a = siteData.artworks.find((x) => x.slug === artworkSlug)
+          const img = a?.images.find((i) => i.is_primary) ?? a?.images[0]
           return img?.image ?? ""
         })()
-      : undefined
+      : artistSlug
+        ? (() => {
+            const artist = siteData.artists.find((x) => x.slug === artistSlug)
+            if (artist?.photo) return artist.photo
+            const work = artist ? resolveArtistArtworks(artist, siteData.artworks)[0] : undefined
+            const img = work?.images.find((i) => i.is_primary) ?? work?.images[0]
+            return img?.image ?? ""
+          })()
+        : undefined
 ---
 <Layout localizedPaths={localizedPaths} preloadImage={preloadImage}>
-  {PageComponent && (
+  {PageComponent && pageKey === "blog" ? (
+    <PageComponent
+      lang={lang}
+      posts={posts}
+      pagination={pagination}
+    />
+  ) : PageComponent && pageKey === "post" ? (
+    <PageComponent
+      lang={lang}
+      post={post}
+    />
+  ) : PageComponent && (
     <PageComponent
       lang={lang}
       pageKey={pageKey}

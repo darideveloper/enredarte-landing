@@ -4,6 +4,7 @@
       "home": "Inicio",
       "obras": "Obras",
       "salas": "Salas",
+      "blog": "Blog",
       "artistas": "Artistas"
     },
     "footer": {
@@ -61,6 +62,25 @@
         "scale": "Escala"
       },
       "cta": "Consultar"
+    },
+    "blog": {
+      "title": "Blog",
+      "eyebrow": "Revista",
+      "description": "Noticias y artículos de EnredArte",
+      "keywords": "blog, arte, noticias, EnredArte",
+      "noPosts": "No hay publicaciones disponibles por el momento.",
+      "noPostsHint": "Vuelve pronto — estamos preparando nuevas historias del taller y la sala.",
+      "readMore": "Leer artículo",
+      "backToBlog": "Volver al blog",
+      "share": "Compartir",
+      "copied": "¡Copiado!",
+      "copy": "Copiar",
+      "readingTime": "{count} min de lectura",
+      "pagination": {
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "page": "Página {current} de {total}"
+      }
     }
   }
 }

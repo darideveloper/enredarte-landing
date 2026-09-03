@@ -4,6 +4,7 @@
       "home": "Home",
       "obras": "Works",
       "salas": "Rooms",
+      "blog": "Blog",
       "artistas": "Artists"
     },
     "footer": {
@@ -61,6 +62,25 @@
         "scale": "Scale"
       },
       "cta": "Inquire"
+    },
+    "blog": {
+      "title": "Blog",
+      "eyebrow": "Journal",
+      "description": "News and articles from EnredArte",
+      "keywords": "blog, art, news, EnredArte",
+      "noPosts": "No posts available at the moment.",
+      "noPostsHint": "Check back soon — new stories from the studio and the salon are on the way.",
+      "readMore": "Read article",
+      "backToBlog": "Back to blog",
+      "share": "Share",
+      "copied": "Copied!",
+      "copy": "Copy",
+      "readingTime": "{count} min read",
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "page": "Page {current} of {total}"
+      }
     }
   }
 }

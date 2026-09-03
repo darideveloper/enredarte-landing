@@ -1,0 +1,106 @@
+---
+import { getLocalizedBlogPagePath } from "@/lib/i18n/utils"
+import { getTranslations } from "@/lib/i18n/utils"
+import type { Lang } from "@/lib/api/types"
+
+export interface Props {
+  page: number
+  total_pages: number
+  lang: Lang
+}
+
+const { page, total_pages, lang } = Astro.props
+
+if (total_pages <= 1) {
+  return
+}
+
+const t = getTranslations(lang)
+const pages = Array.from({ length: total_pages }, (_, i) => i + 1)
+const prevPage = page - 1
+const nextPage = page + 1
+const prevHref = prevPage >= 1 ? getLocalizedBlogPagePath(prevPage, lang) : null
+const nextHref = nextPage <= total_pages ? getLocalizedBlogPagePath(nextPage, lang) : null
+const pageLabel = t("pages.blog.pagination.page", { current: String(page), total: String(total_pages) })
+---
+
+<nav aria-label="Pagination" class="mt-12 border-t border-border-theme pt-8">
+  <!-- Desktop: full numbered -->
+  <div class="hidden md:flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      {prevHref ? (
+        <a
+          href={prevHref}
+          class="inline-flex items-center gap-2 px-4 py-2.5 text-[11px] uppercase tracking-[0.1em] border border-ink text-ink hover:bg-ink hover:text-paper transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+        >
+          <span aria-hidden="true">←</span> {t("pages.blog.pagination.prev")}
+        </a>
+      ) : (
+        <span class="inline-flex items-center gap-2 px-4 py-2.5 text-[11px] uppercase tracking-[0.1em] border border-border-theme text-muted opacity-40 cursor-not-allowed select-none">
+          <span aria-hidden="true">←</span> {t("pages.blog.pagination.prev")}
+        </span>
+      )}
+      <div class="flex items-center gap-1 ml-2">
+        {pages.map((p) => {
+          const isCurrent = p === page
+          const href = getLocalizedBlogPagePath(p, lang)
+          return isCurrent ? (
+            <span aria-current="page" class="min-w-[36px] h-9 inline-flex items-center justify-center text-[11px] bg-ink text-paper border border-ink select-none">{p}</span>
+          ) : (
+            <a href={href} class="min-w-[36px] h-9 inline-flex items-center justify-center text-[11px] border border-border-theme text-muted hover:border-ink hover:text-ink hover:bg-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">{p}</a>
+          )
+        })}
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden lg:inline text-[11px] tracking-[0.06em] text-muted">{pageLabel}</span>
+      {nextHref ? (
+        <a
+          href={nextHref}
+          class="inline-flex items-center gap-2 px-4 py-2.5 text-[11px] uppercase tracking-[0.1em] bg-crimson border border-crimson text-paper hover:bg-transparent hover:text-crimson transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+        >
+          {t("pages.blog.pagination.next")} <span aria-hidden="true">→</span>
+        </a>
+      ) : (
+        <span class="inline-flex items-center gap-2 px-4 py-2.5 text-[11px] uppercase tracking-[0.1em] border border-border-theme text-muted opacity-40 cursor-not-allowed select-none">
+          {t("pages.blog.pagination.next")} <span aria-hidden="true">→</span>
+        </span>
+      )}
+    </div>
+  </div>
+
+  <!-- Mobile: collapsed Prev / page indicator / Next -->
+  <div class="flex md:hidden items-center justify-between gap-3">
+    {prevHref ? (
+      <a
+        href={prevHref}
+        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] uppercase tracking-[0.1em] border border-ink text-ink active:bg-ink active:text-paper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        aria-label={t("pages.blog.pagination.prev")}
+      >
+        <span aria-hidden="true">←</span> {t("pages.blog.pagination.prev")}
+      </a>
+    ) : (
+      <span class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] uppercase tracking-[0.1em] border border-border-theme text-muted opacity-40 cursor-not-allowed select-none">
+        <span aria-hidden="true">←</span> {t("pages.blog.pagination.prev")}
+      </span>
+    )}
+
+    <span class="shrink-0 text-[11px] tracking-[0.08em] uppercase text-muted font-sans px-2" aria-live="polite">
+      {page} / {total_pages}
+    </span>
+
+    {nextHref ? (
+      <a
+        href={nextHref}
+        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] uppercase tracking-[0.1em] bg-crimson border border-crimson text-paper active:bg-transparent active:text-crimson transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        aria-label={t("pages.blog.pagination.next")}
+      >
+        {t("pages.blog.pagination.next")} <span aria-hidden="true">→</span>
+      </a>
+    ) : (
+      <span class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] uppercase tracking-[0.1em] border border-border-theme text-muted opacity-40 cursor-not-allowed select-none">
+        {t("pages.blog.pagination.next")} <span aria-hidden="true">→</span>
+      </span>
+    )}
+  </div>
+</nav>

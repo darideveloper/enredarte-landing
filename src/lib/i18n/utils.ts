@@ -25,6 +25,19 @@ export function getLocalizedArtistPath(slug: string, lang: keyof typeof ui) {
   return lang === "en" ? `/en/artistas/${slug}` : `/artistas/${slug}`
 }
 
+export function getLocalizedBlogPath(lang: keyof typeof ui) {
+  return lang === "en" ? "/en/blog" : "/blog"
+}
+
+export function getLocalizedBlogPagePath(page: number, lang: keyof typeof ui) {
+  if (page <= 1) return getLocalizedBlogPath(lang)
+  return lang === "en" ? `/en/blog/page/${page}` : `/blog/page/${page}`
+}
+
+export function getLocalizedPostPath(slug: string, lang: keyof typeof ui) {
+  return lang === "en" ? `/en/blog/${slug}` : `/blog/${slug}`
+}
+
 export function pickTranslation<T extends Record<string, string>>(
   translations: Translations<T> | undefined,
   lang: Lang,
