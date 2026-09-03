@@ -12,6 +12,7 @@ export interface Props {
   subtitle?: string
   meta?: string
   curator?: string
+  headingTag?: 'h2' | 'h3' | 'h4'
   overlay?: 'hover' | 'darker' | 'always' | 'none'
   darkenOnHover?: boolean
   class?: string
@@ -26,6 +27,7 @@ const {
   subtitle, 
   meta, 
   curator, 
+  headingTag,
   overlay = 'hover',
   darkenOnHover,
   class: className, 
@@ -43,7 +45,7 @@ const overlayStyles = {
 ---
 
 <div class={cn(
-  "relative overflow-hidden cursor-pointer bg-[#0D0D0D] group h-full w-full",
+  "relative overflow-hidden cursor-pointer bg-ink group h-full w-full",
   isLarge && "md:col-span-2 md:row-span-2 lg:col-span-1",
   className
 )} {...props}>
@@ -63,6 +65,7 @@ const overlayStyles = {
     subtitle={subtitle}
     meta={meta}
     curator={curator}
-    class={cn(isLarge && "[&>h2]:text-[32px]")}
+    headingTag={headingTag}
+    class={cn(isLarge && "[&>h2]:text-[32px] [&>h3]:text-[32px]")}
   />
 </div>

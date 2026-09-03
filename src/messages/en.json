@@ -36,6 +36,7 @@
     "curator": {
       "curator": "Curatorship",
       "curatedSalas": "Curated rooms",
+      "explore": "Explore",
       "noSalas": "No rooms currently assigned."
     }
   },

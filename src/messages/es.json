@@ -36,6 +36,7 @@
     "curator": {
       "curator": "Curaduría",
       "curatedSalas": "Salas curadas",
+      "explore": "Explora",
       "noSalas": "No hay salas asignadas actualmente."
     }
   },

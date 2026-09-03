@@ -21,7 +21,7 @@ const t = getTranslations(lang)
   <div class="max-w-6xl mx-auto">
     <div class="curator-salas-header mb-8">
       <Title>
-        <Headline color="muted" class="block mb-2 tracking-[0.2em]">Explora</Headline>
+        <Headline color="muted" class="block mb-2 tracking-[0.2em]">{t("global.curator.explore")}</Headline>
         {t("global.curator.curatedSalas")}
       </Title>
     </div>
@@ -36,6 +36,7 @@ const t = getTranslations(lang)
             href={sala.href}
             subtitle={sala.subtitle}
             meta={sala.meta}
+            headingTag="h3"
             class="aspect-[4/3]"
           />
         ))}

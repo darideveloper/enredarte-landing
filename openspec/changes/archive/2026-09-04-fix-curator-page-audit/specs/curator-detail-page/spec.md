@@ -1,27 +1,4 @@
-# curator-detail-page Specification
-
-## Purpose
-Provides a build-time generated curator detail page per art curator in both languages (`/curadores/<slug>` for Spanish, `/en/curadores/<slug>` for English) with localized bio, contact channels, associated curated galleries, slug-preserving language switching, and localized SEO metadata.
-
-## Requirements
-
-### Requirement: Generate a curator detail route per curator
-The system SHALL generate a dedicated curator detail page for every active art curator fetched from the API at build time, in both languages — `/curadores/<slug>` for Spanish (root) and `/en/curadores/<slug>` for English (`en/` prefix) — by extending the existing `[...path].astro` catch-all `getStaticPaths()` and adding a `curator` entry to its `COMPONENT_MAP`.
-
-#### Scenario: Spanish curator page exists
-- **GIVEN** an art curator with slug `renata-ortega`
-- **WHEN** `/curadores/renata-ortega` is requested
-- **THEN** the curator detail page renders with the Spanish curator content
-
-#### Scenario: English curator page exists
-- **GIVEN** an art curator with slug `renata-ortega`
-- **WHEN** `/en/curadores/renata-ortega` is requested
-- **THEN** the curator detail page renders with the English curator content
-
-#### Scenario: Unknown slug yields no page
-- **GIVEN** a slug with no matching curator
-- **WHEN** it is requested
-- **THEN** no curator page is emitted for that slug
+## MODIFIED Requirements
 
 ### Requirement: Render the curator profile hero layout
 The curator page SHALL render an editorial profile hero organism (`CuratorHero.astro`) displaying the curator's portrait photo (or initials monogram fallback if no photo exists), localized name, localized biography text meeting WCAG AA contrast (minimum 4.5:1 against the paper background), accessible touch targets of at least 44px for contact links, accessible monogram markup with `aria-hidden="true"`, and external link indicators.
@@ -61,19 +38,3 @@ The curator page SHALL render a dedicated curated galleries organism (`CuratorSa
 - **GIVEN** a curator with zero associated galleries
 - **WHEN** the curator page renders
 - **THEN** an appropriate localized empty state or notification message is displayed
-
-### Requirement: Language switch preserves the curator slug
-On a curator detail page, the `LangBtns` language switcher SHALL link to the same curator slug in the alternate language (`/curadores/<slug>` <-> `/en/curadores/<slug>`) by passing localized paths to the layout.
-
-#### Scenario: Switch language stays on the curator
-- **GIVEN** the user is on `/curadores/hugo-salinas` (Spanish)
-- **WHEN** they click the English language button
-- **THEN** they navigate to `/en/curadores/hugo-salinas` with English content
-
-### Requirement: Emit localized SEO metadata
-The curator page SHALL emit a localized `<title>` and meta description, a canonical URL equal to the current path, and an `og:image` pointing at the curator's portrait (or site default image), via the existing `PageSEO` component.
-
-#### Scenario: SEO metadata is present
-- **GIVEN** a rendered curator page
-- **THEN** the document title and meta description reflect the curator's name and bio
-- **AND** the canonical URL and hreflang tags match the requested curator path
