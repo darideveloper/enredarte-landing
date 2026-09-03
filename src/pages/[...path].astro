@@ -169,7 +169,7 @@ const localizedPaths =
 
 const preloadImage =
   postSlug && post?.banner_image
-    ? `${import.meta.env.API_BASE_URL ?? ""}${post.banner_image}`
+    ? post.banner_image
     : artworkSlug
       ? (() => {
           const a = siteData.artworks.find((x) => x.slug === artworkSlug)

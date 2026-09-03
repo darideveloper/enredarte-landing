@@ -1,42 +1,4 @@
-# blog Specification
-
-## Purpose
-SSG blog index (paginated grid, `page_size=12`) and per-post detail pages in both languages, rendering every `Post`/`PostSummary` field with Markdown via `marked` and localized SEO, built via Fork A isolated fetch. Polished Salon editorial layer (mosaic, featured, drop-cap, figure/table/code prose, deduplication, i18n share). Banner images are absolute URLs used verbatim.
-
-## Requirements
-
-### Requirement: Generate static blog index and detail routes
-The system SHALL extend the single catch-all `src/pages/[...path].astro` `getStaticPaths()` to emit static blog routes in both languages (Fork A), isolated from `buildSiteData` (Option A), using the existing `src/lib/api/posts.ts` `list`/`detail` and `fetchAll`/`Paginated<PostSummary>` contracts. No separate route file SHALL be introduced.
-
-#### Scenario: Blog index page exists in both languages
-- **WHEN** the site builds
-- **THEN** `/blog` (es) and `/en/blog` (en) are emitted as static pages rendering the blog index
-
-#### Scenario: Paginated blog index pages exist
-- **WHEN** `count` posts require more than one `page_size=12` page
-- **THEN** `/blog/page/2` … up to `total_pages` (es) and `/en/blog/page/2` … (en) are emitted, each rendering that slice
-- **AND** when `count <= 12`, only `/blog` and `/en/blog` are emitted
-
-#### Scenario: Per-post detail routes by slug
-- **WHEN** the API contains a post with slug `enredarte-abre-nuevas-salas` and `published_at != null`
-- **THEN** `/blog/enredarte-abre-nuevas-salas` (es) and `/en/blog/enredarte-abre-nuevas-salas` (en) are emitted
-- **AND** drafts (`published_at == null`) are excluded from both index and detail emission
-
-#### Scenario: Localized path helpers exist
-- **WHEN** `getLocalizedBlogPath(lang)`, `getLocalizedBlogPagePath(page, lang)`, and `getLocalizedPostPath(slug, lang)` are called
-- **THEN** they return `/blog` / `/en/blog`, `/blog/page/2` / `/en/blog/page/2` (page 1 returns the base path), and `/blog/:slug` / `/en/blog/:slug` respectively
-
-#### Scenario: Drafts excluded
-- **WHEN** a post has `published_at == null`
-- **THEN** it does not appear in the index grid and no detail page is emitted for that slug
-
-#### Scenario: Empty blog renders empty-state
-- **WHEN** `count == 0` (verified prod `apps.darideveloper.com` empty vs local `count:2`)
-- **THEN** `/blog` and `/en/blog` still emit with a localized empty-state (`pages.blog.noPosts`) and no pagination nav
-
-#### Scenario: Build fails loudly on blog fetch
-- **WHEN** `list`/`detail` throws `FetchError` or `API_BASE_URL`/`API_TOKEN` is missing (per `src/lib/api/client.ts`)
-- **THEN** `getStaticPaths` lets the error propagate and `astro build` fails (no silent fallback)
+## MODIFIED Requirements
 
 ### Requirement: Render the blog index grid
 The blog index SHALL render a static paginated editorial grid of `PostCard`s that preserves the Gallery Salon language — `Headline` eyebrow `pages.blog.eyebrow` (Revista/Journal), serif display `h1`, `text-description` lede, count meta `pages.blog.pagination.page`, hairline, and mosaic `gap-4 md:gap-[3px] auto-rows-fr` — with `hasFeatured = posts.length>1` (first `PostSummary` of every page as `PostCard featured` `lg:col-span-2 aspect-[16/10]`), localized `PageSEO`, `localizedPaths` preserving page number, and an upgraded empty-state editorial block. The pre-existing static emission (`getStaticPaths` Fork A), `page_size=12`, banner `banner_image` used as absolute URL verbatim (no `API_BASE_URL` prefix, nullable), and hiding `banner_image==null` contracts remain unchanged.
@@ -99,10 +61,3 @@ The blog post detail SHALL render a static page for each `Post` that surfaces ev
 #### Scenario: SEO metadata per post
 - **WHEN** a post detail renders with absolute `banner_image`
 - **THEN** `PageSEO` receives `title=title_*`, `description=description_*`, `keywords` from `keywords_*`, `ogImage` as the absolute `banner_image` verbatim when not null, and `alternateUrls` for the es/en post paths; index pages use `pages.blog.title/description/keywords` from `messages/{es,en}.json`
-
-### Requirement: Editorial empty-state and reading affordances
-The system SHALL provide the blog-specific i18n keys and affordances used by the polished index/detail: `pages.blog.{eyebrow,readMore,backToBlog,share,copied,copy,noPostsHint,readingTime,pagination.prev/next/page}` with correct `es`/`en` strings, `readingTime` computed as `max(1, ceil(wordCount/200))`, and sticky aside `lg:top-[88px]` with title/meta/description + `Btn` ghost + banner thumb.
-
-#### Scenario: Keys exist in both locales
-- **WHEN** `getTranslations("es")` and `getTranslations("en")` are called
-- **THEN** `t("pages.blog.eyebrow")` returns `Revista` / `Journal`, `t("pages.blog.copied")` returns `¡Copiado!` / `Copied!`, and pagination keys map to the strings rendered in `PaginationNav`

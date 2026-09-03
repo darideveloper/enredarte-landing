@@ -21,7 +21,7 @@ Client-side API layer for the backend blog endpoints. No UI is built here — th
 | `/api/blog/posts/` | GET | none (public) | `Paginated<PostSummary>` — `?page` / `?page_size` |
 | `/api/blog/posts/:slug/` | GET | none (public) | `Post` |
 
-Posts use **flat bilingual fields** (`title_es`, `title_en`, ...) unlike the catalog types which use `Translations<T>`. `banner_image` is a **relative** path (`/media/blog/...`); consumers must prefix `API_BASE_URL` when rendering `<img>`. `content_es` / `content_en` carry raw Markdown (no rendering in this layer).
+Posts use **flat bilingual fields** (`title_es`, `title_en`, ...) unlike the catalog types which use `Translations<T>`. `banner_image` is an **absolute** URL (`https://…/media/blog/banners/…` via CDN/`MEDIA_URL`) or `null`; consumers use it verbatim as `<img src>`/`ogImage`/`preload` with no `API_BASE_URL` prefix (legacy relative values, if any, render as-is). `content_es` / `content_en` carry raw Markdown (no rendering in this layer).
 
 See `openspec/changes/add-blog-api/specs/blog-api/spec.md` and `design.md` (D1–D6) for the full decisions.
 
@@ -32,7 +32,7 @@ export interface PostSummary {
   id: number
   slug: string
   author: string
-  banner_image: string | null // relative — prefix API_BASE_URL in UI; null when no banner
+  banner_image: string | null // absolute https://…/media/blog/banners/… or null; use verbatim, no API_BASE_URL prefix
   published_at: string | null // ISO datetime; null for drafts/unpublished
   title_es: string
   title_en: string
@@ -85,7 +85,7 @@ Valid `key` values: `title`, `description`, `keywords`, `content` (content only 
 
 ## Consumer notes
 
-- `banner_image` is relative **and nullable** — do `post.banner_image ? API_BASE_URL + post.banner_image : fallback` in the UI; `null` when no banner uploaded (`blog/models.py: banner_image blank=True, null=True` → `serializers.py: get_banner_image` returns `None`).
+- `banner_image` is absolute **and nullable** — use `post.banner_image` verbatim as `src`/`ogImage`/`preload` when non-null, otherwise no image (gradient placeholder / hidden hero); `null` when no banner uploaded (`blog/models.py: banner_image blank=True, null=True` → `serializers.py: get_banner_image` returns `None`). Legacy relative values, if any, render as-is without prefix.
 - Posts are **not** part of `buildSiteData` (`src/data/api.ts`) — blog pages fetch per-page in `getStaticPaths` (see `design.md` Risks).
 - `detail` returns 404 for unknown/inactive slugs — handle `FetchError` with `status === 404`.
 - New posts require a rebuild (static build staleness, same as catalog).

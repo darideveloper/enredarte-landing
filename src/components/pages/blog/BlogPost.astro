@@ -21,8 +21,7 @@ const description = pickPostField(post, lang, "description")
 const keywords = pickPostField(post, lang, "keywords")
 const content = pickPostField(post, lang, "content")
 
-const API_BASE_URL = import.meta.env.API_BASE_URL as string | undefined
-const bannerSrc = post.banner_image ? `${API_BASE_URL ?? ""}${post.banner_image}` : null
+const bannerSrc = post.banner_image ?? null
 const ogImage = bannerSrc
 
 let formattedDate = ""

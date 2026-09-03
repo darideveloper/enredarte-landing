@@ -142,7 +142,7 @@ export interface PostSummary {
   id: number
   slug: string
   author: string
-  banner_image: string | null
+  banner_image: string | null // absolute https://…/media/blog/banners/… or null; use verbatim, no API_BASE_URL prefix
   published_at: string | null
   title_es: string
   title_en: string
