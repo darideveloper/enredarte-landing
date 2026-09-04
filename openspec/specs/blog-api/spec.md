@@ -31,8 +31,8 @@ The system SHALL declare `PostSummary` and `Post` types in `src/lib/api/types.ts
 The system SHALL provide `src/lib/api/posts.ts` exporting `list` and `detail` for the blog resource, matching the per-resource module pattern of the catalog endpoints.
 
 #### Scenario: List posts
-- **GIVEN** a call to `listPosts({ page: 1, page_size: 12 })`
-- **THEN** it requests `GET /api/blog/posts/?page=1&page_size=12` and returns `Paginated<PostSummary>`
+- **GIVEN** a call to `listPosts({ page: 1, page_size: 11 })`
+- **THEN** it requests `GET /api/blog/posts/?page=1&page_size=11` and returns `Paginated<PostSummary>`
 
 #### Scenario: Post detail by slug
 - **GIVEN** a call to `detailPost("arte-contemporaneo-oaxaca")`

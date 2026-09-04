@@ -57,8 +57,8 @@ Mirrors the 10 catalog modules (`artworks.ts`, `artists.ts`, ...):
 ```ts
 import { list, detail, pickPostField } from "@/lib/api/posts"
 
-// list: GET /api/blog/posts/?page=1&page_size=12
-const page = await list({ page: 1, page_size: 12 }) // Paginated<PostSummary>
+// list: GET /api/blog/posts/?page=1&page_size=11
+const page = await list({ page: 1, page_size: 11 }) // Paginated<PostSummary>
 
 // detail: GET /api/blog/posts/:slug/
 const post = await detail("arte-contemporaneo-oaxaca") // Post

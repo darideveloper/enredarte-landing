@@ -1,8 +1,5 @@
-# blog-pagination Specification
+## MODIFIED Requirements
 
-## Purpose
-Static, server-rendered numbered pagination nav with bilingual responsive behavior for the paginated blog index, page 1 linking to base path.
-## Requirements
 ### Requirement: Static numbered pagination nav
 The system SHALL provide `PaginationNav.astro` (`src/components/molecules/PaginationNav.astro`) as a static, server-rendered pagination bar for the blog index that is i18n-aware and responsive: numbered page links plus `Prev`/`Next` carry `t("pages.blog.pagination.prev/next/page")` strings, `getLocalizedBlogPagePath` for page 1↔base-path; `hidden md:flex` full numbered row (`Prev` ink ghost / `Next` crimson, `gap-2`, `focus:ring-brand-500`, current page `bg-ink text-paper border-ink`) and `flex md:hidden` collapsed `Prev — page/total — Next` (`flex-1`, `active:bg-ink`, `opacity-40` disabled). `total_pages<=1` (including empty) renders nothing. `getTranslations(lang)` is the source of truth for labels; page math (`page_size=11`, `page 1→base`) is unchanged.
 
@@ -25,4 +22,3 @@ The system SHALL provide `PaginationNav.astro` (`src/components/molecules/Pagina
 #### Scenario: No pagination when single page or empty
 - **WHEN** `total_pages<=1`
 - **THEN** the component returns early and renders no `<nav>` (and `BlogIndex` shows empty-state instead when `count==0`)
-

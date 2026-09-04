@@ -68,7 +68,7 @@ export async function getStaticPaths() {
   // Blog: isolated fetch (Option A) — outside buildSiteData, fails loudly on FetchError/missing env
   const allPosts = await fetchAll(listPosts)
   const published = allPosts.filter((p) => p.published_at != null)
-  const pageSize = 12
+  const pageSize = 11
   const total_pages = Math.ceil(published.length / pageSize)
   const count = published.length
   const pagesToEmit = total_pages || 1
