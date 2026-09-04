@@ -16,8 +16,8 @@ export interface ArtworksProps {
 export function Artworks({
   children,
   loadingLabel = "Cargando…",
-  emptyLabel = "No se encontraron obras con los filtros seleccionados.",
-  resetLabel = "Reiniciar filtros",
+  emptyLabel = "Ninguna obra corresponde a su búsqueda. Le invitamos a afinar su selección.",
+  resetLabel = "Empezar de nuevo",
   gridClassName,
   className,
 }: ArtworksProps) {

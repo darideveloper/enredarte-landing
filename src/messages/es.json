@@ -33,19 +33,41 @@
       "activeIn": "Activa en"
     },
     "filters": {
-      "more": "Ver más filtros",
-      "less": "Ver menos filtros",
-      "noResults": "No se encontraron obras con los filtros seleccionados.",
-      "reset": "Reiniciar filtros"
+      "more": "Afinar selección",
+      "less": "Mostrar menos",
+      "noResults": "Ninguna obra corresponde a su búsqueda. Le invitamos a afinar su selección.",
+      "reset": "Empezar de nuevo"
+    },
+    "banner": {
+      "coa": "<b>COA</b> firmado en cada obra",
+      "shipping": "<b>Envío asegurado</b> DHL / FedEx",
+      "artistShare": "El <b>65%</b> es para el artista",
+      "curation": "<b>Curaduría personal</b>"
     }
   },
   "pages": {
     "home": {
       "title": "EnredArte",
-      "description": "Descubre el arte en cada rincón",
+      "description": "Obras que encuentran su hogar. Usted encuentra su obra.",
       "keywords": "arte, galería, cultura",
       "hero": {
-        "consultCurator": "Desde consulta con curador"
+        "consultCurator": "Desde consulta con curador",
+        "badge": "Sala I — Capítulo del mes",
+        "title": "Tierra, mundo y memoria — seis miradas",
+        "description": "Seis artistas contemporáneos exploran el paisaje mexicano como archivo emocional — de los murales urbanos de Guadalajara a la abstracción costera de Los Cabos. Una sala, seis miradas, una sola pregunta: ¿de qué está hecho el lugar al que llamamos hogar?",
+        "ctaPrimary": "Descubrir la Sala",
+        "ctaSecondary": "Leer la curaduría",
+        "curationBy": "Curaduría por",
+        "priceFallback": "Precio a consultar — le acompañamos",
+        "badgeWithNumber": "Sala {number} — Capítulo del mes"
+      },
+      "collection": {
+        "eyebrow": "Selección",
+        "title": "Obras disponibles"
+      },
+      "salas": {
+        "eyebrow": "Capítulos",
+        "title": "Salas curadas para usted"
       }
     },
     "artwork": {

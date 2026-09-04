@@ -15,11 +15,9 @@ export interface Props {
 const { lang, sala: hero } = Astro.props
 const t = getTranslations(lang)
 
-const badge = hero ? `Sala ${hero.salaNumber} — Exhibición del mes` : "Sala 01 — Exhibición del mes"
-const title = hero?.title ?? "Tierra, mundo y memoria"
-const description =
-  hero?.description ??
-  "Seis artistas contemporáneos exploran el paisaje mexicano como archivo emocional — de los murales urbanos de Guadalajara a la abstracción costera de Los Cabos. Una sala, seis miradas, una sola pregunta: ¿de qué está hecho el lugar al que llamamos hogar?"
+const badge = hero ? t("pages.home.hero.badgeWithNumber", { number: hero.salaNumber }) : t("pages.home.hero.badge")
+const title = hero?.title ?? t("pages.home.hero.title")
+const description = hero?.description ?? t("pages.home.hero.description")
 const curator = hero?.curator ?? ""
 const galleryHref = hero?.galleryHref ?? "#"
 const artwork = hero?.artwork ?? {
@@ -33,7 +31,7 @@ const artwork = hero?.artwork ?? {
 }
 const showConsultCurator =
   artwork.priceMxn == null && artwork.priceUsd == null
-const priceFallback = showConsultCurator ? t("pages.home.hero.consultCurator") : undefined
+const priceFallback = showConsultCurator ? t("pages.home.hero.priceFallback") : undefined
 ---
 
 <section class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] min-h-[92vh] bg-paper overflow-hidden" transition:animate="none">
@@ -50,15 +48,15 @@ const priceFallback = showConsultCurator ? t("pages.home.hero.consultCurator") :
     
     <div class="flex flex-wrap gap-3.5 mb-11 hero-cta">
       <Btn variant="primary" href={galleryHref}>
-        Entrar a la Sala
+        {t("pages.home.hero.ctaPrimary")}
       </Btn>
       <Btn variant="outline" href={galleryHref}>
-        Ver Manifiesto
+        {t("pages.home.hero.ctaSecondary")}
       </Btn>
     </div>
     
     <div class="text-[11px] text-muted tracking-[0.04em] pt-6 border-t border-border-theme max-w-[420px] font-sans hero-meta">
-      {curator && <Fragment>Curaduría por <b class="text-[#4A4A4A] font-semibold">{curator}</b></Fragment>}
+      {curator && <Fragment>{t("pages.home.hero.curationBy")} <b class="text-[#4A4A4A] font-semibold">{curator}</b></Fragment>}
     </div>
   </div>
 

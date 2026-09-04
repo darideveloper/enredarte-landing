@@ -33,19 +33,41 @@
       "activeIn": "Active in"
     },
     "filters": {
-      "more": "Show more filters",
-      "less": "Show fewer filters",
-      "noResults": "No artworks match your selected filters.",
-      "reset": "Restart filters"
+      "more": "Refine selection",
+      "less": "Show fewer",
+      "noResults": "No work matches your search. Please refine your selection.",
+      "reset": "Start again"
+    },
+    "banner": {
+      "coa": "<b>COA</b> with each work",
+      "shipping": "<b>Insured shipping</b> DHL / FedEx",
+      "artistShare": "<b>65%</b> goes to the artist",
+      "curation": "<b>Personal curation</b>"
     }
   },
   "pages": {
     "home": {
       "title": "EnredArte",
-      "description": "Discover art in every corner",
+      "description": "Works find their home. You find your work.",
       "keywords": "art, gallery, culture",
       "hero": {
-        "consultCurator": "By consultation with the curator"
+        "consultCurator": "By consultation with the curator",
+        "badge": "Room I — Chapter of the month",
+        "title": "Land, world and memory — six gazes",
+        "description": "Six contemporary artists explore the Mexican landscape as an emotional archive — from the urban murals of Guadalajara to the coastal abstraction of Los Cabos. One room, six gazes, one question: what is the place we call home made of?",
+        "ctaPrimary": "Discover the Room",
+        "ctaSecondary": "Read the curation",
+        "curationBy": "Curated by",
+        "priceFallback": "Price on request — we accompany you",
+        "badgeWithNumber": "Room {number} — Chapter of the month"
+      },
+      "collection": {
+        "eyebrow": "Selection",
+        "title": "Available works"
+      },
+      "salas": {
+        "eyebrow": "Chapters",
+        "title": "Rooms curated for you"
       }
     },
     "artwork": {

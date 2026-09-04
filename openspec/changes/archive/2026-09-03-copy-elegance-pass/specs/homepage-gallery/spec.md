@@ -1,8 +1,5 @@
-# homepage-gallery Specification
+## MODIFIED Requirements
 
-## Purpose
-Integrates the recently built `Gallery` organism into the main landing page.
-## Requirements
 ### Requirement: Render the gallery section
 The system SHALL display the `Gallery` organism below the `Hero` section on the landing page, and the artworks collection header SHALL be sourced from i18n (`pages.home.collection.eyebrow` / `pages.home.collection.title`, e.g. `Selección` / `Selection`, `Obras disponibles` / `Available works`) instead of hardcoded `Explora` / `Colección completa`, and filters/empty-state labels SHALL use formal i18n strings (`Afinar selección` / `Refine selection`, `Ninguna obra corresponde a su búsqueda. Le invitamos a afinar su selección.`).
 
@@ -15,18 +12,3 @@ The system SHALL display the `Gallery` organism below the `Hero` section on the 
 #### Scenario: Formal empty and filter states
 - **WHEN** no artworks match the selected filters
 - **THEN** the empty message and reset label appear in formal `usted` register from i18n
-
-### Requirement: Sala cards navigate to gallery detail pages
-The homepage `Gallery` section SHALL render one card per gallery fetched from the API at build time, and each card SHALL link to its gallery detail page (`/salas/<slug>` in English, `/es/salas/<slug>` in Spanish) instead of a dead `#` link.
-
-#### Scenario: Homepage card opens the gallery page
-- **GIVEN** the homepage gallery section with a card for the `tierra-mundo-y-memoria` gallery
-- **WHEN** the user clicks that card
-- **THEN** they are taken to `/salas/tierra-mundo-y-memoria`
-
-#### Scenario: Card data comes from the API
-- **GIVEN** the homepage gallery section
-- **WHEN** it is rendered
-- **THEN** each card's image, title, subtitle, meta, and curator line are derived from the galleries fetched from the API (not an inline `salasData` array)
-- **AND** each card's subtitle (e.g. "Sala 01", "Sala 04") is derived from the gallery's `sort_order` only
-
