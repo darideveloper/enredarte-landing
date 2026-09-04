@@ -37,7 +37,7 @@ The system SHALL extend the single catch-all `src/pages/[...path].astro` `getSta
 - **THEN** `getStaticPaths` lets the error propagate and `astro build` fails (no silent fallback)
 
 ### Requirement: Render the blog index grid
-The blog index SHALL render a static paginated editorial grid of `PostCard`s that preserves the Gallery Salon language — `Headline` eyebrow `pages.blog.eyebrow` (Revista/Journal), serif display `h1`, `text-description` lede, count meta `pages.blog.pagination.page`, hairline, and mosaic `gap-4 md:gap-[3px] auto-rows-fr` — with `hasFeatured = posts.length>1` (first `PostSummary` of every page as `PostCard featured` `lg:col-span-2 aspect-[16/10]`), localized `PageSEO`, `localizedPaths` preserving page number, and an upgraded empty-state editorial block. The pre-existing static emission (`getStaticPaths` Fork A), `page_size=11`, banner `banner_image` used as absolute URL verbatim (no `API_BASE_URL` prefix, nullable), and hiding `banner_image==null` contracts remain unchanged.
+The blog index SHALL render a static paginated editorial grid of `PostCard`s that preserves the Gallery Salon language — `Headline` eyebrow `pages.blog.eyebrow` (Revista/Journal), serif display `h1`, `text-description` lede, count meta `pages.blog.pagination.page`, hairline, and mosaic `gap-4 md:gap-[3px] auto-rows-fr` — with `hasFeatured = posts.length>1` (first `PostSummary` of every page as `PostCard featured` `lg:col-span-2 aspect-[16/10] flex-1 min-h-0 w-full` wrapper whose cover fills the whole `auto-rows-fr` cell via `object-cover`, overlay `inset-x-0 bottom-0 pt-12` so date badge never collides on narrow), localized `PageSEO`, `localizedPaths` preserving page number, and an upgraded empty-state editorial block. The pre-existing static emission (`getStaticPaths` Fork A), `page_size=11`, banner `banner_image` used as absolute URL verbatim (no `API_BASE_URL` prefix, nullable), and hiding `banner_image==null` contracts remain unchanged.
 
 #### Scenario: Editorial header renders
 - **WHEN** `/blog` renders in `es`
@@ -45,7 +45,7 @@ The blog index SHALL render a static paginated editorial grid of `PostCard`s tha
 
 #### Scenario: Mosaic + featured each page
 - **WHEN** `count=22` (`total_pages=2` at `page_size=11` — chosen to illustrate two full 11-item pages) and page `1` renders with `posts.length>1`
-- **THEN** the grid uses `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-[3px] auto-rows-fr`; `posts[0]` renders `PostCard featured` spanning `lg:col-span-2`, remaining `posts.slice(1)` render regular cards; page `2` repeats the same featured pattern (not last-page-only); when `posts.length==1` the single card renders uniform (no featured span) — `hasFeatured = posts.length>1` preserved per user decision
+- **THEN** the grid uses `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-[3px] auto-rows-fr`; `posts[0]` renders `PostCard featured` spanning `lg:col-span-2 flex-1 min-h-0 w-full aspect-[16/10]` whose image covers the whole cell and overlay is `inset-x-0 bottom-0 pt-12`, remaining `posts.slice(1)` render regular cards; page `2` repeats the same featured pattern (not last-page-only); when `posts.length==1` the single card renders uniform (no featured span) — `hasFeatured = posts.length>1` preserved per user decision
 
 #### Scenario: Mosaic uniform when single item
 - **WHEN** `count=12` (`total_pages=2` at `page_size=11`, page `2` has `posts.length==1` — `12 = 11+1` illustrates single-item tail after the change)
@@ -58,6 +58,7 @@ The blog index SHALL render a static paginated editorial grid of `PostCard`s tha
 #### Scenario: Grid still shows post fields
 - **WHEN** the index renders in Spanish
 - **THEN** each card still shows `title_es` via `pickPostField`, `description_es`, `author • localized date` via `Intl.DateTimeFormat`, absolute `banner_image` URL used verbatim as `src` when present and hidden when `null` (no `API_BASE_URL` prefix), with href `getLocalizedPostPath(slug, lang)` preserved
+
 
 ### Requirement: Render the per-post detail
 The blog post detail SHALL render a static page for each `Post` that surfaces every field (`author`, `banner_image`, `published_at`, `title_*`, `description_*`, `keywords_*`, `content_*`), converts `content_*` Markdown to HTML at build time via `marked` (token API) with heading ids, lazy `img` + external `↗`, `figure` wrapping when `alt>12`, and `code` lang badge + copy button; hides the banner hero when `banner_image==null`; emits post-driven localized `PageSEO`; deduplicates a leading markdown `#{1,6} Title` that exactly matches `title_*` (normalized) before parsing; and renders a Salon hero (`bg-card-dark h-[48svh] md:h-[62svh]` gradient, bottom-anchored `Headline`+serif title + back link), description as left `border-crimson` quote, meta `author • date • readingTime` (`wordCount/200`), hairline, `blog-prose` `max-w-[72ch]` `hyphens-auto` with drop-cap, `h2::before 28px crimson`, `figure/figcaption`, `table` header `bg-ink/paper`, `blockquote cite`, `pre code-block` with badge + copy, `hr` centered crimson, `iframe 16/9`, plus a share affordance and sticky aside.

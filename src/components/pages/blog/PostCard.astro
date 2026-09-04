@@ -43,7 +43,7 @@ const meta = formattedDate ? `${post.author} • ${formattedDate}` : post.author
   ]}
 >
   {bannerSrc ? (
-    <div class:list={["relative overflow-hidden bg-card-dark shrink-0", featured ? "aspect-[16/10]" : "aspect-[4/3]"]}>
+    <div class:list={["relative overflow-hidden bg-card-dark", featured ? "flex-1 min-h-0 w-full aspect-[16/10]" : "shrink-0 aspect-[4/3]"]}>
       <img
         src={bannerSrc}
         alt={title}
@@ -60,7 +60,7 @@ const meta = formattedDate ? `${post.author} • ${formattedDate}` : post.author
       )}
       <!-- title overlay for featured to use larger type -->
       {featured && (
-        <div class="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
+        <div class="absolute inset-x-0 bottom-0 flex flex-col justify-end p-6 md:p-8 pt-12">
           <p class="text-[10px] uppercase tracking-[0.2em] text-paper/70 mb-2 font-sans">{post.author}</p>
           <h3 class="font-serif text-paper leading-[1.1] text-[28px] md:text-[32px] text-balance mb-3 group-hover:text-paper transition-colors">{title}</h3>
           {description && (
