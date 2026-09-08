@@ -6,10 +6,21 @@ export interface Props {
   alt: string
   aspectRatio?: 'video' | 'square' | '4/5' | 'auto'
   height?: 'full' | 'auto'
+  loading?: 'lazy' | 'eager'
+  decoding?: 'async' | 'auto' | 'sync'
   class?: string
 }
 
-const { src, alt, aspectRatio = 'auto', height = 'full', class: className, ...props } = Astro.props
+const { 
+  src, 
+  alt, 
+  aspectRatio = 'auto', 
+  height = 'full', 
+  loading = 'lazy',
+  decoding = 'async',
+  class: className, 
+  ...props 
+} = Astro.props
 
 const aspectClasses = {
   'video': 'aspect-video',
@@ -28,6 +39,8 @@ const heightClasses = {
   src={src} 
   alt={alt} 
   title={alt}
+  loading={loading}
+  decoding={decoding}
   class={cn("object-cover w-full", heightClasses[height], aspectClasses[aspectRatio], className)} 
   {...props} 
 />

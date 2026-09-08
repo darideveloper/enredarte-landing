@@ -7,11 +7,13 @@ import ArtworkPage from "@/components/pages/obra/ArtworkPage.astro"
 import ArtistPage from "@/components/pages/artista/ArtistPage.astro"
 import BlogIndex from "@/components/pages/blog/BlogIndex.astro"
 import BlogPost from "@/components/pages/blog/BlogPost.astro"
+import CuratorPage from "@/components/pages/curador/CuratorPage.astro"
 import { buildSiteData, resolveArtistArtworks } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import {
   getLocalizedArtworkPath,
   getLocalizedArtistPath,
+  getLocalizedCuratorPath,
   getLocalizedSalaPath,
   getLocalizedBlogPath,
   getLocalizedBlogPagePath,
@@ -111,6 +113,16 @@ export async function getStaticPaths() {
     })
   }
 
+  for (const curator of siteData.curators) {
+    paths.push({
+      params: { path: `curadores/${curator.slug}` },
+      props: { pageKey: "curator", curatorSlug: curator.slug, lang: "es", siteData },
+    })
+    paths.push({
+      params: { path: `en/curadores/${curator.slug}` },
+      props: { pageKey: "curator", curatorSlug: curator.slug, lang: "en", siteData },
+    })
+  }
   return paths
 }
 
@@ -121,15 +133,17 @@ const COMPONENT_MAP: Record<string, any> = {
   artist: ArtistPage,
   blog: BlogIndex,
   post: BlogPost,
+  curator: CuratorPage,
 }
 
-type AllPageKeys = PageKey | "gallery" | "artwork" | "artist" | "blog" | "post"
-const { pageKey, lang, gallerySlug, artworkSlug, artistSlug, blogPage, posts, pagination, postSlug, post, siteData } = Astro.props as {
+type AllPageKeys = PageKey | "gallery" | "artwork" | "artist" | "blog" | "post" | "curator"
+const { pageKey, lang, gallerySlug, artworkSlug, artistSlug, curatorSlug, blogPage, posts, pagination, postSlug, post, siteData } = Astro.props as {
   pageKey: AllPageKeys
   lang: "es" | "en"
   gallerySlug?: string
   artworkSlug?: string
   artistSlug?: string
+  curatorSlug?: string
   blogPage?: number
   posts?: import("@/lib/api/types").PostSummary[]
   pagination?: { page: number; total_pages: number; count: number }
@@ -165,7 +179,12 @@ const localizedPaths =
                 en: getLocalizedPostPath(postSlug, "en"),
                 es: getLocalizedPostPath(postSlug, "es"),
               }
-            : undefined
+            : pageKey === "curator" && curatorSlug
+              ? {
+                  en: getLocalizedCuratorPath(curatorSlug, "en"),
+                  es: getLocalizedCuratorPath(curatorSlug, "es"),
+                }
+              : undefined
 
 const preloadImage =
   postSlug && post?.banner_image
@@ -205,6 +224,7 @@ const preloadImage =
       gallerySlug={gallerySlug}
       artworkSlug={artworkSlug}
       artistSlug={artistSlug}
+      curatorSlug={curatorSlug}
       siteData={siteData}
     />
   )}

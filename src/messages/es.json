@@ -5,7 +5,8 @@
       "obras": "Obras",
       "salas": "Salas",
       "blog": "Blog",
-      "artistas": "Artistas"
+      "artistas": "Artistas",
+      "curadores": "Curadores"
     },
     "footer": {
       "links": "Enlaces",
@@ -43,6 +44,12 @@
       "shipping": "<b>Envío asegurado</b> DHL / FedEx",
       "artistShare": "El <b>65%</b> es para el artista",
       "curation": "<b>Curaduría personal</b>"
+    },
+    "curator": {
+      "curator": "Curaduría",
+      "curatedSalas": "Salas curadas",
+      "explore": "Explora",
+      "noSalas": "No hay salas asignadas actualmente."
     }
   },
   "pages": {
@@ -69,6 +76,10 @@
         "eyebrow": "Capítulos",
         "title": "Salas curadas para usted"
       }
+    },
+    "curator": {
+      "title": "Curaduría",
+      "description": "Conoce a nuestros curadores de arte"
     },
     "artwork": {
       "status": {

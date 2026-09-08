@@ -25,6 +25,10 @@ export function getLocalizedArtistPath(slug: string, lang: keyof typeof ui) {
   return lang === "en" ? `/en/artistas/${slug}` : `/artistas/${slug}`
 }
 
+export function getLocalizedCuratorPath(slug: string, lang: keyof typeof ui) {
+  return lang === "en" ? `/en/curadores/${slug}` : `/curadores/${slug}`
+}
+
 export function getLocalizedBlogPath(lang: keyof typeof ui) {
   return lang === "en" ? "/en/blog" : "/blog"
 }

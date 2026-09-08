@@ -9,5 +9,6 @@ export function getNavLinks(lang: keyof typeof ui) {
     { label: t("global.nav.salas"), href: "#salas-gallery" },
     { label: t("global.nav.blog"), href: getLocalizedBlogPath(lang) },
     { label: t("global.nav.artistas"), href: "#artworks-collection" },
+    { label: t("global.nav.curadores"), href: "#curadores" },
   ]
 }

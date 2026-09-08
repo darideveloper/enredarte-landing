@@ -5,7 +5,8 @@
       "obras": "Works",
       "salas": "Rooms",
       "blog": "Blog",
-      "artistas": "Artists"
+      "artistas": "Artists",
+      "curadores": "Curators"
     },
     "footer": {
       "links": "Links",
@@ -43,6 +44,12 @@
       "shipping": "<b>Insured shipping</b> DHL / FedEx",
       "artistShare": "<b>65%</b> goes to the artist",
       "curation": "<b>Personal curation</b>"
+    },
+    "curator": {
+      "curator": "Curatorship",
+      "curatedSalas": "Curated rooms",
+      "explore": "Explore",
+      "noSalas": "No rooms currently assigned."
     }
   },
   "pages": {
@@ -69,6 +76,10 @@
         "eyebrow": "Chapters",
         "title": "Rooms curated for you"
       }
+    },
+    "curator": {
+      "title": "Curatorship",
+      "description": "Meet our art curators"
     },
     "artwork": {
       "status": {
