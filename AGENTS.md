@@ -43,9 +43,7 @@ The `.env` file sets `SITE_URL=https://enredarte-landing.localhost` so the app k
 
 ### Stopping
 
-```bash
-portless stop enredarte-landing
-```
+Each checkout stops independently with Ctrl+C in its own terminal — the route unregisters when its dev process exits. (There is no per-route stop command; `portless proxy stop` stops the proxy itself.)
 
 ### Checking status
 
@@ -63,6 +61,48 @@ Lists all running portless apps and their proxy state.
 | `.localhost` doesn't resolve (Safari, Firefox) | Run `portless hosts sync` to add entries to `/etc/hosts` |
 | Port conflict on 443 | Portless falls back to 1355; check `portless status` |
 | Dev server won't start | Ensure no other process is on the assigned port; `portless stop enredarte-landing` then retry |
+
+## Git worktrees
+
+One checkout per branch, all runnable at once. `pnpm run dev` uses `portless run`, so each checkout gets its own URL automatically: main → `https://enredarte-landing.localhost`, a worktree on branch `<branch>` → `https://<branch>.enredarte-landing.localhost`.
+
+Enforced layout — sibling directories, never nested inside the main checkout:
+
+```bash
+/mnt/hd/develop/astro/
+  enredarte-landing/          # main checkout
+  enredarte-mehedi/           # worktree (branch mehedi)
+  enredarte-dari/             # worktree (branch dari)
+```
+
+Lifecycle:
+
+```bash
+git fetch origin
+git worktree add ../enredarte-mehedi mehedi                  # existing branch
+git worktree add ../enredarte-feature -b feature/xyz main    # new branch
+git worktree list
+# ... after merge:
+git worktree remove ../enredarte-mehedi
+git worktree prune
+```
+
+Bootstrap each new worktree (gitignored paths are per-checkout — `node_modules/`, `.env`, `.astro/`, `dist/` don't transfer):
+
+```bash
+cd ../enredarte-mehedi
+cp ../enredarte-landing/.env .env
+pnpm install
+pnpm run dev   # → https://mehedi.enredarte-landing.localhost
+```
+
+Gotchas:
+
+- `.env` keys per worktree: `SITE_URL`, `API_BASE_URL`, `API_TOKEN`. Keep `API_BASE_URL=https://enredarte-dashboard.localhost` (shared backend) unless testing against another backend.
+- `SITE_URL` still points at main's URL in a fresh copy — override it per worktree if canonicals/redirects matter there. Planned follow-up: fall back to `PORTLESS_URL` automatically.
+- Dotfolders (`.vscode/`, `.opencode/`, …) are gitignored via `.*/` and don't transfer — reconfigure per worktree if needed.
+- New worktrees start from committed `HEAD` only — commit or stash uncommitted changes first, or they won't be there.
+- Branch names with `/` get sanitized in the subdomain — check `portless list` for the exact URL after first run.
 
 ## Component dependency map
 

@@ -8,7 +8,7 @@
     "pnpm": ">=10.18.3"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS=--use-openssl-ca portless enredarte-landing pnpm astro dev",
+    "dev": "NODE_OPTIONS=--use-openssl-ca portless run pnpm astro dev",
     "build": "pnpm validate-i18n && pnpm validate-imports && NODE_OPTIONS=--use-openssl-ca astro build && pnpm validate-markdown",
     "preview": "astro preview",
     "astro": "astro",
