@@ -1,5 +1,6 @@
 ---
 import { pickPostField } from "@/lib/api/posts"
+import { renderInline } from "@/lib/markdown"
 import { getTranslations } from "@/lib/i18n/utils"
 import type { Lang, PostSummary } from "@/lib/api/types"
 
@@ -64,7 +65,7 @@ const meta = formattedDate ? `${post.author} • ${formattedDate}` : post.author
           <p class="text-[10px] uppercase tracking-[0.2em] text-paper/70 mb-2 font-sans">{post.author}</p>
           <h3 class="font-serif text-paper leading-[1.1] text-[28px] md:text-[32px] text-balance mb-3 group-hover:text-paper transition-colors">{title}</h3>
           {description && (
-            <p class="text-[13px] text-paper/80 leading-relaxed line-clamp-2 max-w-[48ch]">{description}</p>
+            <p class="text-[13px] text-paper/80 leading-relaxed line-clamp-2 max-w-[48ch]" set:html={renderInline(description)} />
           )}
           <span class="inline-flex items-center gap-2 mt-4 text-[10px] uppercase tracking-[0.14em] text-paper border border-paper/30 px-3 py-2 group-hover:bg-paper group-hover:text-ink group-hover:border-paper transition-all duration-300">
             {t("pages.blog.readMore")} <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">→</span>
@@ -79,7 +80,7 @@ const meta = formattedDate ? `${post.author} • ${formattedDate}` : post.author
       <div class="relative">
         <p class="text-[10px] uppercase tracking-[0.2em] text-paper/60 mb-3">{meta}</p>
         <h3 class:list={["font-serif text-paper leading-tight mb-3", featured ? "text-[28px] md:text-[32px]" : "text-[22px]"]}>{title}</h3>
-        {description && <p class="text-[13px] text-paper/70 leading-relaxed line-clamp-3">{description}</p>}
+        {description && <p class="text-[13px] text-paper/70 leading-relaxed line-clamp-3" set:html={renderInline(description)} />}
       </div>
     </div>
   )}
@@ -91,7 +92,7 @@ const meta = formattedDate ? `${post.author} • ${formattedDate}` : post.author
       <div class="transition-transform duration-300 ease-out will-change-transform group-hover:translate-x-3 flex flex-col flex-1">
         <h3 class="font-serif text-[20px] leading-[1.2] text-ink text-balance mb-2 group-hover:text-crimson transition-colors duration-300 line-clamp-2 min-h-[48px]">{title}</h3>
         {description && (
-          <p class="text-[13px] text-description leading-relaxed line-clamp-2 mb-3">{description}</p>
+          <p class="text-[13px] text-description leading-relaxed line-clamp-2 mb-3" set:html={renderInline(description)} />
         )}
         <p class="text-[10px] tracking-[0.14em] uppercase text-muted font-sans mt-auto pt-3">{meta}</p>
       </div>

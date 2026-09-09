@@ -86,7 +86,7 @@ The scrubbed timeline SHALL be reverted on `astro:after-swap` and re-initialized
 - **AND** when `astro:page-load` fires, the scrubbed timeline is re-initialized for the new page
 
 ### Requirement: Render the editorial info panel
-The right info panel SHALL show the artwork's localized title, the artist name, the year, the dimensions, a localized description, the price (in the currency matching the active language), the availability status, and a spec list of its localized discipline, technique, theme, format, and scale labels.
+The right info panel SHALL show the artwork's localized title, the artist name, the year, the dimensions, a localized description, the price (in the currency matching the active language), the availability status, and a spec list of its localized discipline, technique, theme, format, and scale labels. The artwork localized description (from `Artwork.translations[lang].description` via `pickTranslation` and `toArtworkDetailView`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{artwork.description}</p>`.
 
 #### Scenario: Panel shows full artwork data
 - **GIVEN** an artwork with title, artist, year, dimensions, description, prices in both currencies, status, and taxonomy refs
@@ -108,6 +108,9 @@ The right info panel SHALL show the artwork's localized title, the artist name, 
 #### Scenario: Missing optional fields are omitted
 - **GIVEN** an artwork with no price in the active language and no description
 - **THEN** the price and description rows are omitted without error
+#### Scenario: Artwork description renders as markdown
+- **WHEN** the artwork description contains markdown (`**`, links, lists, paragraphs)
+- **THEN** it is parsed via `renderMarkdown` and rendered with `set:html` in prose styling, with single `\n` → `<br>`
 
 ### Requirement: Language switch preserves the artwork slug
 On an artwork detail page, the `LangBtns` language switcher SHALL link to the same artwork slug in the other language (e.g. `/en/obras/<slug>` from `/obras/<slug>`), via an optional path override prop on `LangBtns`.

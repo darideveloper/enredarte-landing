@@ -1,5 +1,6 @@
 ---
 import Headline from "@/components/atoms/Headline.astro"
+import Markdown from "@/components/atoms/Markdown.astro"
 import Btn from "@/components/atoms/Btn.astro"
 import type { ArtworkDetailView } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
@@ -42,7 +43,7 @@ const statusLabel = t(`pages.artwork.status.${artwork.status}`)
   </div>
 
   {artwork.description && (
-    <p class="text-[15px] text-description leading-[1.85] font-sans">{artwork.description}</p>
+    <Markdown content={artwork.description} class="text-[15px] text-description leading-[1.85] font-sans" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />
   )}
 
   {(price || artwork.status) && (

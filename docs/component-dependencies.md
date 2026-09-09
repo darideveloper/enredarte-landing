@@ -68,13 +68,15 @@ Home.astro ──────────────► data/api.ts (toHeroView
 ├── PageSEO.astro ─► BaseSEO.astro ─► { consts.ts, site-config.ts, lib/i18n/utils }
 ├── Hero.astro ─────────────► data/api.ts (HeroView `sala` prop: title/description/curator/artwork)
 │   ├── H1.astro ──────────────► lib/utils (cn)
+│   ├── atoms/Markdown.astro ──► lib/markdown (renderMarkdown; description, title stays plain)
 │   ├── Headline.astro ────────► lib/utils
 │   ├── ImageBanner.astro
 │   │   ├── Image.astro ────────► lib/utils
 │   │   └── CardSummary.astro ──► lib/utils, lib/format/price (formatPrice + pickPrice + currencyForLang)
 │   └── Btn.astro ─────────────► lib/utils
 ├── BannerBar.astro
-│   └── BannerText.astro ───────► lib/utils
+│   ├── BannerText.astro ───────► lib/utils
+│   └── lib/markdown (renderInline for global.banner.* `**` → <strong>)
 ├── Gallery.astro
 │   ├── Title.astro ────────────► lib/utils (atoms)
 │   ├── Headline.astro
@@ -94,10 +96,12 @@ Home.astro ──────────────► data/api.ts (toHeroView
 ```
 GalleryPage.astro
 ├── PageSEO.astro ─► BaseSEO.astro (explicit title/description/ogImage props)
+├── atoms/Markdown.astro ────► lib/markdown (galleryDescription)
 ├── Headline.astro ───────► lib/utils
 ├── Image.astro ───────────► lib/utils
 ├── CuratorCard.astro (molecule)
 │   ├── Image.astro
+│   ├── atoms/Markdown.astro ──► lib/markdown (bio, variant="on-dark")
 │   └── lib/i18n/utils (getTranslations, pickTranslation)
 ├── Filters.tsx (React island, client:load; artist + technique groups only)
 │   └── atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts
@@ -125,6 +129,7 @@ ArtworkPage.astro
 │       + astro:page-load re-init lifecycle; single-image → no pin, static)
 └── ArtworkInfoPanel.astro (molecule, right column)
     ├── Headline.astro ───────────► lib/utils
+    ├── atoms/Markdown.astro ─────► lib/markdown (description)
     ├── Btn.astro ────────────────► lib/utils (mailto CTA via data/site-config EMAIL)
     ├── lib/i18n/utils (getTranslations for status/spec labels)
     ├── lib/format/price (formatPrice + pickPrice + currencyForLang on `lang`)
@@ -139,6 +144,7 @@ ArtworkPage.astro
 ```
 ArtistPage.astro
 ├── PageSEO.astro ─► BaseSEO.astro (explicit localized title/description/ogImage = photo ?? featured artwork)
+├── atoms/Markdown.astro ────► lib/markdown (bio)
 ├── Headline.astro ──────────► lib/utils
 ├── Title.astro ─────────────► lib/utils (atoms)
 ├── Image.astro ─────────────► lib/utils
@@ -166,6 +172,7 @@ BlogIndex.astro
 ├── Btn.astro (empty-state CTA, ghost) ─► lib/utils
 ├── PostCard.astro (per PostSummary in slice; featured lg:col-span-2 when posts.length>1 — first card of every page)
 │   ├── lib/api/posts (pickPostField for title/description)
+│   ├── lib/markdown (renderInline for descriptions)
 │   ├── lib/i18n/utils (getLocalizedPostPath for href, Intl.DateTimeFormat for date, API_BASE_URL+banner_image, getTranslations for readMore)
 │   └── Featured variant: overlay title + readMore CTA, accent bar + lift on regular
 └── PaginationNav.astro (molecule, hidden when total_pages<=1; md: full numbered, <md: collapsed Prev — page/total — Next)
@@ -181,7 +188,9 @@ BlogPost.astro
 ├── PageSEO.astro ─► BaseSEO.astro (title=title_*, description=description_*, keywords=keywords_*, ogImage=API_BASE_URL+banner_image, alternateUrls via getLocalizedPostPath)
 ├── Headline.astro (eyebrow Revista/Journal) ─► lib/utils
 ├── Btn.astro (ghost backToBlog) ─► lib/utils
-├── marked (marked.parse at build, set:html, trusted CMS → blog-prose)
+├── atoms/Markdown.astro ────► lib/markdown (description quote)
+├── lib/markdown (renderMarkdown at build, set:html, trusted CMS → markdown-prose; renderInline for aside description)
+├── lib/code-copy (shared code-block copy handler, also used by Markdown atom)
 ├── lib/api/posts (pickPostField for title/description/keywords/content)
 ├── lib/i18n/utils (getLocalizedPostPath, getLocalizedBlogPath, getTranslations for back/share/readingTime)
 └── aside sticky meta (Headline + Btn + banner thumb, lg only) + share script (navigator.share → clipboard)
@@ -193,6 +202,7 @@ CuratorPage.astro
 ├── PageSEO.astro ─► BaseSEO.astro (explicit localized title/description/ogImage)
 ├── CuratorHero.astro (organism)
 │   ├── Headline.astro ───────────► lib/utils
+│   ├── atoms/Markdown.astro ─────► lib/markdown (bio)
 │   ├── Image.astro ──────────────► lib/utils
 │   ├── lib/utils (stripUrlScheme, cn)
 │   └── lib/i18n/utils (getTranslations, pickTranslation)
@@ -254,7 +264,8 @@ design-system.astro
 PageSEO.astro ─► BaseSEO.astro
                   ├── consts.ts (SITE_TITLE, SITE_DESCRIPTION, LOCALE_MAP)
                   ├── data/site-config.ts
-                  └── lib/i18n/utils (getLocalizedPath, getTranslations)
+                  ├── lib/i18n/utils (getLocalizedPath, getTranslations)
+                  └── lib/markdown (stripMarkdown — meta/og descriptions always plain text)
 ```
 
 ## Shared leaf layer
@@ -273,13 +284,22 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/api/types.ts` — API-faithful types (`Base`, `Ref`, `Translations<T>`, `Paginated<T>`, `ApiError`, 10 resource interfaces)
 - `lib/api/client.ts` — `safeFetch`/`FetchError`/`apiFetch` (token-injecting fetch)
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
-- `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`, `marked` for Markdown)
+- `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`)
+- `lib/markdown.ts` — `renderMarkdown`/`renderInline` (marked 15 GFM `breaks: true`, BlogPost custom renderer: h1→h2, figure, external ↗, code badge+copy; trusted, no sanitize) + `stripMarkdown` (plain-text excerpts for SEO)
+- `lib/code-copy.ts` — `attachCodeCopy()` (idempotent code-block copy handler, used by `BlogPost` + `Markdown` atom scripts)
+- `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
 - `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
-- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …)
+- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group)
 
 ## Notes
 
+- **Markdown everywhere**: every API text area (`Artist.bio`, `ArtCurator.bio` via `CuratorCard`/`CuratorHero`,
+  `Gallery.description` via `GalleryPage`/`Hero`, `Artwork.description` via `ArtworkInfoPanel`,
+  `Post.content_*`/`description_*` via `BlogPost`/`PostCard`) and long i18n prose keys render through
+  `lib/markdown` (`breaks: true`, trusted CMS). Titles/names stay plain. `global.banner.*` is authored
+  as `**` markdown and rendered via `renderInline` in `BannerBar`. `BaseSEO` strips markdown from all
+  meta/og descriptions. `global.filters.noResults` (React island) stays plain text — out of scope.
 - **Seven page components.** The single catch-all `[...path].astro` now serves `Home`
   (root `/` + `/es`), one `GalleryPage` per gallery fetched from the backend API
   (`/salas/<slug>` + `/en/salas/<slug>`),

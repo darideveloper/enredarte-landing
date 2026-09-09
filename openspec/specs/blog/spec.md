@@ -59,9 +59,8 @@ The blog index SHALL render a static paginated editorial grid of `PostCard`s tha
 - **WHEN** the index renders in Spanish
 - **THEN** each card still shows `title_es` via `pickPostField`, `description_es`, `author • localized date` via `Intl.DateTimeFormat`, absolute `banner_image` URL used verbatim as `src` when present and hidden when `null` (no `API_BASE_URL` prefix), with href `getLocalizedPostPath(slug, lang)` preserved
 
-
 ### Requirement: Render the per-post detail
-The blog post detail SHALL render a static page for each `Post` that surfaces every field (`author`, `banner_image`, `published_at`, `title_*`, `description_*`, `keywords_*`, `content_*`), converts `content_*` Markdown to HTML at build time via `marked` (token API) with heading ids, lazy `img` + external `↗`, `figure` wrapping when `alt>12`, and `code` lang badge + copy button; hides the banner hero when `banner_image==null`; emits post-driven localized `PageSEO`; deduplicates a leading markdown `#{1,6} Title` that exactly matches `title_*` (normalized) before parsing; and renders a Salon hero (`bg-card-dark h-[48svh] md:h-[62svh]` gradient, bottom-anchored `Headline`+serif title + back link), description as left `border-crimson` quote, meta `author • date • readingTime` (`wordCount/200`), hairline, `blog-prose` `max-w-[72ch]` `hyphens-auto` with drop-cap, `h2::before 28px crimson`, `figure/figcaption`, `table` header `bg-ink/paper`, `blockquote cite`, `pre code-block` with badge + copy, `hr` centered crimson, `iframe 16/9`, plus a share affordance and sticky aside.
+The blog post detail SHALL render a static page for each `Post` that surfaces every field (`author`, `banner_image`, `published_at`, `title_*`, `description_*`, `keywords_*`, `content_*`), converts `content_*` Markdown to HTML at build time via the shared `markdown-rendering` renderer `renderMarkdown` (GFM, `breaks: true` — BREAKING change from the current `breaks: false` at `BlogPost.astro:68`, so single newlines in existing posts become `<br>`; trusted CMS) with heading ids, lazy `img` + external `↗`, `figure` wrapping when `alt>12`, and `code` lang badge + copy button; hides the banner hero when `banner_image==null`; emits post-driven localized `PageSEO`; deduplicates a leading markdown `#{1,6} Title` that exactly matches `title_*` (normalized) before parsing; and renders a Salon hero (`bg-card-dark h-[48svh] md:h-[62svh]` gradient, bottom-anchored `Headline`+serif title + back link), description as left `border-crimson` quote via markdown prose (single `\n` → `<br>`), meta `author • date • readingTime` (`wordCount/200`), hairline, `markdown-prose` `max-w-[72ch]` `hyphens-auto` with drop-cap, `h2::before 28px crimson`, `figure/figcaption`, `table` header `bg-ink/paper`, `blockquote cite`, `pre code-block` with badge + copy, `hr` centered crimson, `iframe 16/9`, plus a share affordance and sticky aside. All `src/messages` long keys used on blog (`pages.blog.*`) and post `description_*` SHALL also be rendered via `renderMarkdown`/`renderInline` so `**` / links in JSON render, not escaped.
 
 #### Scenario: Hero salon renders
 - **WHEN** `banner_image` is present as absolute `https://…/media/blog/banners/banner-2.jpg`
@@ -69,7 +68,7 @@ The blog post detail SHALL render a static page for each `Post` that surfaces ev
 
 #### Scenario: Duplicate leading title stripped
 - **WHEN** `content_es` starts with `## Enredarte abre nuevas salas de exhibición` and `title_es` equals that text (normalized)
-- **THEN** that first heading line is removed before `marked.parse`, so `blog-prose` first `h2` is `Introducción` (for the sample post) and the page title appears only once as the hero `h1` (plus sr-only + aside)
+- **THEN** that first heading line is removed before `renderMarkdown`, so `markdown-prose` first `h2` is `Introducción` (for the sample post) and the page title appears only once as the hero `h1` (plus sr-only + aside)
 
 #### Scenario: Prose headings and drop-cap
 - **WHEN** `content_*` contains `## Introducción` as first heading and a leading paragraph
@@ -99,10 +98,13 @@ The blog post detail SHALL render a static page for each `Post` that surfaces ev
 - **WHEN** a post detail renders with absolute `banner_image`
 - **THEN** `PageSEO` receives `title=title_*`, `description=description_*`, `keywords` from `keywords_*`, `ogImage` as the absolute `banner_image` verbatim when not null, and `alternateUrls` for the es/en post paths; index pages use `pages.blog.title/description/keywords` from `messages/{es,en}.json`
 
+#### Scenario: Description renders as markdown
+- **WHEN** `description_*` or `pages.blog.noPostsHint` contains markdown (`**`, `\n`)
+- **THEN** it is parsed via `renderMarkdown` with `breaks:true` and rendered with `set:html` in prose
+
 ### Requirement: Editorial empty-state and reading affordances
 The system SHALL provide the blog-specific i18n keys and affordances used by the polished index/detail: `pages.blog.{eyebrow,readMore,backToBlog,share,copied,copy,noPostsHint,readingTime,pagination.prev/next/page}` with correct `es`/`en` strings, `readingTime` computed as `max(1, ceil(wordCount/200))`, and sticky aside `lg:top-[88px]` with title/meta/description + `Btn` ghost + banner thumb.
 
 #### Scenario: Keys exist in both locales
 - **WHEN** `getTranslations("es")` and `getTranslations("en")` are called
 - **THEN** `t("pages.blog.eyebrow")` returns `Revista` / `Journal`, `t("pages.blog.copied")` returns `¡Copiado!` / `Copied!`, and pagination keys map to the strings rendered in `PaginationNav`
-

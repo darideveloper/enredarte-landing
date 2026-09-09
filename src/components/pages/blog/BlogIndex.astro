@@ -6,6 +6,7 @@ import Headline from "@/components/atoms/Headline.astro"
 import Btn from "@/components/atoms/Btn.astro"
 import { getLocalizedPostPath, getLocalizedBlogPagePath, getLocalizedBlogPath } from "@/lib/i18n/utils"
 import { getTranslations } from "@/lib/i18n/utils"
+import { renderInline } from "@/lib/markdown"
 import type { Lang, PostSummary } from "@/lib/api/types"
 
 export interface Props {
@@ -49,9 +50,7 @@ const gridPosts = hasFeatured ? posts.slice(1) : posts
       <h1 class="font-serif text-[42px] md:text-[56px] leading-[0.95] tracking-[-0.02em] text-ink text-balance mb-4">
         {pageTitle}
       </h1>
-      <p class="text-[15px] leading-[1.8] text-description max-w-[560px] text-pretty">
-        {pageDescription}
-      </p>
+      <p class="text-[15px] leading-[1.8] text-description max-w-[560px] text-pretty" set:html={renderInline(pageDescription)} />
       {pagination.count > 0 && (
         <p class="mt-6 text-[11px] uppercase tracking-[0.14em] text-muted">
           {pagination.count} {pagination.count === 1 ? "artículo" : "artículos"} — {t("pages.blog.pagination.page", { current: String(pagination.page), total: String(Math.max(pagination.total_pages,1)) })}
@@ -67,7 +66,7 @@ const gridPosts = hasFeatured ? posts.slice(1) : posts
       <div class="border border-border-theme bg-white/40 px-8 py-16 md:py-20 text-center">
         <Headline color="muted" class="mb-3 block">{eyebrow}</Headline>
         <h2 class="font-serif text-2xl md:text-3xl text-ink mb-3">{t("pages.blog.noPosts")}</h2>
-        <p class="text-[14px] leading-relaxed text-description max-w-[44ch] mx-auto mb-8">{t("pages.blog.noPostsHint")}</p>
+        <p class="text-[14px] leading-relaxed text-description max-w-[44ch] mx-auto mb-8" set:html={renderInline(t("pages.blog.noPostsHint"))} />
         <Btn variant="ghost" href={getLocalizedBlogPath(lang)}>{t("pages.blog.backToBlog")}</Btn>
       </div>
     </div>

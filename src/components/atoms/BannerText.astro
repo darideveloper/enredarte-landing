@@ -8,6 +8,6 @@ export interface Props {
 const { class: className, ...props } = Astro.props
 ---
 
-<div class={cn("flex items-center gap-2 text-[11px] text-banner-text tracking-[0.04em] font-sans [&>b]:text-crimson [&>b]:font-semibold", className)} {...props}>
+<div class={cn("flex items-center gap-2 text-[11px] text-banner-text tracking-[0.04em] font-sans [&>b]:text-crimson [&>b]:font-semibold [&>strong]:text-crimson [&>strong]:font-semibold [&_strong]:text-crimson [&_strong]:font-semibold", className)} {...props}>
   <slot />
 </div>

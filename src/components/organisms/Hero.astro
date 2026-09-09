@@ -1,5 +1,6 @@
 ---
 import H1 from '@/components/molecules/H1.astro'
+import Markdown from '@/components/atoms/Markdown.astro'
 import Headline from '@/components/atoms/Headline.astro'
 import ImageBanner from '@/components/molecules/ImageBanner.astro'
 import Btn from '@/components/atoms/Btn.astro'
@@ -42,9 +43,7 @@ const priceFallback = showConsultCurator ? t("pages.home.hero.priceFallback") : 
       <span class="block leading-[1.03] tracking-[-0.01em] hero-title">{title}</span>
     </H1>
     
-    <p class="text-[15px] text-description leading-[1.85] max-w-[420px] mb-10 font-sans hero-desc">
-      {description}
-    </p>
+    <Markdown content={description} class="text-[15px] text-description leading-[1.85] max-w-[420px] mb-10 font-sans hero-desc" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />
     
     <div class="flex flex-wrap gap-3.5 mb-11 hero-cta">
       <Btn variant="primary" href={galleryHref}>

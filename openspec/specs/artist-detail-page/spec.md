@@ -24,7 +24,7 @@ The system SHALL generate an artist detail page for every artist fetched from th
 - **THEN** no artist page is emitted for that slug
 
 ### Requirement: Render the artist hero
-The artist page SHALL render a hero section showing the artist's name as the page's `h1`, a localized eyebrow label, the localized bio, a metadata line of birth/death years and location when present, and contact/social links (email, website, and each social link from `social_links`). The hero SHALL include the artist's photo (or an initials fallback when no photo exists) as a portrait image, reusing existing atoms (`Headline`, `Image`) and the established paper/ink/crimson visual language.
+The artist page SHALL render a hero section showing the artist's name as the page's `h1`, a localized eyebrow label, the localized bio, a metadata line of birth/death years and location when present, and contact/social links (email, website, and each social link from `social_links`). The hero SHALL include the artist's photo (or an initials fallback when no photo exists) as a portrait image, reusing existing atoms (`Headline`, `Image`) and the established paper/ink/crimson visual language. The artist localized bio (from `Artist.translations[lang].bio` via `pickTranslation`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{bio}</p>`.
 
 #### Scenario: Hero shows localized artist content
 - **GIVEN** the user opens an artist page in Spanish
@@ -45,6 +45,9 @@ The artist page SHALL render a hero section showing the artist's name as the pag
 #### Scenario: Missing photo falls back to initials
 - **GIVEN** an artist with no photo
 - **THEN** the portrait area displays the artist's initials over the dark image container instead of an image
+#### Scenario: Artist bio renders as markdown
+- **WHEN** the artist bio contains markdown (`**`, links, lists, paragraphs)
+- **THEN** it is parsed via `renderMarkdown` and rendered with `set:html` in prose styling
 
 ### Requirement: Render the artist's artworks
 The artist page SHALL render an artworks section showing only the artworks belonging to that artist, as a static editorial list (no filter UI): the featured artwork as an `ImageBanner` followed by the remaining artworks as alternating `ImageRowCard`s, each tagged with its localized discipline, technique, and theme labels. It SHALL reuse `ImageBanner`, `ImageRowCard`, and the artwork view built by `toArtworkView`. The featured artwork SHALL be the artist's first highlighted artwork when any exist, otherwise the first artwork.

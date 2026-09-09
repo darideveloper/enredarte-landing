@@ -35,3 +35,235 @@ a {
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
 }
+
+/* Shared markdown prose — single style source for blog + all bio/description
+   surfaces. `.blog-prose` (legacy) and `.markdown-prose` (Markdown atom) share
+   every rule; drop-cap is opt-in via `.markdown-prose--dropcap`. */
+.blog-prose > p:first-of-type::first-letter,
+.markdown-prose--dropcap > p:first-of-type::first-letter {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 3.15em;
+  float: left;
+  line-height: 0.82;
+  padding-right: 0.12em;
+  padding-top: 0.06em;
+  color: #C41E3A;
+  font-weight: 400;
+}
+.blog-prose h2,
+.markdown-prose h2 {
+  position: relative;
+  padding-top: 0.9em;
+}
+.blog-prose h2::before,
+.markdown-prose h2::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 1px;
+  background: #C41E3A;
+}
+.blog-prose h2 a,
+.markdown-prose h2 a {
+  text-decoration: none;
+}
+.blog-prose h2 a:hover,
+.markdown-prose h2 a:hover {
+  color: #C41E3A;
+}
+.blog-prose figure,
+.markdown-prose figure {
+  margin: 2.5rem 0;
+  border: 1px solid #E0DDD8;
+  background: #0D0D0D;
+  overflow: hidden;
+}
+.blog-prose figure img,
+.markdown-prose figure img {
+  margin: 0;
+  border: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.blog-prose figcaption,
+.markdown-prose figcaption {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8A8478;
+  background: #F2EDE4;
+  border-top: 1px solid #E0DDD8;
+  text-align: center;
+  padding: 0.75rem 1rem;
+}
+.blog-prose ul ul,
+.markdown-prose ul ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  list-style-type: circle;
+}
+.blog-prose ol ol,
+.markdown-prose ol ol {
+  list-style-type: lower-alpha;
+}
+.blog-prose li > ul, .blog-prose li > ol,
+.markdown-prose li > ul, .markdown-prose li > ol {
+  margin-bottom: 0;
+}
+.blog-prose hr,
+.markdown-prose hr {
+  border: 0;
+  height: 1px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2.5rem 0;
+}
+.blog-prose hr::after,
+.markdown-prose hr::after {
+  content: "";
+  width: 48px;
+  height: 1px;
+  background: #C41E3A;
+  display: block;
+}
+.blog-prose table,
+.markdown-prose table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.blog-prose table::-webkit-scrollbar,
+.markdown-prose table::-webkit-scrollbar { height: 6px; }
+.blog-prose table::-webkit-scrollbar-thumb,
+.markdown-prose table::-webkit-scrollbar-thumb { background: #E0DDD8; }
+.blog-prose blockquote cite,
+.markdown-prose blockquote cite {
+  display: block;
+  margin-top: 0.75rem;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8A8478;
+}
+.blog-prose blockquote cite::before,
+.markdown-prose blockquote cite::before {
+  content: "— ";
+}
+.blog-prose .code-block,
+.markdown-prose .code-block {
+  position: relative;
+  margin: 2rem 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #0D0D0D;
+  overflow: hidden;
+}
+.blog-prose .code-block pre,
+.markdown-prose .code-block pre {
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  background: transparent;
+  border: 0;
+}
+.blog-prose .code-block pre code,
+.markdown-prose .code-block pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #F2EDE4;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.blog-prose .code-lang,
+.markdown-prose .code-lang {
+  position: absolute;
+  top: 10px;
+  right: 72px;
+  font-family: system-ui, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(242,237,228,0.6);
+  pointer-events: none;
+}
+.blog-prose .code-copy,
+.markdown-prose .code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #F2EDE4;
+  background: transparent;
+  border: 1px solid rgba(242,237,228,0.2);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.blog-prose .code-copy:hover,
+.markdown-prose .code-copy:hover {
+  background: #F2EDE4;
+  color: #1A1A1A;
+  border-color: #F2EDE4;
+}
+.blog-prose iframe, .blog-prose video,
+.markdown-prose iframe, .markdown-prose video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  height: auto;
+  border: 1px solid #E0DDD8;
+  margin: 2rem 0;
+  display: block;
+  background: #0D0D0D;
+}
+/* inline code inside link retains crimson */
+.blog-prose a code,
+.markdown-prose a code {
+  color: #C41E3A;
+  background: #fff;
+  border-color: #E0DDD8;
+}
+/* compact variant — tight prose for cards/filters */
+.markdown-prose--compact {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.markdown-prose--compact p,
+.markdown-prose--compact ul,
+.markdown-prose--compact ol {
+  margin-bottom: 0.75rem;
+}
+.markdown-prose--compact figure,
+.markdown-prose--compact .code-block {
+  margin: 1rem 0;
+}
+/* on-dark variant — readable prose on ink surfaces (e.g. CuratorCard) */
+.markdown-prose--on-dark h1,
+.markdown-prose--on-dark h2,
+.markdown-prose--on-dark h3,
+.markdown-prose--on-dark h4,
+.markdown-prose--on-dark p,
+.markdown-prose--on-dark li,
+.markdown-prose--on-dark strong,
+.markdown-prose--on-dark em {
+  color: #F2EDE4;
+}
+.markdown-prose--on-dark blockquote {
+  color: rgba(242, 237, 228, 0.8);
+}
+@media (max-width: 640px) {
+  .blog-prose > p:first-of-type::first-letter,
+  .markdown-prose--dropcap > p:first-of-type::first-letter {
+    font-size: 2.6em;
+  }
+  .blog-prose figure, .markdown-prose figure { margin: 1.5rem -1.5rem; border-left: 0; border-right: 0; }
+}

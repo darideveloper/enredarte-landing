@@ -40,10 +40,10 @@
       "reset": "Start again"
     },
     "banner": {
-      "coa": "<b>COA</b> with each work",
-      "shipping": "<b>Insured shipping</b> DHL / FedEx",
-      "artistShare": "<b>65%</b> goes to the artist",
-      "curation": "<b>Personal curation</b>"
+      "coa": "**COA** with each work",
+      "shipping": "**Insured shipping** DHL / FedEx",
+      "artistShare": "**65%** goes to the artist",
+      "curation": "**Personal curation**"
     },
     "curator": {
       "curator": "Curatorship",

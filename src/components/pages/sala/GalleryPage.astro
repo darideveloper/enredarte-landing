@@ -1,5 +1,6 @@
 ---
 import PageSEO from "@/components/seo/PageSEO.astro"
+import Markdown from "@/components/atoms/Markdown.astro"
 import Title from "@/components/atoms/Title.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import Image from "@/components/atoms/Image.astro"
@@ -80,7 +81,7 @@ const alternateUrls = {
   <div class="max-w-6xl px-6 md:px-14 mb-10 md:mb-14">
     <Headline color="muted" class="block mb-3 tracking-[0.2em]">{eyebrow}</Headline>
     <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-6">{galleryName}</h1>
-    <p class="text-[15px] text-description leading-[1.85] max-w-[560px]">{galleryDescription}</p>
+    <Markdown content={galleryDescription} class="text-[15px] text-description leading-[1.85] max-w-[560px]" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />
   </div>
   <div class="relative h-[55svh] md:h-[75svh] overflow-hidden bg-[#0D0D0D]">
     <Image src={heroSrc} alt={galleryName} class="absolute inset-0 w-full h-full object-cover" />

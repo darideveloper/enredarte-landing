@@ -1,5 +1,6 @@
 ---
-import { marked } from "marked"
+import { renderMarkdown, renderInline } from "@/lib/markdown"
+import Markdown from "@/components/atoms/Markdown.astro"
 import PageSEO from "@/components/seo/PageSEO.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import Btn from "@/components/atoms/Btn.astro"
@@ -64,50 +65,8 @@ function stripLeadingTitle(md: string, title: string): string {
 
 const dedupedContent = stripLeadingTitle(content, title)
 
-// Salon: configure marked for gallery-grade output
-marked.setOptions({ gfm: true, breaks: false, pedantic: false })
-
-// Custom renderer — ids, lazy images, external link affordance, code lang badge (marked 15 token API)
-const renderer = new marked.Renderer() as any
-renderer.heading = (token: any) => {
-  const text: string = token.text ?? ""
-  const raw: string = token.raw ?? text
-  const depth: number = token.depth ?? 1
-  const lvl = depth === 1 ? 2 : depth
-  const slug = String(raw).toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || `h-${lvl}`
-  return `<h${lvl} id="${slug}" class="scroll-mt-24"><a href="#${slug}" class="no-underline hover:text-crimson transition-colors">${text}</a></h${lvl}>\n`
-}
-renderer.image = (token: any) => {
-  const href: string = token.href ?? ""
-  const text: string = token.text ?? ""
-  const titleAttr: string | null = token.title ?? null
-  const titlePart = titleAttr ? ` title="${titleAttr}"` : ""
-  const img = `<img src="${href}" alt="${text}"${titlePart} loading="lazy" decoding="async" />`
-  if (text && text.length > 12) {
-    return `<figure>${img}<figcaption>${text}</figcaption></figure>`
-  }
-  return img
-}
-renderer.link = (token: any) => {
-  const href: string | null = token.href ?? null
-  const titleAttr: string | null = token.title ?? null
-  const text: string = token.text ?? ""
-  const isExternal = href?.startsWith("http")
-  const attrs = isExternal ? ` target="_blank" rel="noopener noreferrer"` : ""
-  const titlePart = titleAttr ? ` title="${titleAttr}"` : ""
-  const ext = isExternal ? ` <span aria-hidden="true" class="text-[11px]">↗</span>` : ""
-  return `<a href="${href ?? "#"}"${titlePart}${attrs}>${text}${ext}</a>`
-}
-renderer.code = (token: any) => {
-  const code: string = token.text ?? ""
-  const langCode: string = (token.lang ?? "").trim().split(/\s+/)[0] ?? ""
-  const escaped = code.replace(/</g, "&lt;").replace(/>/g, "&gt;")
-  const badge = langCode ? `<span class="code-lang">${langCode}</span>` : ""
-  const copyLabel = t("pages.blog.copy")
-  return `<div class="code-block"><pre><code class="language-${langCode}">${escaped}</code></pre>${badge}<button type="button" class="code-copy" data-copy data-copy-label="${copyLabel}" data-copied-label="${t("pages.blog.copied")}" aria-label="${copyLabel}">${copyLabel}</button></div>`
-}
-
-const html = marked.parse(dedupedContent, { renderer }) as string
+// Salon: shared gallery-grade markdown output (GFM, breaks:true, trusted CMS)
+const html = renderMarkdown(dedupedContent, { copyLabel: t("pages.blog.copy"), copiedLabel: t("pages.blog.copied") })
 
 const alternateUrls = {
   en: getLocalizedPostPath(post.slug, "en"),
@@ -173,9 +132,12 @@ const backHref = getLocalizedBlogPath(lang)
         )}
 
         {description && (
-          <p class="text-[18px] leading-[1.7] text-description text-pretty border-l-2 border-crimson pl-5 mb-8 font-sans">
-            {description}
-          </p>
+          <Markdown
+            content={description}
+            class="text-[18px] leading-[1.7] text-description text-pretty border-l-2 border-crimson pl-5 mb-8 font-sans"
+            copyLabel={t("pages.blog.copy")}
+            copiedLabel={t("pages.blog.copied")}
+          />
         )}
 
         <div class="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-muted mb-8">
@@ -236,7 +198,7 @@ const backHref = getLocalizedBlogPath(lang)
           <Headline color="muted" class="mb-4 block">{t("pages.blog.eyebrow")}</Headline>
           <p class="font-serif text-lg leading-tight text-ink mb-2 text-balance line-clamp-3">{title}</p>
           <p class="text-[11px] uppercase tracking-[0.08em] text-muted mb-4">{post.author} {formattedDate ? `• ${formattedDate}` : ""}</p>
-          {description && <p class="text-[13px] leading-relaxed text-description line-clamp-4 mb-6">{description}</p>}
+          {description && <p class="text-[13px] leading-relaxed text-description line-clamp-4 mb-6" set:html={renderInline(description)} />}
           <div class="flex flex-col gap-2">
             <a href={backHref} class="inline-flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-paper px-4 py-2.5 text-[11px] uppercase tracking-[0.1em] transition-all duration-300 text-center">
               {t("pages.blog.backToBlog")}
@@ -256,184 +218,9 @@ const backHref = getLocalizedBlogPath(lang)
   </div>
 </article>
 
-<style is:global>
-  /* Salon prose — gallery editorial */
-  .blog-prose > p:first-of-type::first-letter {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 3.15em;
-    float: left;
-    line-height: 0.82;
-    padding-right: 0.12em;
-    padding-top: 0.06em;
-    color: #C41E3A;
-    font-weight: 400;
-  }
-  .blog-prose h2 {
-    position: relative;
-    padding-top: 0.9em;
-  }
-  .blog-prose h2::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 28px;
-    height: 1px;
-    background: #C41E3A;
-  }
-  .blog-prose h2 a {
-    text-decoration: none;
-  }
-  .blog-prose h2 a:hover {
-    color: #C41E3A;
-  }
-  .blog-prose figure {
-    margin: 2.5rem 0;
-    border: 1px solid #E0DDD8;
-    background: #0D0D0D;
-    overflow: hidden;
-  }
-  .blog-prose figure img {
-    margin: 0;
-    border: 0;
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .blog-prose figcaption {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #8A8478;
-    background: #F2EDE4;
-    border-top: 1px solid #E0DDD8;
-    text-align: center;
-    padding: 0.75rem 1rem;
-  }
-  .blog-prose ul ul {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    list-style-type: circle;
-  }
-  .blog-prose ol ol {
-    list-style-type: lower-alpha;
-  }
-  .blog-prose li > ul, .blog-prose li > ol {
-    margin-bottom: 0;
-  }
-  .blog-prose hr {
-    border: 0;
-    height: 1px;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2.5rem 0;
-  }
-  .blog-prose hr::after {
-    content: "";
-    width: 48px;
-    height: 1px;
-    background: #C41E3A;
-    display: block;
-  }
-  .blog-prose table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .blog-prose table::-webkit-scrollbar { height: 6px; }
-  .blog-prose table::-webkit-scrollbar-thumb { background: #E0DDD8; }
-  .blog-prose blockquote cite {
-    display: block;
-    margin-top: 0.75rem;
-    font-style: normal;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #8A8478;
-  }
-  .blog-prose blockquote cite::before {
-    content: "— ";
-  }
-  .blog-prose .code-block {
-    position: relative;
-    margin: 2rem 0;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: #0D0D0D;
-    overflow: hidden;
-  }
-  .blog-prose .code-block pre {
-    margin: 0;
-    padding: 1.25rem 1.5rem;
-    overflow-x: auto;
-    background: transparent;
-    border: 0;
-  }
-  .blog-prose .code-block pre code {
-    background: transparent;
-    border: 0;
-    padding: 0;
-    color: #F2EDE4;
-    font-size: 13px;
-    line-height: 1.7;
-  }
-  .blog-prose .code-lang {
-    position: absolute;
-    top: 10px;
-    right: 72px;
-    font-family: system-ui, sans-serif;
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(242,237,228,0.6);
-    pointer-events: none;
-  }
-  .blog-prose .code-copy {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-family: system-ui, sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #F2EDE4;
-    background: transparent;
-    border: 1px solid rgba(242,237,228,0.2);
-    padding: 4px 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .blog-prose .code-copy:hover {
-    background: #F2EDE4;
-    color: #1A1A1A;
-    border-color: #F2EDE4;
-  }
-  .blog-prose iframe, .blog-prose video {
-    width: 100%;
-    aspect-ratio: 16/9;
-    height: auto;
-    border: 1px solid #E0DDD8;
-    margin: 2rem 0;
-    display: block;
-    background: #0D0D0D;
-  }
-  /* inline code inside link retains crimson */
-  .blog-prose a code {
-    color: #C41E3A;
-    background: #fff;
-    border-color: #E0DDD8;
-  }
-  @media (max-width: 640px) {
-    .blog-prose > p:first-of-type::first-letter {
-      font-size: 2.6em;
-    }
-    .blog-prose figure { margin: 1.5rem -1.5rem; border-left: 0; border-right: 0; }
-  }
-</style>
 
 <script>
+  import { attachCodeCopy } from "@/lib/code-copy"
   function attachShare() {
     const btns = document.querySelectorAll<HTMLButtonElement>("[data-title]")
     btns.forEach((btn) => {
@@ -463,26 +250,9 @@ const backHref = getLocalizedBlogPath(lang)
         }
       })
     })
-    // code copy
-    document.querySelectorAll<HTMLButtonElement>(".code-copy[data-copy]").forEach((b) => {
-      if ((b as any)._boundCopy) return
-      ;(b as any)._boundCopy = true
-      b.addEventListener("click", async () => {
-        const block = b.closest(".code-block")
-        const code = block?.querySelector("code")?.textContent ?? ""
-        const copyLabel = b.dataset.copyLabel ?? "Copy"
-        const copiedLabel = b.dataset.copiedLabel ?? "Copied!"
-        try {
-          await navigator.clipboard.writeText(code)
-          const prev = b.textContent
-          b.textContent = copiedLabel
-          setTimeout(() => b.textContent = prev, 1200)
-          void copyLabel
-        } catch {}
-      })
-    })
   }
   attachShare()
-  document.addEventListener("astro:page-load", attachShare)
-  document.addEventListener("DOMContentLoaded", attachShare)
+  attachCodeCopy()
+  document.addEventListener("astro:page-load", () => { attachShare(); attachCodeCopy() })
+  document.addEventListener("DOMContentLoaded", () => { attachShare(); attachCodeCopy() })
 </script>

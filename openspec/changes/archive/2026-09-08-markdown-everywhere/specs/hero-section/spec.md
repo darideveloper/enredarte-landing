@@ -1,7 +1,4 @@
-## Purpose
-Defines the `Hero` organism component, serving as the main entry point for the landing page with composed typography and image molecules.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Display composed hero section
 The `Hero` organism SHALL assemble the `H1` typography molecule on the left and the `ImageBanner` molecule on the right, and SHALL render its textual and artwork content from props (title, description, badge, curator line, and featured artwork data) supplied by the homepage, instead of hardcoded mockup copy. The homepage SHALL derive those props from the primary gallery's hero view model (see `gallery-data`). When hero data is available, badge SHALL be sourced from i18n with interpolation (`pages.home.hero.badgeWithNumber` with `{number}` → `Sala {number} — Capítulo del mes` / `Room {number} — Chapter of the month`). When no hero data is available, fallback badge/title/description SHALL be sourced from i18n (`pages.home.hero.badge`, `pages.home.hero.title`, `pages.home.hero.description`) with elevated formal copy (`Sala I — Capítulo del mes`, `Tierra, mundo y memoria — seis miradas`), and CTA labels and curator prefix SHALL be sourced from i18n (`pages.home.hero.ctaPrimary` → `Descubrir la Sala` / `Discover the Room`, `pages.home.hero.ctaSecondary` → `Leer la curaduría` / `Read the curation`, `pages.home.hero.curationBy` → `Curaduría por` remains but via i18n, price fallback → `Precio a consultar — le acompañamos` / `Price on request — we accompany you`). The hero description (whether from API `Gallery.description` or i18n fallback `pages.home.hero.description`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain text.
@@ -19,32 +16,3 @@ The `Hero` organism SHALL assemble the `H1` typography molecule on the left and 
 #### Scenario: Hero description renders as markdown
 - **WHEN** the hero description contains markdown (`**`, links, lists)
 - **THEN** it is parsed via `renderMarkdown` and rendered with `set:html` in prose styling, with single `\n` → `<br>`
-
-### Requirement: Accept dynamic H1 content via slot
-The `Hero` component SHALL pass dynamic content to its internal `H1` molecule via slots.
-
-#### Scenario: Slotted H1
-- **WHEN** the user provides slotted content for the H1
-- **THEN** it renders the slotted content correctly within the left column's `H1` molecule.
-
-### Requirement: Choreographed GSAP entrance timeline
-The `Hero` organism SHALL trigger a synchronized GSAP entrance sequence exactly once (via `astro:page-load` and a direct `init()` for first paint), respect `prefers-reduced-motion` via `gsap.matchMedia()`, animate the artwork banner using only `transform` (never `opacity: 0`), carry `transition:animate="none"` on its root to avoid competing with the GSAP reveal, and skip the entrance on later VT navigations (via `sessionStorage`) so above-fold content appears instantly.
-
-#### Scenario: First-load entrance animation
-- **WHEN** the `Hero` component loads for the first time in a browser session and `prefers-reduced-motion` is `no-preference`
-- **THEN** the artwork banner scales down smoothly (`scale: 1.08 → 1.0` without an opacity change), the room badge slides down (`y: -15 → 0`), the title slides up (`y: 30 → 0`), body description fades up (`y: 20 → 0`), the CTA slides up (`y: 20 → 0`), and the meta line fades in (opacity only) using GSAP timeline timing, and the sequence runs once (not doubled).
-
-#### Scenario: Return visit via View Transition navigation
-- **WHEN** the user navigates back to the home page via a client-side transition within the same session
-- **THEN** all hero elements appear instantly at their final visible state with no entrance animation replayed.
-
-#### Scenario: Reduced motion preference honored
-- **WHEN** the user's operating system sets `prefers-reduced-motion: reduce`
-- **THEN** the hero content is revealed without movement (elements jump to their final visible state) and no entrance timeline is played.
-
-### Requirement: Revert context on navigation away
-The `Hero` organism SHALL revert its `gsap.matchMedia()` context on `astro:after-swap`, killing all GSAP tweens and ScrollTriggers created for the Hero section.
-
-#### Scenario: View Transition cleanup on navigation away
-- **WHEN** `astro:after-swap` fires during a client-side navigation away from the home page
-- **THEN** the Hero's `gsap.matchMedia()` context is reverted, killing all GSAP tweens and ScrollTriggers created for the Hero section.

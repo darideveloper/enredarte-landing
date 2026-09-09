@@ -1,0 +1,29 @@
+---
+import { renderMarkdown } from "@/lib/markdown"
+
+export interface Props {
+  content?: string | null
+  class?: string
+  variant?: "default" | "compact" | "on-dark"
+  dropcap?: boolean
+  copyLabel?: string
+  copiedLabel?: string
+}
+
+const { content, class: className, variant = "default", dropcap = false, copyLabel, copiedLabel } = Astro.props
+const html = renderMarkdown(content ?? "", { copyLabel, copiedLabel })
+// Shared prose typography (mirrors BlogPost). Sizing/width/color stay with the
+// caller via `class` — only `prose-*` element styles are baked in.
+const prose = "hyphens-auto prose-headings:font-serif prose-headings:tracking-[-0.015em] prose-headings:text-ink prose-headings:text-balance prose-headings:scroll-mt-24 prose-h2:text-[26px] prose-h2:md:text-[30px] prose-h2:leading-[1.15] prose-h2:mt-14 prose-h2:mb-4 prose-h3:text-[20px] prose-h3:leading-[1.25] prose-h3:mt-10 prose-h3:mb-3 prose-h4:text-[12px] prose-h4:uppercase prose-h4:tracking-[0.14em] prose-h4:text-muted prose-h4:mt-8 prose-h4:mb-2 prose-p:leading-[1.85] prose-p:text-ink prose-p:mb-6 prose-p:text-pretty prose-a:text-crimson prose-a:underline prose-a:underline-offset-4 prose-a:decoration-crimson/30 hover:prose-a:decoration-crimson prose-a:transition-colors prose-strong:font-semibold prose-strong:text-ink prose-em:italic prose-em:text-ink prose-blockquote:border-l-2 prose-blockquote:border-crimson prose-blockquote:pl-5 prose-blockquote:italic prose-blockquote:text-description prose-blockquote:my-8 prose-img:rounded-none prose-img:border prose-img:border-border-theme prose-img:my-10 prose-img:mx-auto prose-img:block prose-code:text-[12px] prose-code:bg-white prose-code:border prose-code:border-border-theme prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-none prose-code:text-ink prose-code:font-mono prose-code:break-words prose-pre:bg-card-dark prose-pre:text-paper prose-pre:rounded-none prose-pre:border prose-pre:border-white/10 prose-pre:p-0 prose-pre:overflow-hidden prose-hr:border-border-theme prose-hr:my-10 prose-ul:list-disc prose-ul:pl-6 prose-ul:my-6 prose-ul:marker:text-crimson prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-6 prose-ol:marker:text-muted prose-ol:marker:font-sans prose-ol:marker:text-[13px] prose-li:my-2 prose-li:leading-[1.85] prose-li:marker:text-crimson prose-table:w-full prose-table:border-collapse prose-table:my-8 prose-table:text-[14px] prose-th:bg-ink prose-th:text-paper prose-th:text-left prose-th:px-4 prose-th:py-3 prose-th:text-[11px] prose-th:uppercase prose-th:tracking-[0.08em] prose-th:font-sans prose-th:border prose-th:border-ink prose-td:px-4 prose-td:py-3 prose-td:border prose-td:border-border-theme prose-td:align-top prose-figcaption:text-center prose-figcaption:text-[11px] prose-figcaption:uppercase prose-figcaption:tracking-[0.08em] prose-figcaption:text-muted prose-figcaption:py-3 prose-figcaption:px-4 prose-figcaption:bg-paper prose-figcaption:border-t prose-figcaption:border-border-theme"
+---
+
+<div
+  class:list={["markdown-prose", prose, variant !== "default" && `markdown-prose--${variant}`, dropcap && "markdown-prose--dropcap", className]}
+  set:html={html}
+/>
+
+<script>
+  import { attachCodeCopy } from "@/lib/code-copy"
+  attachCodeCopy()
+  document.addEventListener("astro:page-load", () => attachCodeCopy())
+</script>

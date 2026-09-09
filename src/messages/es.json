@@ -40,10 +40,10 @@
       "reset": "Empezar de nuevo"
     },
     "banner": {
-      "coa": "<b>COA</b> firmado en cada obra",
-      "shipping": "<b>Envío asegurado</b> DHL / FedEx",
-      "artistShare": "El <b>65%</b> es para el artista",
-      "curation": "<b>Curaduría personal</b>"
+      "coa": "**COA** firmado en cada obra",
+      "shipping": "**Envío asegurado** DHL / FedEx",
+      "artistShare": "El **65%** es para el artista",
+      "curation": "**Curaduría personal**"
     },
     "curator": {
       "curator": "Curaduría",

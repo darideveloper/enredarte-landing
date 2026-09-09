@@ -1,5 +1,6 @@
 ---
 import PageSEO from "@/components/seo/PageSEO.astro"
+import Markdown from "@/components/atoms/Markdown.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import Title from "@/components/atoms/Title.astro"
 import Image from "@/components/atoms/Image.astro"
@@ -91,7 +92,7 @@ const alternateUrls = {
     <div class="min-w-0">
       <Headline color="muted" class="block mb-3 tracking-[0.2em]">{t("global.artist.label")}</Headline>
       <h1 class="font-serif text-4xl md:text-5xl text-ink leading-[1.1] mb-6">{artist.name}</h1>
-      {bio && <p class="text-[15px] text-description leading-[1.85] max-w-[560px] mb-8">{bio}</p>}
+      {bio && <Markdown content={bio} class="text-[15px] text-description leading-[1.85] max-w-[560px] mb-8" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />}
       {metadata && (
         <p class="text-[12px] text-muted uppercase tracking-[0.14em] font-sans mb-6">{metadata}</p>
       )}

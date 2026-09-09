@@ -1,8 +1,4 @@
-## Purpose
-
-Defines the `BannerBar` organism component that renders key gallery value propositions with a GSAP ScrollTrigger staggered cascade entrance animation on scroll.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: ScrollTrigger staggered cascade entrance
 The `BannerBar` organism SHALL trigger a GSAP ScrollTrigger staggered cascade entrance sequence when scrolled into view, SHALL initialize via a direct `init()` call for first paint AND the `astro:page-load` event for client-side navigations, SHALL carry `transition:animate="none"` on its root element, SHALL revert its `gsap.matchMedia()` context on `astro:after-swap` before re-initializing, SHALL respect `prefers-reduced-motion` so reduced-motion users get no movement, and SHALL source its four value-proposition items from i18n (`global.banner.*`) as markdown (`**COA** firmado en cada obra` / `**COA** with each work`, `**Envío asegurado** DHL / FedEx` / `**Insured shipping** DHL / FedEx`, `El **65%** es para el artista` / `**65%** goes to the artist`, `**Curaduría personal**` / `**Personal curation**`) rendered via the shared `markdown-rendering` renderer inside `BannerText` (`renderInline` unwrapped, `breaks: true`, trusted CMS), requiring `lang` prop (no default) so callers must pass `lang` explicitly. The `BannerText` styling SHALL target `strong` (from `**`) as well as `b` (`[&>strong]:text-crimson`).

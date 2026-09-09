@@ -1,5 +1,6 @@
 ---
 import Headline from "@/components/atoms/Headline.astro"
+import Markdown from "@/components/atoms/Markdown.astro"
 import Image from "@/components/atoms/Image.astro"
 import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
 import { stripUrlScheme, cn } from "@/lib/utils"
@@ -58,9 +59,7 @@ const initials = curator.name
       </h1>
 
       {bio && (
-        <p class="text-[15px] text-ink/85 leading-[1.85] mb-8 max-w-2xl">
-          {bio}
-        </p>
+        <Markdown content={bio} class="text-[15px] text-ink/85 leading-[1.85] mb-8 max-w-2xl" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />
       )}
 
       {(curator.email || curator.website) && (
