@@ -21,7 +21,9 @@ src/pages/
 - Calls `buildSiteData()` from `src/data/api.ts` once, which fetches every backend resource
   (galleries, artists, art-curators, the five taxonomies, artworks) via the `src/lib/api/*`
   endpoint modules and `fetchAll` pagination helper, then derives localized filter groups.
-- Emits the route-map pages, one detail page per gallery from the API
+- Emits the route-map pages (`home` + the three legal stubs `aviso-de-privacidad`,
+  `terminos-y-condiciones`, `politica-de-cookies`, each es root-level / `en/…`),
+  one detail page per gallery from the API
   (`salas/<slug>` es / `en/salas/<slug>` en), one detail page per artwork
   (`obras/<slug>` es / `en/obras/<slug>` en), one detail page per artist
   (`artistas/<slug>` es / `en/artistas/<slug>` en), and one detail page per curator
@@ -33,10 +35,13 @@ src/pages/
   empty-state when `count==0`) and per-post detail pages (`/blog/:slug` es / `/en/blog/:slug` en, drafts excluded).
   Detail pages fetch full `Post` via `detail(slug)` and thread `post: Post` + `postSlug` to `BlogPost`.
 - Looks up the page component in `COMPONENT_MAP` → `home: Home`, `gallery: GalleryPage`,
-  `artwork: ArtworkPage`, `artist: ArtistPage`, `blog: BlogIndex`, `post: BlogPost`, `curator: CuratorPage`.
+  `artwork: ArtworkPage`, `artist: ArtistPage`, `blog: BlogIndex`, `post: BlogPost`, `curator: CuratorPage`,
+  `aviso-de-privacidad`/`terminos-y-condiciones`/`politica-de-cookies`: `LegalPage` (generic, `pageKey` selects the `pages.legal.*` copy).
 - Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery/artwork/artist/curator *or*
   blog page/post URLs via `getLocalizedSalaPath`/`getLocalizedArtworkPath`/`getLocalizedArtistPath`/
-  `getLocalizedCuratorPath`/`getLocalizedBlogPath`/`getLocalizedBlogPagePath`/`getLocalizedPostPath`) to `Layout` → `Header` → `LangBtns`
+  `getLocalizedCuratorPath`/`getLocalizedBlogPath`/`getLocalizedBlogPagePath`/`getLocalizedPostPath`; route-map
+  pages like `home` and the legal stubs need none — `LangBtns` falls back to `getLocalizedPath(pageKey)`)
+  to `Layout` → `Header` → `LangBtns`
   so the language switch preserves the slug/page, and `preloadImage` prefers `Post.banner_image` (prefixed with `API_BASE_URL`) for post detail.
 
 ## Full dependency diagram
@@ -47,7 +52,7 @@ src/pages/
                              └──────────────┬───────────────┬───────────────┘
                                             │               │ routes (i18n)
                                             ▼               ▼
- Home / GalleryPage / ArtworkPage / ArtistPage / CuratorPage / BlogIndex / BlogPost   lib/i18n/routes.ts
+  Home / GalleryPage / ArtworkPage / ArtistPage / CuratorPage / BlogIndex / BlogPost / LegalPage   lib/i18n/routes.ts
                               │               │          data/api.ts (buildSiteData)
                               │               ▼          lib/api/* (11 endpoint modules incl. posts, pagination.fetchAll)
                               ▼        lib/i18n/utils (getLocalizedSalaPath/ArtworkPath/ArtistPath/CuratorPath/BlogPath/PagePath/PostPath)
@@ -232,7 +237,7 @@ Layout.astro
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
-└── Footer.astro (dark ink palette)
+└── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug stubs)
     ├── Logo.astro (bg-red-circle variant) ──► lib/utils (cn)
     ├── Link.astro (footer variant) ─► lib/utils
     ├── Headline.astro ───────────────► lib/utils
@@ -240,7 +245,7 @@ Layout.astro
     │   └── lib/i18n/utils (getLocalizedPath)
     ├── lib/nav.ts (shared getNavLinks with Header)
     │   └── lib/i18n/utils
-    ├── data/site-config.ts (BUSINESS_DATA, SOCIAL_LINKS, PHONES, EMAIL)
+    ├── data/site-config.ts (BUSINESS_DATA, SOCIAL_LINKS, PHONES, WHATSAPP, EMAIL, LOCATION_SHORT)
     └── lib/i18n/utils (getLangFromUrl, getLocalizedPath, getTranslations)
 ```
 
@@ -300,8 +305,10 @@ Everything below is a terminal dependency imported by multiple components:
   `lib/markdown` (`breaks: true`, trusted CMS). Titles/names stay plain. `global.banner.*` is authored
   as `**` markdown and rendered via `renderInline` in `BannerBar`. `BaseSEO` strips markdown from all
   meta/og descriptions. `global.filters.noResults` (React island) stays plain text — out of scope.
-- **Seven page components.** The single catch-all `[...path].astro` now serves `Home`
-  (root `/` + `/es`), one `GalleryPage` per gallery fetched from the backend API
+- **Eight page components.** The single catch-all `[...path].astro` now serves `Home`
+  (root `/` + `/es`), `LegalPage` for the three Spanish-slug legal stubs
+  (`/aviso-de-privacidad`, `/terminos-y-condiciones`, `/politica-de-cookies` + `/en/…`;
+  generic component, `pageKey` selects the `pages.legal.*` copy, all sample text pending legal-counsel review), one `GalleryPage` per gallery fetched from the backend API
   (`/salas/<slug>` + `/en/salas/<slug>`),
   one `ArtworkPage` per artwork (`/obras/<slug>` + `/en/obras/<slug>`), one `ArtistPage` per artist
   (`/artistas/<slug>` + `/en/artistas/<slug>`), one `CuratorPage` per curator
@@ -375,6 +382,11 @@ Everything below is a terminal dependency imported by multiple components:
   artwork detail pages links back to the artist page. `LangBtns` `localizedPaths` preserve
   the artist slug across languages.
 - **Blog pages (polished Salon)**: `BlogIndex.astro` renders an editorial header (`Headline` eyebrow `pages.blog.eyebrow` Revista/Journal + serif `h1` + `pages.blog.description` + count meta + hairline), a mosaic `grid gap-[3px] md:gap-4` of `PostCard`s — `PostCard` now a `bg-card-dark` salon card with `aspect-[4/3]` image, `brightness-[0.92]→[0.72]` + `scale-[1.05]` + `shadow-2xl -translate-y-1` on hover, `from-black/75` gradient, top-left date badge, `Headline`/`Btn` tokens, crimson accent bar sliding in and `pl-3` indent, featured `lg:col-span-2 aspect-[16/10]` with overlay title/cta for the first post of every page when `posts.length>1` (`hasFeatured = posts.length>1`). `PaginationNav.astro` is now bilingual (`pages.blog.pagination.prev/next/page`) and responsive: `md` shows full numbered + Prev (ink/ghost) / Next (crimson) with `focus:ring-brand-500`, `<md` collapses to `Prev — page/total — Next` full-width; hidden when `total_pages<=1`. Empty-state is a centered editorial block (`Headline` eyebrow, serif `h2`, `pages.blog.noPostsHint` + ghost `Btn` to `getLocalizedBlogPath`). `BlogPost.astro` renders a `bg-card-dark` hero (`h-[48svh] md:h-[62svh]` with `from-black/75 via-black/35` gradient, bottom-anchored `Headline` eyebrow + serif title + back link), description as left-bordered crimson quote, meta `author • date • readingTime` (`wordCount/200` via `pages.blog.readingTime`), `h-px` divider, `blog-prose` (`prose-headings:font-serif`, `prose-a:text-crimson underline-offset-4`, `blockquote border-crimson`, `code bg-white border`, `pre bg-card-dark`, `lead 1.85`, `measure 72ch`), share `navigator.share→clipboard` + `Btn ghost`, and a `lg:sticky` aside (title/meta/description + `Btn` + banner thumb). `PageSEO` uses `pages.blog.eyebrow` via `pickPostField` and `ogImage`; `LangBtns` `localizedPaths` + `preloadImage` preserved. Drafts excluded. Global `::selection` crimson/paper, `caret-color brand-500`, `scrollbar-color`, `focus-visible` and `text-underline-offset:3px` themed in `styles/global.css`.
+- **Footer contact (final info, `footer-contact-final-info`)**: phone `+52 624 176 4802`
+  (`tel:`), WhatsApp `+52 1 624 176 4802` (`wa.me`, new tab), `info@enredarte.com` (`mailto:`),
+  location plain text `Mexico City, Mexico`. `GOOGLE_MAPS` + full `ADDRESS` detail are parked
+  (unrendered) for later map use; `BUSINESS_DATA.url` is `https://enredarte.mx`. Legal stubs are
+  sample copy — flag for legal-counsel review before treating as final.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **Orphaned / not reachable from any page** (candidates for cleanup):

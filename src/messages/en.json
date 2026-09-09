@@ -13,6 +13,12 @@
       "contact": "Contact",
       "rights": "All rights reserved.",
       "poweredBy": "Powered by",
+      "legal": {
+        "label": "Legal",
+        "privacy": "Privacy Notice",
+        "terms": "Terms and Conditions",
+        "cookies": "Cookie Policy"
+      },
       "social": {
         "facebook": "Facebook",
         "instagram": "Instagram"
@@ -113,6 +119,80 @@
         "prev": "Previous",
         "next": "Next",
         "page": "Page {current} of {total}"
+      }
+    },
+    "legal": {
+      "disclaimer": "Sample text — pending legal review.",
+      "updated": "Last updated: 2026",
+      "privacy": {
+        "title": "Privacy Notice",
+        "description": "How EnredArte collects, uses, and protects your personal data.",
+        "sections": [
+          {
+            "heading": "Data controller",
+            "body": "EnredArte, based in Mexico City, Mexico, controls your personal data. Contact: info@enredarte.com and +52 624 176 4802."
+          },
+          {
+            "heading": "Data we collect",
+            "body": "We collect your name, email, phone, and the details of your inquiry about works or purchases, only through the contact channels you use."
+          },
+          {
+            "heading": "Purposes",
+            "body": "Your data is used to answer inquiries, support artwork reservations or purchases, and — with your consent — share news about rooms and artists."
+          },
+          {
+            "heading": "Your rights",
+            "body": "You may request access, correction, deletion, or objection regarding your data at info@enredarte.com. We respond under applicable law."
+          }
+        ]
+      },
+      "terms": {
+        "title": "Terms and Conditions",
+        "description": "Terms for inquiring about and purchasing works at EnredArte.",
+        "sections": [
+          {
+            "heading": "Originality and certificate",
+            "body": "Each work is original and ships with its signed certificate of authenticity (COA)."
+          },
+          {
+            "heading": "Pricing",
+            "body": "Prices are shown in Mexican pesos (MXN). When a price is listed on request, we quote you personally."
+          },
+          {
+            "heading": "Artist share",
+            "body": "65% of each work's price goes to the artist."
+          },
+          {
+            "heading": "Shipping",
+            "body": "Shipping is insured via DHL or FedEx. Timing and costs are confirmed before purchase."
+          },
+          {
+            "heading": "Reservations and returns",
+            "body": "Reservations are confirmed in writing. If a work does not match its description, write to info@enredarte.com or +52 624 176 4802 and we will find a solution."
+          }
+        ]
+      },
+      "cookies": {
+        "title": "Cookie Policy",
+        "description": "Which cookies EnredArte uses and how to manage them.",
+        "sections": [
+          {
+            "heading": "Which cookies we use",
+            "body": "We use strictly necessary cookies, preference cookies (such as language), and analytics cookies to understand visits to rooms and works."
+          },
+          {
+            "heading": "Purposes",
+            "body": "Cookies show content in your language, remember your collection filters, and improve browsing."
+          },
+          {
+            "heading": "How to manage them",
+            "body": "You can accept or reject non-necessary cookies and change your choice at any time in your browser settings."
+          },
+          {
+            "heading": "Contact",
+            "body": "Questions about this policy: info@enredarte.com."
+          }
+        ]
       }
     }
   }

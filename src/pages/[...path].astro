@@ -8,6 +8,7 @@ import ArtistPage from "@/components/pages/artista/ArtistPage.astro"
 import BlogIndex from "@/components/pages/blog/BlogIndex.astro"
 import BlogPost from "@/components/pages/blog/BlogPost.astro"
 import CuratorPage from "@/components/pages/curador/CuratorPage.astro"
+import LegalPage from "@/components/pages/legal/LegalPage.astro"
 import { buildSiteData, resolveArtistArtworks } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import {
@@ -134,6 +135,9 @@ const COMPONENT_MAP: Record<string, any> = {
   blog: BlogIndex,
   post: BlogPost,
   curator: CuratorPage,
+  "aviso-de-privacidad": LegalPage,
+  "terminos-y-condiciones": LegalPage,
+  "politica-de-cookies": LegalPage,
 }
 
 type AllPageKeys = PageKey | "gallery" | "artwork" | "artist" | "blog" | "post" | "curator"

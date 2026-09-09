@@ -1,32 +1,43 @@
 export const PHONES = {
   main: {
-    raw: "+12345678901",
-    formatted: "+1 (234) 567-8901",
-    href: "tel:+12345678901",
+    raw: "+526241764802",
+    formatted: "+52 624 176 4802",
+    href: "tel:+526241764802",
   },
 } as const
 
-export const EMAIL = {
-  address: "hello@enredarte.com",
-  href: "mailto:hello@enredarte.com",
+export const WHATSAPP = {
+  raw: "+5216241764802",
+  formatted: "+52 1 624 176 4802",
+  href: "https://wa.me/5216241764802",
 } as const
 
-export const ADDRESS = {
-  full: "123 Main St, Downtown, 12345 City, ST",
-  street: "123 Main St",
-  zone: "Downtown",
-  city: "City",
-  state: "State",
-  postalCode: "12345",
-  country: "Country",
-  countryCode: "XX",
+export const EMAIL = {
+  address: "info@enredarte.com",
+  href: "mailto:info@enredarte.com",
 } as const
+
+// Parked for future map integration: full street-level detail + coordinates
+// are kept here but currently unrendered (footer shows LOCATION_SHORT only).
+export const ADDRESS = {
+  full: "Mexico City, Mexico",
+  street: "",
+  zone: "",
+  city: "Mexico City",
+  state: "Mexico City",
+  postalCode: "",
+  country: "Mexico",
+  countryCode: "MX",
+} as const
+
+export const LOCATION_SHORT = "Mexico City, Mexico" as const
 
 export const SOCIAL_LINKS = {
   facebook: "https://www.facebook.com/enredarte",
   instagram: "https://www.instagram.com/enredarte/",
 } as const
 
+// Parked for future map integration: coordinates kept but unreferenced by the footer.
 export const GOOGLE_MAPS = {
   coordinates: { lat: 0.0, lng: 0.0 },
 } as const
@@ -34,12 +45,14 @@ export const GOOGLE_MAPS = {
 export const BUSINESS_DATA = {
   name: "EnredArte",
   legalName: "EnredArte",
-  url: "https://enredarte.com",
+  url: "https://enredarte.mx",
   logo: "/favicon.svg",
   ogImage: "/og-image.jpg",
   contact: {
     phone: PHONES.main.formatted,
+    whatsapp: WHATSAPP.formatted,
     email: EMAIL.address,
+    location: LOCATION_SHORT,
     address: {
       street: ADDRESS.street,
       city: ADDRESS.city,

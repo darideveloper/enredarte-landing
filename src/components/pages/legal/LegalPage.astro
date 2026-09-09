@@ -1,0 +1,42 @@
+---
+import PageSEO from "@/components/seo/PageSEO.astro"
+import Headline from "@/components/atoms/Headline.astro"
+import { getTranslations } from "@/lib/i18n/utils"
+import type { Lang } from "@/lib/api/types"
+
+export interface Props {
+  lang: Lang
+  pageKey: "aviso-de-privacidad" | "terminos-y-condiciones" | "politica-de-cookies"
+}
+
+const { lang, pageKey } = Astro.props
+const t = getTranslations(lang)
+
+const legalKey = pageKey === "aviso-de-privacidad"
+  ? "privacy"
+  : pageKey === "terminos-y-condiciones"
+    ? "terms"
+    : "cookies"
+
+const title = t(`pages.legal.${legalKey}.title`) as string
+const description = t(`pages.legal.${legalKey}.description`) as string
+const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; body: string }[]
+---
+
+<PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
+
+<div class="mx-auto max-w-3xl px-6 py-16 md:px-14">
+  <Headline>{t("global.footer.legal.label")}</Headline>
+  <h1 class="mt-4 font-serif text-4xl text-ink">{title}</h1>
+  <p class="mt-2 text-sm text-muted">{description}</p>
+  <p class="mt-1 text-xs uppercase tracking-[0.1em] text-muted">{t("pages.legal.updated")}</p>
+  <p class="mt-6 border border-crimson/30 bg-crimson/5 px-4 py-3 text-sm text-ink">{t("pages.legal.disclaimer")}</p>
+  <div class="mt-10 space-y-8">
+    {sections.map((section) => (
+      <section>
+        <h2 class="font-serif text-2xl text-ink">{section.heading}</h2>
+        <p class="mt-2 leading-relaxed text-ink/80">{section.body}</p>
+      </section>
+    ))}
+  </div>
+</div>

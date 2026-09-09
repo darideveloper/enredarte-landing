@@ -13,6 +13,12 @@
       "contact": "Contacto",
       "rights": "Todos los derechos reservados.",
       "poweredBy": "Desarrollado por",
+      "legal": {
+        "label": "Avisos legales",
+        "privacy": "Aviso de Privacidad",
+        "terms": "Términos y Condiciones",
+        "cookies": "Política de Cookies"
+      },
       "social": {
         "facebook": "Facebook",
         "instagram": "Instagram"
@@ -113,6 +119,80 @@
         "prev": "Anterior",
         "next": "Siguiente",
         "page": "Página {current} de {total}"
+      }
+    },
+    "legal": {
+      "disclaimer": "Texto de ejemplo — pendiente de revisión legal.",
+      "updated": "Última actualización: 2026",
+      "privacy": {
+        "title": "Aviso de Privacidad",
+        "description": "Cómo EnredArte recaba, usa y protege sus datos personales.",
+        "sections": [
+          {
+            "heading": "Responsable del tratamiento",
+            "body": "EnredArte, con domicilio en Ciudad de México, México, es responsable del tratamiento de sus datos personales. Contacto: info@enredarte.com y +52 624 176 4802."
+          },
+          {
+            "heading": "Datos que recabamos",
+            "body": "Recabamos nombre, correo electrónico, teléfono y los detalles de su consulta sobre obras o compras, únicamente a través de los canales de contacto que usted utiliza."
+          },
+          {
+            "heading": "Finalidades",
+            "body": "Sus datos se usan para responder consultas, acompañar el proceso de reserva o compra de obra y, con su consentimiento, enviarle novedades de salas y artistas."
+          },
+          {
+            "heading": "Derechos ARCO",
+            "body": "Usted puede ejercer sus derechos de acceso, rectificación, cancelación y oposición escribiendo a info@enredarte.com. Responderemos conforme a la normativa aplicable."
+          }
+        ]
+      },
+      "terms": {
+        "title": "Términos y Condiciones",
+        "description": "Condiciones de compra y consulta de obra en EnredArte.",
+        "sections": [
+          {
+            "heading": "Originalidad y certificado",
+            "body": "Cada obra es original y se entrega con su certificado de autenticidad (COA) firmado."
+          },
+          {
+            "heading": "Precios",
+            "body": "Los precios se muestran en pesos mexicanos (MXN). Cuando el precio aparece como a consultar, le acompañamos personalmente en la cotización."
+          },
+          {
+            "heading": "Participación del artista",
+            "body": "El 65% del precio de cada obra es para el artista."
+          },
+          {
+            "heading": "Envío",
+            "body": "El envío es asegurado vía DHL o FedEx. Los tiempos y costos se confirman antes de cerrar la compra."
+          },
+          {
+            "heading": "Reservas y devoluciones",
+            "body": "Las reservas se confirman por escrito. Si la obra no corresponde a lo descrito, escríbanos a info@enredarte.com o al +52 624 176 4802 para encontrar una solución."
+          }
+        ]
+      },
+      "cookies": {
+        "title": "Política de Cookies",
+        "description": "Qué cookies usa EnredArte y cómo gestionarlas.",
+        "sections": [
+          {
+            "heading": "Qué cookies usamos",
+            "body": "Usamos cookies necesarias para el funcionamiento del sitio, cookies de preferencias (como el idioma) y cookies de analítica para entender la visita a salas y obras."
+          },
+          {
+            "heading": "Finalidades",
+            "body": "Las cookies sirven para mostrar el contenido en su idioma, recordar sus filtros de colección y mejorar la experiencia de navegación."
+          },
+          {
+            "heading": "Cómo gestionarlas",
+            "body": "Puede aceptar o rechazar las cookies no necesarias y cambiar su decisión en cualquier momento desde la configuración de su navegador."
+          },
+          {
+            "heading": "Contacto",
+            "body": "Para cualquier duda sobre esta política, escríbanos a info@enredarte.com."
+          }
+        ]
       }
     }
   }
