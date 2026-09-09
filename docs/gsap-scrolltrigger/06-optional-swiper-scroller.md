@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-09-09
 tags:
   - gsap
   - scrolltrigger
@@ -19,7 +19,7 @@ Powered by **Swiper 12**, not GSAP. Used for horizontal image galleries, platfor
 cards, or any horizontal content strip — scrolled with mouse drag, mousewheel, and
 optional pagination bullets.
 
-**Prerequisite:** `npm install swiper` (Swiped 12+, used in the reference
+**Prerequisite:** `pnpm add swiper` (Swiper 12+, used in the reference
 implementation).
 
 ---

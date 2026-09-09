@@ -1,6 +1,6 @@
 ---
 created: 2026-07-27
-updated: 2026-07-27
+updated: 2026-09-09
 tags:
   - astro
   - development
@@ -32,7 +32,13 @@ The `astro.config.mjs` reads `process.env.PORT` to determine the listen port, fa
 ```js
 server: {
   port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
-}
+},
+vite: {
+  server: {
+    port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
+    strictPort: true,
+  },
+},
 ```
 
 ## Prerequisites
@@ -49,7 +55,7 @@ npm install -g portless
 ```json
 {
   "scripts": {
-    "dev": "portless <project-name> pnpm astro dev"
+    "dev": "portless run pnpm astro dev"
   }
 }
 ```
@@ -60,6 +66,12 @@ npm install -g portless
 export default defineConfig({
   server: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
+  },
+  vite: {
+    server: {
+      port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
+      strictPort: true,
+    },
   },
 })
 ```
@@ -86,12 +98,14 @@ Portless injects the following into the child process:
 - `HOST` — Typically `127.0.0.1`
 - `PORTLESS_URL` — Public URL (e.g. `https://<project-name>.localhost`)
 
+> Worktree gotcha: a fresh worktree copy keeps main's `SITE_URL` — override it per worktree if canonicals/redirects matter there.
+
 ## Troubleshooting
 
 | Issue | Fix |
 |---|---|
 | `command not found: portless` | Run `npm install -g portless` |
-| `.localhost` doesn't resolve (Safari, Firefox) | Run `portless hosts sync` to add entries to `/etc/hosts` |
+| `.localhost` doesn't resolve (Safari) | Run `portless hosts sync` to add entries to `/etc/hosts` |
 | Port conflict on 443 | Portless falls back to 1355; check `portless status` |
 | Dev server won't start | Ensure no other process is on the assigned port; `portless stop <project-name>` then retry |
 

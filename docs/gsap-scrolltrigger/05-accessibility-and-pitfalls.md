@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-09-09
 tags:
   - gsap
   - scrolltrigger
@@ -209,12 +209,12 @@ mechanism. See [02 · No-JS fallback](#2-no-js-fallback-progressive-enhancement)
 
 ## 4. Final checklist when porting to a new Astro project
 
-- [ ] `npm install gsap` (+ `swiper` if using the optional horizontal scroller appendix)
+- [ ] `pnpm add gsap` (+ `swiper` if using the optional horizontal scroller appendix)
 - [ ] `src/lib/gsap.ts` created and imported in each component's `<script>` block (not globally in the Layout `<head>`)
 - [ ] `src/lib/animation-manager.ts` created **only if** you use the loader
 - [ ] `src/lib/kinetic-marquee.ts` created **only if** you use marquees
-- [ ] CSS fallback `.js-reveal` + `.no-js .js-reveal` rules added
-- [ ] `no-js` → `js` class-swap inline script in the layout
+- [ ] CSS fallback `.js-reveal` + `.no-js .js-reveal` rules added (approaches B/C only — approach-A projects skip this)
+- [ ] `no-js` → `js` class-swap inline script in the layout (approaches B/C only)
 - [ ] Every section's script: section-scoped root, `gsap.set(autoAlpha:1)` before `.from()`, `matchMedia` reduce branch
 - [ ] All reveal elements carry `.js-reveal` (not just `opacity-0` alone)
 - [ ] `ScrollTrigger.refresh()` after late-loading images/fonts

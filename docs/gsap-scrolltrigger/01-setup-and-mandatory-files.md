@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-09-09
 tags:
   - gsap
   - scrolltrigger
@@ -25,13 +25,13 @@ The system is built on **GSAP 3** (including the optional **ScrollTrigger** plug
 which ships inside the `gsap` package — no extra dependency).
 
 ```bash
-npm install gsap
+pnpm add gsap
 ```
 
 If you also want the Swiper-powered horizontal scroller:
 
 ```bash
-npm install swiper
+pnpm add swiper
 ```
 
 Versions used (examples): `gsap@^3.12.7`, `swiper@^12.1.3`, `astro@^5 || ^6`.
@@ -67,8 +67,13 @@ gsap.defaults({
   duration: 1.2,
 })
 
-// Re-measure triggers when images, fonts, and lazy content settle
-window.addEventListener("load", () => ScrollTrigger.refresh())
+// Re-measure triggers when images, fonts, and lazy content settle.
+// Guarded: this module is imported from Astro <script> blocks that also run at SSR.
+if (typeof window !== "undefined") {
+  window.addEventListener("load", () => ScrollTrigger.refresh())
+  // View Transitions swap DOM without a load event — refresh on every navigation too
+  document.addEventListener("astro:page-load", () => ScrollTrigger.refresh())
+}
 
 export { gsap, ScrollTrigger }
 ```
@@ -86,6 +91,7 @@ export { gsap, ScrollTrigger }
 | `ScrollTrigger.config({ ignoreMobileResize: true })` | Skip refresh on mobile URL bar show/hide |
 | `gsap.defaults({ ease, duration })` | Every tween inherits these unless it overrides `ease`/`duration` |
 | `window.addEventListener("load", ...)` | Re-measures trigger positions after images/fonts/lazy content settle |
+| `document.addEventListener("astro:page-load", ...)` | Same refresh after every View Transitions navigation (`load` fires only once) |
 
 > **Per-section `registerPlugin` calls are harmless** and can be kept or removed — the shared module's registration is sufficient.
 
@@ -120,7 +126,9 @@ tree-shakes subpath imports (`gsap/ScrollTrigger`). Never use `is:inline` for GS
 
 `astro:page-load` fires on initial page load and after every View Transition
 navigation. Use it as the single entry point — never call `init()` directly
-alongside the listener, or the animation initializes twice.
+alongside the listener, or the animation initializes twice. Exception: above-fold
+entrances pair the listener with a first-paint `init()` call — see
+`docs/astro-client-side-page-transitions.md` §5.4 for the canonical pattern.
 
 ### For projects with View Transitions
 

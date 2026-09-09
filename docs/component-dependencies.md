@@ -41,8 +41,8 @@ src/pages/
   blog page/post URLs via `getLocalizedSalaPath`/`getLocalizedArtworkPath`/`getLocalizedArtistPath`/
   `getLocalizedCuratorPath`/`getLocalizedBlogPath`/`getLocalizedBlogPagePath`/`getLocalizedPostPath`; route-map
   pages like `home` and the legal stubs need none — `LangBtns` falls back to `getLocalizedPath(pageKey)`)
-  to `Layout` → `Header` → `LangBtns`
-  so the language switch preserves the slug/page, and `preloadImage` prefers `Post.banner_image` (prefixed with `API_BASE_URL`) for post detail.
+   to `Layout` → `Header` → `LangBtns`
+   so the language switch preserves the slug/page, and `preloadImage` prefers `Post.banner_image` (verbatim absolute URL, no prefix) for post detail.
 
 ## Full dependency diagram
 
@@ -96,7 +96,7 @@ Home.astro ──────────────► data/api.ts (toHeroView
     └── ImageCard.astro (slot children, stamped with space-separated data-* facets, formatted `price` from `lang`) ─► { Image, CardInfo }
 ```
 
-### GalleryPage.astro tree (per gallery, `/salas/<slug>` + `/es/salas/<slug>`)
+### GalleryPage.astro tree (per gallery, `/salas/<slug>` es + `/en/salas/<slug>` en)
 
 ```
 GalleryPage.astro
@@ -178,7 +178,7 @@ BlogIndex.astro
 ├── PostCard.astro (per PostSummary in slice; featured lg:col-span-2 when posts.length>1 — first card of every page)
 │   ├── lib/api/posts (pickPostField for title/description)
 │   ├── lib/markdown (renderInline for descriptions)
-│   ├── lib/i18n/utils (getLocalizedPostPath for href, Intl.DateTimeFormat for date, API_BASE_URL+banner_image, getTranslations for readMore)
+ │   ├── lib/i18n/utils (getLocalizedPostPath for href, Intl.DateTimeFormat for date, banner_image verbatim, getTranslations for readMore)
 │   └── Featured variant: overlay title + readMore CTA, accent bar + lift on regular
 └── PaginationNav.astro (molecule, hidden when total_pages<=1; md: full numbered, <md: collapsed Prev — page/total — Next)
     └── lib/i18n/utils (getLocalizedBlogPagePath, page 1 ↔ base path, getTranslations for prev/next/page)
@@ -190,7 +190,7 @@ BlogIndex.astro
 
 ```
 BlogPost.astro
-├── PageSEO.astro ─► BaseSEO.astro (title=title_*, description=description_*, keywords=keywords_*, ogImage=API_BASE_URL+banner_image, alternateUrls via getLocalizedPostPath)
+├── PageSEO.astro ─► BaseSEO.astro (title=title_*, description=description_*, keywords=keywords_*, ogImage=banner_image verbatim, alternateUrls via getLocalizedPostPath)
 ├── Headline.astro (eyebrow Revista/Journal) ─► lib/utils
 ├── Btn.astro (ghost backToBlog) ─► lib/utils
 ├── atoms/Markdown.astro ────► lib/markdown (description quote)

@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-09-09
 tags:
   - astro
   - api
@@ -16,12 +16,12 @@ status: active
 
 A typed fetch client with retry logic, timeout, and structured error classes. All API calls go through this wrapper — never raw `fetch()`.
 
-> **🏠 Local note (enredarte-landing):** In `enredarte-landing`, `src/lib/api/`
-> (`client.ts`, `types.ts`, `constants.ts`) currently exists but is **not reachable
-> from any page** — no UI imports it yet (see `docs/component-dependencies.md`
-> "Orphaned / not reachable" list). The pattern below is the standard the project
-> will use once endpoints are wired in; until then the files are candidates for
-> cleanup or first use.
+> **🏠 Local note (enredarte-landing):** `src/lib/api/` (`client.ts` with
+> `apiFetch` + token injection, `types.ts`, one module per endpoint, `pagination.ts`
+> `fetchAll`) is wired in — `buildSiteData()` (`src/data/api.ts`) plus the isolated
+> blog fetch in `src/pages/[...path].astro` consume it at build time. New endpoints
+> follow the `apiFetch(path)` pattern below: API-relative paths, token injected
+> centrally.
 
 ## Architecture
 
@@ -126,50 +126,47 @@ export async function safeFetch<T>(
 
 ## 2. API Endpoint Modules
 
-Each backend endpoint gets its own file in `src/lib/api/`. The files are thin — they import `safeFetch` and define the request shape + response type.
+Each backend endpoint gets its own file in `src/lib/api/`. The files are thin — they import `apiFetch` (base URL + `Authorization: Token` injected centrally) and define the request shape + response type. Paths are API-relative, never full URLs.
 
 ```ts
-// src/lib/api/auth.ts
-import { safeFetch } from "./client"
-import type { LoginResponse } from "./types"
+// src/lib/api/posts.ts
+import { apiFetch } from "./client"
+import type { Paginated, PostSummary } from "./types"
 
-export function login(email: string, password: string) {
-  const baseUrl = import.meta.env.API_BASE_URL
-  return safeFetch<LoginResponse>(`${baseUrl}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  })
+export function list(params: { page?: number; page_size?: number } = {}) {
+  const search = new URLSearchParams()
+  if (params.page != null) search.set("page", String(params.page))
+  if (params.page_size != null) search.set("page_size", String(params.page_size))
+  const qs = search.toString()
+  return apiFetch<Paginated<PostSummary>>(`/api/blog/posts/${qs ? `?${qs}` : ""}`)
 }
-```
 
-```ts
-// src/lib/api/items.ts
-import { safeFetch } from "./client"
-import type { ItemsResponse } from "./types"
-
-export function getItems() {
-  const baseUrl = import.meta.env.API_BASE_URL
-  return safeFetch<ItemsResponse>(`${baseUrl}/items`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  })
+export function detail(slug: string) {
+  return apiFetch<Post>(`/api/blog/posts/${slug}/`)
 }
 ```
 
 ## 3. Shared Types
 
 ```ts
-// src/lib/api/types.ts
-export interface LoginResponse {
-  token: string
-  user: { id: number; name: string; email: string }
+// src/lib/api/types.ts (excerpt — API-faithful shapes)
+export interface Paginated<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  page: number
+  page_size: number
+  total_pages: number
+  results: T[]
 }
 
-export interface ItemsResponse {
-  items: Array<{ id: number; name: string }>
-  total: number
+export interface ListParams {
+  page?: number
+  page_size?: number
 }
+
+// Per-resource interfaces mirror the backend (Base, Ref, Translations<T>,
+// PostSummary/Post — see docs/blog-api.md for the blog contract).
 ```
 
 ## 4. Constants
@@ -182,23 +179,24 @@ export const API_ERROR_MESSAGE =
 
 Store shared messages, error strings, or common defaults in this file instead of scattering them across components.
 
+> **🏠 Local note:** enredarte-landing has no `constants.ts` — shared strings live with their callers. Add the file only if shared copy accumulates.
+
 ## 5. Usage in Components
 
 ```tsx
-import { login } from "@/lib/api/auth"
+import { list as listPosts } from "@/lib/api/posts"
 import { FetchError } from "@/lib/api/client"
-import { API_ERROR_MESSAGE } from "@/lib/api/constants"
 
-async function handleLogin(email: string, password: string) {
+async function loadPosts() {
   try {
-    const response = await login(email, password)
-    // response is typed: { token: string; user: { id: number; ... } }
+    const page = await listPosts({ page: 1, page_size: 11 })
+    // page is typed: Paginated<PostSummary>
   } catch (err) {
     if (err instanceof FetchError) {
       if (err.type === "timeout") {
         // show "Request timed out" message
-      } else if (err.type === "http" && err.status === 401) {
-        // show "Invalid credentials"
+      } else if (err.type === "http" && err.status === 404) {
+        // show "Not found"
       } else if (err.type === "network") {
         // show "No connection" with retry button
       } else {
@@ -254,7 +252,7 @@ API_BASE_URL=https://api.example.com
 API_TOKEN=<your-token>
 ```
 
-Server-only env vars (no `PUBLIC_` prefix) are accessed via `import.meta.env` in build-time code (SSG). Vite statically replaces them at build time.
+Server-only env vars (no `PUBLIC_` prefix) are accessed via `import.meta.env` in build-time code (SSG). Vite statically replaces them at build time. In this project `apiFetch` (`client.ts`) reads `API_BASE_URL`/`API_TOKEN` centrally; endpoint modules pass API-relative paths.
 
 See [[astro-docker-deployment|Dockerized Deployment]] for how to pass build-time env vars in Docker.
 
@@ -265,7 +263,7 @@ See [[astro-docker-deployment|Dockerized Deployment]] for how to pass build-time
 - Use `FetchError` for typed error handling in components
 - Retry logic is in the client — component code doesn't need retry loops
 - Set reasonable timeouts (30s default) — infinite waits are the most common bug
-- Base URL from `import.meta.env.API_BASE_URL` — never hardcode
+- Base URL + token live in `apiFetch` (`client.ts`) — endpoint modules pass relative paths, never hardcode hosts
 
 ## 10. Connection to Other Patterns
 

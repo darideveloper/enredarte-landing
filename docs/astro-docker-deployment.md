@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-09-09
 tags:
   - astro
   - docker
@@ -22,8 +22,8 @@ Multi-stage Docker build for Astro projects: node builds the static site, nginx 
 # syntax=docker/dockerfile:1.7
 
 # === Stage 1: Build ===
-FROM node:lts-alpine AS build
-RUN corepack enable && corepack prepare pnpm@<latest> --activate
+FROM node:22-alpine AS build
+RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
 WORKDIR /app
 
 # Build-time environment variables — add one ARG/ENV pair per server-only var
@@ -129,6 +129,8 @@ docker build \
 docker run -d -p 8080:80 your-app:latest
 ```
 
+> **🏠 Local note (enredarte-landing):** the real build is `pnpm validate-i18n && pnpm validate-imports && NODE_OPTIONS=--use-openssl-ca astro build && pnpm validate-markdown` (`package.json`) — `NODE_OPTIONS` and the trailing markdown check are required here. This project is non-PWA: no service-worker/manifest blocks, 404s go to `/404.html` (see `nginx.conf`).
+
 ## Deployment Platforms
 
 ### Coolify / Any Docker Host
@@ -136,7 +138,7 @@ docker run -d -p 8080:80 your-app:latest
 1. Point to your Git repo
 2. Set build pack to **Dockerfile**
 3. Add `API_BASE_URL` and `API_TOKEN` as **Build Time** variables (server-only, no `PUBLIC_` prefix) — both are required or the build fails before `pnpm build`
-4. The Dockerfile uses `node:lts-alpine` — ensure the platform supports `corepack`
+4. The Dockerfile uses `node:22-alpine` — ensure the platform supports `corepack`
 
 ### CI/CD (GitHub Actions)
 
@@ -177,7 +179,7 @@ Ensure `package.json` has the pnpm engines constraint:
 
 ```json
 {
-  "packageManager": "pnpm@<latest>",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">= LTS"
   }
@@ -188,7 +190,7 @@ Ensure `package.json` has the pnpm engines constraint:
 
 | Pattern | When available | Example |
 |---|---|---|
-| `PUBLIC_*` | Build-time + client-side | `PUBLIC_SITE_URL` |
+| `PUBLIC_*` | Build-time + client-side | `PUBLIC_EXAMPLE` (this project uses unprefixed names like `SITE_URL`) |
 | Server-only (no prefix) | Build-time only | `API_BASE_URL`, `API_TOKEN` |
 | `import.meta.env.*` | Build-time code (SSG) | `import.meta.env.API_BASE_URL` |
 

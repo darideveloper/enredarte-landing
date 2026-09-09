@@ -1,6 +1,6 @@
 ---
 created: 2026-04-18
-updated: 2026-07-26
+updated: 2026-09-09
 tags:
   - astro
   - seo
@@ -39,8 +39,7 @@ export default defineConfig({
   },
   integrations: [
     sitemap(),
-    react(),
-    mdx(),
+    // react(), mdx(), sharp — example list only; add just what your project uses
   ],
 })
 ```
@@ -149,7 +148,7 @@ if (isLocalBusiness) {
   baseSchema.telephone = BUSINESS_DATA.contact.phone
   baseSchema.address = BUSINESS_DATA.contact.address
   baseSchema.geo = BUSINESS_DATA.contact.geo
-  baseSchema.priceRange = "$$-$$$"
+  baseSchema.priceRange = "$$-$$$" // ← placeholder, replace per project
   baseSchema.openingHoursSpecification = { "@type": "OpeningHoursSpecification", ... }
   baseSchema.sameAs = [facebook, instagram, ...]
   baseSchema.areaServed = [{ "@type": "AdministrativeArea", name: "[Your Region]" }]
@@ -227,7 +226,7 @@ const { currentPage, jsonType = "LocalBusiness", extraJson = {}, ogImage } = Ast
 </Layout>
 ```
 
-### 3.3 BlogSEO.astro — Blog Listing
+### 3.3 BlogSEO.astro — Blog Listing (pattern only, not present in enredarte-landing)
 
 ```astro
 ---
@@ -236,7 +235,7 @@ import BaseSEO from "./base/BaseSEO.astro"
 <BaseSEO currentPage={currentPage} jsonType="Blog" />
 ```
 
-### 3.4 BlogPostSEO.astro — Individual Blog Post
+### 3.4 BlogPostSEO.astro — Individual Blog Post (pattern only, not present in enredarte-landing)
 
 Full implementation showing how `extraJson` extends the base schema:
 
@@ -428,10 +427,10 @@ Handle old URL patterns via `astro.config.ts` to preserve SEO authority:
 
 ```ts
 const legacyRedirects = Object.values(routes).reduce((acc, route) => {
-  if (route.en === "") {
-    acc['/en'] = '/';
+  if (route.es === "") {
+    acc['/es'] = '/';
   } else {
-    acc[`/en/${route.en}`] = `/${route.en}`;
+    acc[`/es/${route.es}`] = `/${route.es}`;
   }
   return acc;
 }, {});

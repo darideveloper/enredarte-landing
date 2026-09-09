@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-09-09
 tags:
   - astro
   - configuration
@@ -34,74 +34,72 @@ Each file is the **single source of truth** for its domain. Components import fr
 Holds all business identity data consumed by Layout, SEO, Header, Footer, and JSON-LD.
 
 ```ts
-// src/data/site-config.ts
+// src/data/site-config.ts (this project — EnredArte)
 export const PHONES = {
-    main: {
-        raw: '+12345678901',
-        formatted: '+1 (234) 567-8901',
-        href: 'tel:+12345678901',
-    },
-    international: {
-        raw: '+19876543210',
-        formatted: '+1 (987) 654-3210',
-        href: 'tel:+19876543210',
-    },
+  main: {
+    raw: "+526241764802",
+    formatted: "+52 624 176 4802",
+    href: "tel:+526241764802",
+  },
+} as const;
+
+export const WHATSAPP = {
+  raw: "+5216241764802",
+  formatted: "+52 1 624 176 4802",
+  href: "https://wa.me/5216241764802",
 } as const;
 
 export const EMAIL = {
-    address: 'bookings@example.com',
-    href: 'mailto:bookings@example.com',
+  address: "info@enredarte.com",
+  href: "mailto:info@enredarte.com",
 } as const;
 
+// Parked for future map integration: full detail kept but currently unrendered
+// (footer shows LOCATION_SHORT only).
 export const ADDRESS = {
-    full: '123 Main St, Downtown, 12345 City, ST',
-    street: '123 Main St',
-    zone: 'Downtown',
-    city: 'City',
-    state: 'State',
-    postalCode: '12345',
-    country: 'Country',
-    countryCode: 'XX',
+  full: "Mexico City, Mexico",
+  street: "",
+  zone: "",
+  city: "Mexico City",
+  state: "Mexico City",
+  postalCode: "",
+  country: "Mexico",
+  countryCode: "MX",
 } as const;
+
+export const LOCATION_SHORT = "Mexico City, Mexico" as const;
 
 export const SOCIAL_LINKS = {
-    facebook: 'https://www.facebook.com/example',
-    instagram: 'https://www.instagram.com/example/',
-    tripadvisor: 'https://www.tripadvisor.com/',
+  facebook: "https://www.facebook.com/enredarte",
+  instagram: "https://www.instagram.com/enredarte/",
 } as const;
 
+// Parked for future map integration: coordinates kept but unreferenced by the footer.
 export const GOOGLE_MAPS = {
-    embedUrl: 'https://www.google.com/maps/embed?pb=...',
-    placeId: '...',
-    coordinates: { lat: 0.0, lng: 0.0 },
-} as const;
-
-export const BUSINESS_HOURS = {
-    start: '09:00',
-    end: '17:00',
-    timezone: 'America/New_York',
-    display: '9:00 AM to 5:00 PM',
+  coordinates: { lat: 0.0, lng: 0.0 },
 } as const;
 
 export const BUSINESS_DATA = {
-    name: "Business Name",
-    legalName: "Business Name by Subbrand",
-    url: "https://example.com",
-    logo: "/assets/img/logo.png",
-    ogImage: "/og-image.jpg",
-    contact: {
-        phone: PHONES.main.formatted,
-        email: EMAIL.address,
-        address: {
-            street: ADDRESS.street,
-            city: ADDRESS.city,
-            region: ADDRESS.state,
-            postalCode: ADDRESS.postalCode,
-            country: ADDRESS.countryCode,
-        },
-        geo: GOOGLE_MAPS.coordinates,
+  name: "EnredArte",
+  legalName: "EnredArte",
+  url: "https://enredarte.mx",
+  logo: "/favicon.svg",
+  ogImage: "/og-image.jpg",
+  contact: {
+    phone: PHONES.main.formatted,
+    whatsapp: WHATSAPP.formatted,
+    email: EMAIL.address,
+    location: LOCATION_SHORT,
+    address: {
+      street: ADDRESS.street,
+      city: ADDRESS.city,
+      region: ADDRESS.state,
+      postalCode: ADDRESS.postalCode,
+      country: ADDRESS.countryCode,
     },
-    social: SOCIAL_LINKS,
+    geo: GOOGLE_MAPS.coordinates,
+  },
+  social: SOCIAL_LINKS,
 };
 ```
 
@@ -209,7 +207,7 @@ touch env.d.ts                # at project root
 Then:
 1. Populate `site-config.ts` with your business data (section 1)
 2. Add `consts.ts` with `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP` (section 4)
-3. Add `PUBLIC_*` type declarations to `env.d.ts` (section 3)
+3. Add `API_*` type declarations to `env.d.ts` (section 3)
 4. Import `BUSINESS_DATA` in `BaseSEO.astro`, `Layout.astro`, `Header.astro`, `Footer.astro`
 5. For projects with variable data (prices, features), follow the same file-per-domain pattern
 

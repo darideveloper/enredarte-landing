@@ -18,7 +18,7 @@ const legacyRedirects = Object.values(routes).reduce((acc, route) => {
 }, /** @type {Record<string, string>} */ ({}))
 
 export default defineConfig({
-  site: "https://enredarte.com",
+  site: "https://enredarte.mx",
   build: {
     inlineStylesheets: "always",
   },

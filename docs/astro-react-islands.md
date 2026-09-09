@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-08-05
+updated: 2026-09-09
 tags:
   - astro
   - react
@@ -108,7 +108,7 @@ import '@/styles/global.css'
 | `client:media` | Only on certain screen sizes. |
 | `client:only` | Skip SSR entirely. Use when server rendering is impossible (browser-only APIs). |
 
-**Rule of thumb:** Use `client:load` for form inputs and `client:visible` for everything else.
+**Rule of thumb:** Use `client:load` for form inputs and `client:visible` for everything else. (`client:idle` appears in some older examples in this repo — prefer `visible` for below-fold widgets.)
 
 ## 5. Astro Page Using React Islands
 
@@ -147,8 +147,8 @@ pnpm create astro@latest my-project -- --template basics
 pnpm add @astrojs/react @tailwindcss/vite react react-dom tailwindcss tw-animate-css
 pnpm add -D @types/react @types/react-dom
 
-# Install shadcn (optional, for UI primitives)
-pnpm add shadcn@latest
+# shadcn is optional and NOT installed in enredarte-landing (vanilla-only).
+# If your project wants it:
 pnpx shadcn init
 ```
 

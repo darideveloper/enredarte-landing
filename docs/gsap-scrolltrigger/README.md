@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-09-09
 tags:
   - gsap
   - scrolltrigger
@@ -99,9 +99,9 @@ Key rules that keep it maintainable:
 ## Quick start (TL;DR)
 
 1. Install the dependency:
-   ```bash
-   npm install gsap
-   ```
+    ```bash
+    pnpm add gsap
+    ```
 
 2. Create `src/lib/gsap.ts` from [01-setup-and-mandatory-files.md](./01-setup-and-mandatory-files.md#2-shared-module--srclibgsapts).
 

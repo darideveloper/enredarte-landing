@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-09-09
 tags:
   - gsap
   - scrolltrigger
@@ -115,6 +115,10 @@ classes to your markup, and you're done.
   initMyAnimations()
 </script>
 ```
+
+> **View Transitions:** this template has no `astro:after-swap` cleanup — use it as-is
+> only without `<ClientRouter />`. With a router, add the section-presence guard +
+> `mm?.revert()` lifecycle from `docs/astro-client-side-page-transitions.md` §5.4.
 
 ---
 

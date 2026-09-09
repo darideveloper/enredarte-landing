@@ -1,6 +1,6 @@
 ---
 created: 2026-04-21
-updated: 2026-07-26
+updated: 2026-09-09
 tags:
   - astro
   - frontend
@@ -23,10 +23,13 @@ Astro is a modern web framework designed for speed, focusing on content-driven w
 *   [[astro-seo|Search Engine Optimization (SEO)]]
 *   [[astro-site-config|All Config in One Place]]
 *   [[astro-client-side-page-transitions|Client-Side Page Transitions (SPA)]]
+*   [[astro-markdown|Markdown Rendering]]
 
 ### **Optional (project-dependent)**
 *   [[astro-i18n|Internationalization (i18n)]]
-*   [[gsap-scrolltrigger|GSAP + ScrollTrigger Animation System]]
+*   [[gsap-scrolltrigger|GSAP + ScrollTrigger Animation System]] (in use: Hero, Gallery, BannerBar, ArtworkPage)
 
-### **Other Resources**
-*   [[20-areas/work/mermaid/mermaid-diagram-generation|Mermaid Diagram Generation]]
+### **This project**
+*   [[enredarte-overview|EnredArte Project Overview]]
+*   [[component-dependencies|Component Dependency Map]]
+*   [[blog-api|Blog API Contract]]

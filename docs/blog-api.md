@@ -1,6 +1,6 @@
 ---
 created: 2026-09-01
-updated: 2026-09-01
+updated: 2026-09-09
 tags:
   - astro
   - api
@@ -23,7 +23,7 @@ Client-side API layer for the backend blog endpoints. No UI is built here — th
 
 Posts use **flat bilingual fields** (`title_es`, `title_en`, ...) unlike the catalog types which use `Translations<T>`. `banner_image` is an **absolute** URL (`https://…/media/blog/banners/…` via CDN/`MEDIA_URL`) or `null`; consumers use it verbatim as `<img src>`/`ogImage`/`preload` with no `API_BASE_URL` prefix (legacy relative values, if any, render as-is). `content_es` / `content_en` carry raw Markdown (no rendering in this layer).
 
-See `openspec/changes/add-blog-api/specs/blog-api/spec.md` and `design.md` (D1–D6) for the full decisions.
+Decisions D1–D6 came from the (now archived/removed) `add-blog-api` proposal — see git history if needed.
 
 ## Types (`src/lib/api/types.ts`)
 

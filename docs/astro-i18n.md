@@ -1,6 +1,6 @@
 ---
 created: 2026-04-17
-updated: 2026-08-20
+updated: 2026-09-09
 tags:
   - astro
   - i18n
@@ -85,7 +85,7 @@ export const routes = {
     en: "en",
     es: "",
   },
-  // ... more routes
+  // ... more routes (this project: aviso-de-privacidad, terminos-y-condiciones, politica-de-cookies — see src/lib/i18n/routes.ts)
 } as const;
 
 export type PageKey = keyof typeof routes;
@@ -124,12 +124,15 @@ A single catch-all file handles all localized routes using `getStaticPaths`.
 ```astro
 ---
 import { routes } from '@/lib/i18n/routes'
-// Import all page components
+// Import all page components (this project — see src/pages/[...path].astro)
 import Home from '@/components/pages/landing/Home.astro'
-import Taxi from '@/components/pages/services/Taxi.astro'
-import Tulum from '@/components/pages/destinations/Tulum.astro'
-import Reservation from '@/components/pages/store/Reservation.astro'
-// ... more page imports
+import GalleryPage from '@/components/pages/sala/GalleryPage.astro'
+import ArtworkPage from '@/components/pages/obra/ArtworkPage.astro'
+import ArtistPage from '@/components/pages/artista/ArtistPage.astro'
+import BlogIndex from '@/components/pages/blog/BlogIndex.astro'
+import BlogPost from '@/components/pages/blog/BlogPost.astro'
+import CuratorPage from '@/components/pages/curador/CuratorPage.astro'
+import LegalPage from '@/components/pages/legal/LegalPage.astro'
 
 export async function getStaticPaths() {
   const paths = []
@@ -148,13 +151,18 @@ export async function getStaticPaths() {
   return paths
 }
 
-// COMPONENT_MAP — maps page keys to page components
+// COMPONENT_MAP — maps page keys to page components (this project)
 const COMPONENT_MAP = {
   home: Home,
-  taxi: Taxi,
-  tulum: Tulum,
-  reservation: Reservation,
-  // ... one entry per route
+  gallery: GalleryPage,
+  artwork: ArtworkPage,
+  artist: ArtistPage,
+  blog: BlogIndex,
+  post: BlogPost,
+  curator: CuratorPage,
+  "aviso-de-privacidad": LegalPage,
+  "terminos-y-condiciones": LegalPage,
+  "politica-de-cookies": LegalPage,
 }
 
 const { pageKey, lang } = Astro.props
@@ -441,7 +449,7 @@ console.log("✅ i18n validation passed!");
 {
   "scripts": {
     "dev": "astro dev",
-    "build": "pnpm validate-i18n && pnpm validate-imports && astro build",
+    "build": "pnpm validate-i18n && pnpm validate-imports && astro build && pnpm validate-markdown",
     "validate-i18n": "tsx scripts/validate-i18n.ts",
     "validate-imports": "tsx scripts/validate-imports.ts",
     "preview": "astro preview"
@@ -524,7 +532,7 @@ Then:
 4. Implement utilities in `utils.ts` (section 6)
 5. Set up catch-all router with `COMPONENT_MAP` (section 5)
 6. Add the validation script from section 9
-7. Wire into `package.json`: `"build": "pnpm validate-i18n && pnpm validate-imports && astro build"`
+7. Wire into `package.json`: `"build": "pnpm validate-i18n && pnpm validate-imports && astro build && pnpm validate-markdown"`
 
 ## 11. Key Rules
 

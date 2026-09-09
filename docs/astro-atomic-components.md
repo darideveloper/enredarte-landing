@@ -1,6 +1,6 @@
 ---
 created: 2026-07-26
-updated: 2026-08-05
+updated: 2026-09-09
 tags:
   - astro
   - react
@@ -249,87 +249,55 @@ Common stateful atoms in UI-library projects: `ValidatedInput`, `ValidatedRadioG
 
 Combine multiple atoms (vanilla or library-based) into a reusable unit. They never import from `ui/` — only from `atoms/`.
 
-> The molecule example below uses the **UI-library (wrapper)** variant — `ValidatedRadioGroup`
-> (approach 2). In a **vanilla-only** project the equivalent self-bound atom is `RadioGroup`
-> (approach 1), the same shape as `Input`. Pick one approach per project and keep it consistent.
+> The molecule example below uses the **vanilla self-bound** variant (approach 1) —
+> plain atoms that bind the store directly, the same shape as `Input`. In a
+> **UI-library** project the inner atom would instead be a `Validated*` wrapper
+> (approach 2). Pick one approach per project and keep it consistent.
 
 ```tsx
-// src/components/molecules/DynamicLabelRadioGroup.tsx
+// src/components/molecules/ContactFields.tsx
 import * as React from "react"
-import { ValidatedRadioGroup } from "@/components/atoms/ValidatedRadioGroup"
-import { useFormStore } from "@/store/form"
-import type { FormValues } from "@/store/form"
+import { Input } from "@/components/atoms/Input"
 
-interface Option {
-  value: string
-  label: string
-}
-
-interface DynamicLabelRadioGroupProps {
-  field: keyof FormValues | string
-  options: Option[]
-  labelTemplate: string
-  labelFields: (keyof FormValues)[]
-  fallbackLabel: string
-}
-
-export function DynamicLabelRadioGroup({
-  field,
-  options,
-  labelTemplate,
-  labelFields,
-  fallbackLabel,
-}: DynamicLabelRadioGroupProps) {
-  const fieldValues = useFormStore((state) => {
-    const subset: Record<string, unknown> = {}
-    for (const f of labelFields) subset[f as string] = state[f]
-    return subset
-  })
-
-  const label = React.useMemo(() => {
-    const allPresent = labelFields.every(f => fieldValues[f as string])
-    if (!allPresent) return fallbackLabel
-    let result = labelTemplate
-    for (const f of labelFields) result = result.replace(`{${String(f)}}`, String(fieldValues[f as string]))
-    return result
-  }, [fieldValues, labelTemplate, labelFields, fallbackLabel])
-
-  return <ValidatedRadioGroup field={field} label={label} options={options} />
+export function ContactFields() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Input field="name" label="Name" placeholder="e.g. Sarah" />
+      <Input field="email" label="Email" placeholder="you@example.com" />
+    </div>
+  )
 }
 ```
 
-Common molecules: `AuthGuard`, `DynamicLabelRadioGroup`, `SupportCircleRepeater`, `GlobalLoader`, `LoadingOverlay`, `GenerationProgressBar`.
+Common molecules in enredarte-landing (see `docs/component-dependencies.md`):
+`Filters`, `CuratorCard`, `ArtworkImageViewer`, `ArtworkInfoPanel`,
+`ImageBanner`, `ImageCard`, `ImageRowCard`, `PaginationNav`.
 
 ## 4. `organisms/` — Complex Sections
 
 Used for screen regions that compose multiple molecules. Only when a page needs more structure than a single molecule provides.
 
 > **⚠️ READER NOTE on this example:** this organism composes **vanilla self-bound atoms**
-> (approach 1) — `Input`, `RadioGroup`, and `CheckboxGroup` each bind the store directly
-> (e.g. via the injectable `useField` hook, as `Input` does). In a **UI-library** project
-> (with `ui/`) these would instead be `ValidatedInput`, `ValidatedRadioGroup`,
-> `ValidatedCheckboxGroup` wrapper atoms (approach 2). Pick ONE approach per project; do
-> not mix them.
+> (approach 1) — each `Input` binds the store directly via the injectable `useField`
+> hook. In a **UI-library** project (with `ui/`) these would instead be `ValidatedInput`
+> wrapper atoms (approach 2). Pick ONE approach per project; do not mix them.
 
 ```tsx
-// src/components/organisms/Step3Form.tsx
+// src/components/organisms/ProfileForm.tsx
 import * as React from "react"
-import { RadioGroup } from "@/components/atoms/RadioGroup"
-import { CheckboxGroup } from "@/components/atoms/CheckboxGroup"
 import { Input } from "@/components/atoms/Input"
 import { useFormStore } from "@/store/form"
 
-export function Step3Form() {
-  const ourlensCompleted = useFormStore(state => state.ourlens_completed)
+export function ProfileForm() {
+  const role = useFormStore((state) => state.role)
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-lg mx-auto">
-      <RadioGroup field="home_type" label="Home type?" options={homeTypeOptions} />
-      <RadioGroup field="ourlens_completed" label="Completed safety scan?" options={ourlensOptions} />
-      {ourlensCompleted === "yes" && (
-        <CheckboxGroup field="hazard_flags" label="Hazards found?" options={hazardOptions} />
+      <Input field="name" label="Name?" placeholder="e.g. Sarah" />
+      <Input field="email" label="Email?" placeholder="you@example.com" />
+      {role === "admin" && (
+        <Input field="team" label="Team?" placeholder="e.g. curators" />
       )}
-      <Input field="hobbies_social" label="Hobbies?" placeholder="e.g., gardening, church" />
     </div>
   )
 }

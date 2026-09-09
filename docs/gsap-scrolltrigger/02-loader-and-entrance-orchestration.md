@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-09-09
 tags:
   - gsap
   - scrolltrigger
@@ -166,6 +166,10 @@ system relies on: `#loader`, `#loader-bar`, `#loader-wipe`, and the **event name
   }
 </style>
 ```
+
+> **⚠️ Owner review:** `pointer-events: none` makes the overlay click-through while
+> visible. If the loader must block interaction, use `pointer-events: auto` and rely
+> on the `display: none` on completion instead.
 
 > **Theme tokens:** the markup uses `bg-background`, `bg-surface/20`, `bg-accent`,
 > `text-primary`, `text-secondary`, `text-accent`, `display-lg`, `label-md`. Replace
