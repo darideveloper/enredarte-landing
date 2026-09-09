@@ -66,6 +66,8 @@ Lists all running portless apps and their proxy state.
 
 One checkout per branch, all runnable at once. `pnpm run dev` uses `portless run`, so each checkout gets its own URL automatically: main → `https://enredarte-landing.localhost`, a worktree on branch `<branch>` → `https://<branch>.enredarte-landing.localhost`.
 
+Agent-driven sessions (global `opencode-worktree` plugin) live under `~/.local/share/opencode/worktree/<project>/<branch>/` instead of siblings — same branch-prefixed URLs apply. Project plugin config: `.opencode/worktree.jsonc` (force-added; `.*/` keeps it ignored otherwise). It copies `.env`, symlinks `node_modules`, and syncs in-progress `openspec/changes/` both ways.
+
 Enforced layout — sibling directories, never nested inside the main checkout:
 
 ```bash
@@ -103,6 +105,7 @@ Gotchas:
 - Dotfolders (`.vscode/`, `.opencode/`, …) are gitignored via `.*/` and don't transfer — reconfigure per worktree if needed.
 - New worktrees start from committed `HEAD` only — commit or stash uncommitted changes first, or they won't be there.
 - Branch names with `/` get sanitized in the subdomain — check `portless list` for the exact URL after first run.
+- The plugin's `worktree_delete` auto-commits a local `chore(worktree): session snapshot` — only use it after human review, never while `openspec/changes/` artifacts are unmerged (the `preDelete` hook copies them back to main as a safety net).
 
 ## Component dependency map
 

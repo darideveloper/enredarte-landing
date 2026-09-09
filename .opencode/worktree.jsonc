@@ -1,0 +1,39 @@
+{
+  "$schema": "https://registry.kdco.dev/schemas/worktree.json",
+
+  // opencode-worktree plugin config for enredarte-landing.
+  // Agent-driven worktrees live under ~/.local/share/opencode/worktree/<project>/<branch>/
+  // (human sessions keep the ../enredarte-<branch> sibling layout from AGENTS.md).
+  // Dev URLs work from either location via `portless run` branch-prefixing.
+
+  "sync": {
+    // .env is gitignored per checkout: SITE_URL, API_BASE_URL, API_TOKEN.
+    // Keep API_BASE_URL on the shared dashboard unless testing another backend.
+    "copyFiles": [".env"],
+
+    // Same lockfile across branches: share installs instead of re-running pnpm install (~6 min).
+    "symlinkDirs": ["node_modules"]
+  },
+
+  "hooks": {
+    // postCreate runs with cwd = the new worktree.
+    // 1. Ensure deps exist when node_modules could not be symlinked
+    //    (skip when symlinked: pnpm aborts against symlinked modules dirs in non-TTY).
+    // 2. Bring in-progress openspec changes (gitignored, so absent from fresh checkouts).
+    "postCreate": [
+      "test -L node_modules || pnpm install",
+      "MAIN=$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}'); [ -n \"$MAIN\" ] && [ \"$(realpath \"$MAIN\")\" != \"$(realpath \"$PWD\")\" ] && mkdir -p openspec/changes && cp -rn \"$MAIN/openspec/changes/.\" openspec/changes/ || true"
+    ],
+
+    // preDelete runs with cwd = the worktree before removal.
+    // The plugin's snapshot commit cannot include gitignored openspec changes,
+    // so copy them back to the main checkout first (worktree_delete is still
+    // forbidden while openspec artifacts are unmerged — this is only a safety net).
+    // Also drop the node_modules symlink first: `node_modules/` in .gitignore only
+    // matches real directories, so `git add -A` would otherwise commit the symlink
+    // (an absolute machine-local path) into the team branch.
+    "preDelete": [
+      "test -L node_modules && rm node_modules || true",      "MAIN=$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}'); [ -n \"$MAIN\" ] && [ \"$(realpath \"$MAIN\")\" != \"$(realpath \"$PWD\")\" ] && cp -rn openspec/changes/. \"$MAIN/openspec/changes/\" || true"
+    ]
+  }
+}
