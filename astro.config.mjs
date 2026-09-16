@@ -17,8 +17,23 @@ const legacyRedirects = Object.values(routes).reduce((acc, route) => {
   return acc
 }, /** @type {Record<string, string>} */ ({}))
 
+// ponytail: config files can't use import.meta.env for .env values, and bare
+// process.env can't see .env either — Node 22 loadEnvFile fills CLI-unset
+// vars from .env (no new dependency; CLI env wins). Missing .env (e.g.
+// Docker, where the value arrives as ENV) falls through to the fallback.
+try {
+  if (typeof process.loadEnvFile === 'function') process.loadEnvFile('.env');
+} catch {
+  // No .env — process.env / fallback below apply.
+}
 export default defineConfig({
-  site: "https://enredarte.mx",
+  // Origin chain: per-checkout Portless URL wins in dev (each worktree gets
+  // its own branch-subdomain URL), explicit SITE_URL covers Docker/CI builds.
+  // Fallback is the prod domain (documented in docs/astro-worktrees.md,
+  // docs/astro-portless.md, docs/astro-site-config.md): dev never reaches it
+  // since Portless always injects PORTLESS_URL, and a build without env must
+  // emit prod — never localhost — into sitemap/canonicals.
+  site: process.env.PORTLESS_URL ?? process.env.SITE_URL ?? "https://enredarte.mx",
   build: {
     inlineStylesheets: "always",
   },
@@ -32,6 +47,7 @@ export default defineConfig({
   },
   server: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
+    strictPort: true,
   },
   integrations: [react(), sitemap()],
 })

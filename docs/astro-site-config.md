@@ -106,6 +106,18 @@ export const BUSINESS_DATA = {
 ### Why `BUSINESS_DATA` exists
 All SEO metadata and JSON-LD generation consumes `BUSINESS_DATA` — it bundles the individual constants into a shape ready for `BaseSEO.astro`.
 
+### `SITE_URL` resolution chain (dev canonical)
+
+`BUSINESS_DATA.url` is the **production** canonical origin. The **dev** canonical resolves per checkout so worktrees don't fight over one URL:
+
+```
+PORTLESS_URL → SITE_URL → https://enredarte.mx fallback (prod domain — dev never reaches it since Portless always injects PORTLESS_URL)
+```
+
+- `astro.config.mjs`: `site: process.env.PORTLESS_URL ?? process.env.SITE_URL ?? "https://enredarte.mx"`
+- App consumers (redirects, canonical links, SEO) read the same order — never hardcode the dev origin.
+- Each worktree therefore resolves its own branch-subdomain URL automatically; override `SITE_URL` per worktree only when canonicals must differ explicitly. Full pattern → see [[astro-worktrees]].
+
 ## 2. Other Data Files
 
 The same one-file-per-domain pattern extends to any domain-specific data your project needs:

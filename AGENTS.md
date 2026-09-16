@@ -14,6 +14,8 @@ npm install -g portless
 pnpm run dev
 ```
 
+Run it in the foreground — never `--background` (it orphans the proxy route). Servers are started manually — agents never autostart them (see `docs/astro-portless.md` § "Running under AI agents").
+
 The site is served at **`https://enredarte-landing.localhost`** with automatic HTTPS.
 
 The portless proxy auto-starts on first run (port 443, falls back to 1355 without sudo).
@@ -60,52 +62,62 @@ Lists all running portless apps and their proxy state.
 | `command not found: portless` | Run `npm install -g portless` |
 | `.localhost` doesn't resolve (Safari, Firefox) | Run `portless hosts sync` to add entries to `/etc/hosts` |
 | Port conflict on 443 | Portless falls back to 1355; check `portless status` |
-| Dev server won't start | Ensure no other process is on the assigned port; `portless stop enredarte-landing` then retry |
+| Dev server won't start | Ensure no other process is on the assigned port; stop that checkout's server (Ctrl+C) then retry |
 
 ## Git worktrees
 
 One checkout per branch, all runnable at once. `pnpm run dev` uses `portless run`, so each checkout gets its own URL automatically: main → `https://enredarte-landing.localhost`, a worktree on branch `<branch>` → `https://<branch>.enredarte-landing.localhost`.
 
-Agent-driven sessions (global `opencode-worktree` plugin) live under `~/.local/share/opencode/worktree/<project>/<branch>/` instead of siblings — same branch-prefixed URLs apply. Project plugin config: `.opencode/worktree.jsonc` (force-added; `.*/` keeps it ignored otherwise). It copies `.env`, symlinks `node_modules`, and syncs in-progress `openspec/changes/` both ways.
+Agent-driven sessions use **manual siblings only, in the same terminal session**. Never use the `worktree_create` / `worktree_delete` plugin tools here (they open a new terminal and nest under the central store). This project ships no `.opencode/worktree.jsonc` (plugin-only config, unused here).
 
 Enforced layout — sibling directories, never nested inside the main checkout:
 
 ```bash
 /mnt/hd/develop/astro/
   enredarte-landing/          # main checkout
-  enredarte-mehedi/           # worktree (branch mehedi)
-  enredarte-dari/             # worktree (branch dari)
+  enredarte-<branch>/         # sibling worktree (e.g. enredarte-mehedi)
 ```
 
 Lifecycle:
 
 ```bash
+git status --short --branch   # pre-flight: commit or stash first, else the sibling inherits a stale HEAD
 git fetch origin
 git worktree add ../enredarte-mehedi mehedi                  # existing branch
 git worktree add ../enredarte-feature -b feature/xyz main    # new branch
 git worktree list
-# ... after merge:
+# ... after merge, stop dev first (Ctrl+C), then:
 git worktree remove ../enredarte-mehedi
 git worktree prune
 ```
 
-Bootstrap each new worktree (gitignored paths are per-checkout — `node_modules/`, `.env`, `.astro/`, `dist/` don't transfer):
+Bootstrap each new sibling (gitignored paths are per-checkout — `node_modules/`, `.env`, `.astro/`, `dist/` don't transfer):
 
 ```bash
 cd ../enredarte-mehedi
-cp ../enredarte-landing/.env .env
+cp ../enredarte-landing/.env .env   # or: cp .env.example .env on a fresh clone, then fill values
 pnpm install
 pnpm run dev   # → https://mehedi.enredarte-landing.localhost
 ```
 
+`.opencode` skills/commands sync (openspec stays in the sibling — markdown only, no plugin runtime):
+
+```bash
+mkdir -p ../enredarte-mehedi/.opencode/skills ../enredarte-mehedi/.opencode/commands
+cp -rn .opencode/skills/openspec-* ../enredarte-mehedi/.opencode/skills/
+cp -rn .opencode/commands/opsx-*.md ../enredarte-mehedi/.opencode/commands/
+```
+
+Then start the server manually (`pnpm run dev`, no autostart) and verify with `portless list`. Branch proposals stay isolated — never copy active `openspec/changes/*`; before merge, copy back only `openspec/changes/archive/` (the sole tracked openspec path).
+
 Gotchas:
 
-- `.env` keys per worktree: `SITE_URL`, `API_BASE_URL`, `API_TOKEN`. Keep `API_BASE_URL=https://enredarte-dashboard.localhost` (shared backend) unless testing against another backend.
-- `SITE_URL` still points at main's URL in a fresh copy — override it per worktree if canonicals/redirects matter there. Planned follow-up: fall back to `PORTLESS_URL` automatically.
-- Dotfolders (`.vscode/`, `.opencode/`, …) are gitignored via `.*/` and don't transfer — reconfigure per worktree if needed.
-- New worktrees start from committed `HEAD` only — commit or stash uncommitted changes first, or they won't be there.
-- Branch names with `/` get sanitized in the subdomain — check `portless list` for the exact URL after first run.
-- The plugin's `worktree_delete` auto-commits a local `chore(worktree): session snapshot` — only use it after human review, never while `openspec/changes/` artifacts are unmerged (the `preDelete` hook copies them back to main as a safety net).
+- Real `pnpm install` per sibling (no `node_modules` symlink).
+- `.env` keys per worktree: `SITE_URL`, `API_BASE_URL`, `API_TOKEN`. Keep `API_BASE_URL=https://enredarte-dashboard.localhost` (shared backend) unless testing against another backend. A fresh `.env` copy keeps main's `SITE_URL` — harmless, the `PORTLESS_URL → SITE_URL → prod` chain resolves each checkout's own URL first.
+- Openspec: nothing crosses automatically (see bootstrap above).
+- New siblings start from committed `HEAD` only — commit or stash uncommitted changes first.
+- Branch names with `/` get sanitized in the subdomain — check `portless list` after first run.
+- One dev server per checkout; review before deleting; squash on merge.
 
 ## Component dependency map
 
