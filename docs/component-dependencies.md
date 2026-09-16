@@ -107,7 +107,8 @@ CollectionIndex.astro ──► data/api.ts (siteData prop: toArtworkView/toSala
 │   ├── Filters.tsx (React island, client:load; all 6 groups, same labels/viability/collapse as landing)
 │   └── Artworks.tsx (React island, client:load; default grid, no `limit`)
 │       └── ImageCard.astro (all artworks, `aspect-[4/5]`, per-lang `price`, all six data-* facets) ─► { Image, CardInfo }
-└── ELSE (salas/artistas/curadores): static `<div mt-10 grid lg:grid-cols-3>` of ImageCards, no islands
+└── ELSE (salas/artistas/curadores): static `<div mt-10 grid …>` of ImageCards, no islands
+    (`artistas`: `grid-cols-1 sm:2 md:3 lg:4`; `salas`/`curadores`: `grid-cols-1 sm:2 lg:3`)
 ```
 
 ### GalleryPage.astro tree (per gallery, `/salas/<slug>` es + `/en/salas/<slug>` en)

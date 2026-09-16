@@ -133,7 +133,9 @@ const obrasPrice = (mxn: number | undefined, usd: number | undefined) =>
       </Artworks>
     </>
   ) : (
-    <div class="mt-10 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
+    <div class={pageKey === "artistas"
+      ? "mt-10 grid grid-cols-1 gap-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+      : "mt-10 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3"}>
       {cards.map((card) => (
         <ImageCard {...card} class="aspect-[4/5]" />
       ))}
