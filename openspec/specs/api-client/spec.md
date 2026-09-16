@@ -36,11 +36,11 @@ The system SHALL provide one module per backend resource under `src/lib/api/` (`
 
 #### Scenario: List an endpoint
 - **GIVEN** a call to `listArtists({ page: 1, page_size: 100 })`
-- **THEN** it requests `GET /apis/artworks/artists/?page=1&page_size=100` and returns a `Paginated<Artist>`
+- **THEN** it requests `GET /api/artworks/artists/?page=1&page_size=100` and returns a `Paginated<Artist>`
 
 #### Scenario: Detail an endpoint
 - **GIVEN** a call to `detailArtwork(1)`
-- **THEN** it requests `GET /apis/artworks/artworks/1/` and returns an `Artwork`
+- **THEN** it requests `GET /api/artworks/artworks/1/` and returns an `Artwork`
 
 ### Requirement: Token-injecting fetch client
 The system SHALL provide a fetch client that reads the backend base URL from `import.meta.env.API_BASE_URL` and the DRF token from `import.meta.env.API_TOKEN` (server-only, never a `PUBLIC_*` variable) and SHALL attach an `Authorization: Token <token>` header **and** an `Accept: application/json` header to every request. The client SHALL reuse the existing `safeFetch` wrapper (timeout, retry, `FetchError`), and SHALL be the only place the token is injected.

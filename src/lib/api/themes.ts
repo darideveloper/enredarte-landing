@@ -6,9 +6,9 @@ export function list(params: ListParams = {}): Promise<Paginated<Theme>> {
   if (params.page != null) search.set("page", String(params.page))
   if (params.page_size != null) search.set("page_size", String(params.page_size))
   const qs = search.toString()
-  return apiFetch<Paginated<Theme>>(`/apis/artworks/themes/${qs ? `?${qs}` : ""}`)
+  return apiFetch<Paginated<Theme>>(`/api/artworks/themes/${qs ? `?${qs}` : ""}`)
 }
 
 export function detail(id: number): Promise<Theme> {
-  return apiFetch<Theme>(`/apis/artworks/themes/${id}/`)
+  return apiFetch<Theme>(`/api/artworks/themes/${id}/`)
 }

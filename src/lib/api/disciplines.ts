@@ -6,9 +6,9 @@ export function list(params: ListParams = {}): Promise<Paginated<Discipline>> {
   if (params.page != null) search.set("page", String(params.page))
   if (params.page_size != null) search.set("page_size", String(params.page_size))
   const qs = search.toString()
-  return apiFetch<Paginated<Discipline>>(`/apis/artworks/disciplines/${qs ? `?${qs}` : ""}`)
+  return apiFetch<Paginated<Discipline>>(`/api/artworks/disciplines/${qs ? `?${qs}` : ""}`)
 }
 
 export function detail(id: number): Promise<Discipline> {
-  return apiFetch<Discipline>(`/apis/artworks/disciplines/${id}/`)
+  return apiFetch<Discipline>(`/api/artworks/disciplines/${id}/`)
 }

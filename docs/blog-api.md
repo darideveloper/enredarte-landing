@@ -71,7 +71,7 @@ pickPostField(post, "es", "content") // → post.content_es
 - `list(params: ListParams = {})` — `ListParams` is `{ page?, page_size? }`.
 - `detail(slug: string)` — keyed by **slug** (not numeric id, per D2).
 - Both call `apiFetch` (`src/lib/api/client.ts`) so they inherit timeout / retry / `FetchError`. The endpoint is public but the injected `Authorization: Token ...` is harmless (D3).
-- Path prefix is `/api/blog/posts/` (singular `api`), not `/apis/artworks/` (D4).
+- Path prefix is `/api/blog/posts/` (singular `api`), same prefix family as the catalog's `/api/artworks/` (D4).
 
 ## Bilingual accessor
 
