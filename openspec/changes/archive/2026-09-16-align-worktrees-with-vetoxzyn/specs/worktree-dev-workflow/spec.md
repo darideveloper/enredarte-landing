@@ -1,9 +1,5 @@
-# worktree-dev-workflow Specification
+## MODIFIED Requirements
 
-## Purpose
-Defines how any branch checkout of this repo (main checkout or git worktree) gets a collision-free portless dev URL, how worktrees are bootstrapped from gitignored state, and the supported worktree lifecycle.
-
-## Requirements
 ### Requirement: Auto-derived dev URL per checkout
 The dev entrypoint SHALL derive the portless URL automatically instead of hardcoding one app name, so concurrent checkouts do not collide. The Astro `site` SHALL resolve per checkout as `process.env.PORTLESS_URL ?? process.env.SITE_URL ?? 'https://enredarte.mx'`, so a worktree never needs a `.env` edit for correct canonicals.
 
@@ -56,6 +52,8 @@ The repo docs SHALL describe the manual-siblings-only layout, lifecycle commands
 #### Scenario: Servers run manually in the foreground
 - **WHEN** a developer or agent starts a dev server in any checkout
 - **THEN** it runs in the foreground via `pnpm run dev` (never `--background`), agents never autostart servers, and an orphaned route (proxy 404 while the direct port answers) is fixed by stopping the orphan and relaunching with agent env vars stripped, verified with `portless list`
+
+## ADDED Requirements
 
 ### Requirement: No plugin-assisted worktrees
 The project SHALL NOT support `opencode-worktree` plugin sessions: no `.opencode/worktree.jsonc`, no central-store worktrees, no auto snapshot commits.
