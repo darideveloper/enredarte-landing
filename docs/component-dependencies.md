@@ -7,11 +7,12 @@ Living reference of how pages compose components (and subcomponents) in this pro
 
 ## Pages layer
 
-`src/pages/` contains a single catch-all route plus two auxiliary endpoints:
+`src/pages/` contains a single catch-all route plus three auxiliary endpoints:
 
 ```
 src/pages/
 ├── [...path].astro       ← the only real route (i18n catch-all)
+├── 404.astro             ← branded 404 (→ dist/404.html, served by nginx error_page; no API fetch)
 ├── design-system.astro   ← standalone showcase page (noindex)
 └── robots.txt.ts         ← API route, no components
 ```
@@ -403,6 +404,11 @@ Everything below is a terminal dependency imported by multiple components:
   sample copy — flag for legal-counsel review before treating as final.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
+- **404 page** (`404.astro`, `not-found-page` change): static, no `getStaticPaths`, no backend
+  fetch (builds offline-safe). Composes `Layout` → `Headline` (eyebrow) + serif `404` display
+  + crimson hairline + bilingual `pages.notFound.*` copy + `Btn` primary (`/`) / ghost (`/obras`),
+  centered via its own `min-h-[60svh] grid place-items-center` section. `PageSEO` with `noIndex`.
+  `Layout`, `Header`, `Footer`, and all atoms reused unchanged.
 - **Orphaned / not reachable from any page** (candidates for cleanup):
   - `molecules/GlobalLoader.tsx`
 - **`Image` atom height prop**: `atoms/Image.astro` supports an optional `height` prop (`"full"` default | `"auto"`). `ImageRowCard` uses `height="auto"` so each artwork renders at its natural aspect ratio (no fixed-height crop); all other consumers (`ImageCard`, `ImageBanner`, `Hero`) keep the default `full` behavior. `lib/utils` `cn` now composes via `clsx` + `tailwind-merge` (last-wins on conflicting utilities).

@@ -148,6 +148,13 @@
         "page": "Page {current} of {total}"
       }
     },
+    "notFound": {
+      "eyebrow": "Error 404",
+      "title": "This room doesn't exist",
+      "description": "The artwork or room you're looking for is no longer here — but the collection is still open. Let us walk you back.",
+      "primaryCta": "Back home",
+      "secondaryCta": "Browse works"
+    },
     "legal": {
       "disclaimer": "Sample text — pending legal review.",
       "updated": "Last updated: 2026",

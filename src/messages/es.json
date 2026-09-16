@@ -148,6 +148,13 @@
         "page": "Página {current} de {total}"
       }
     },
+    "notFound": {
+      "eyebrow": "Error 404",
+      "title": "Esta sala no existe",
+      "description": "La obra o sala que busca ya no está aquí — pero la colección sigue abierta. Le acompañamos de vuelta.",
+      "primaryCta": "Volver al inicio",
+      "secondaryCta": "Ver obras"
+    },
     "legal": {
       "disclaimer": "Texto de ejemplo — pendiente de revisión legal.",
       "updated": "Última actualización: 2026",
