@@ -295,7 +295,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
 - `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
-- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group)
+- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group) + page container contract (`container-site-canvas` full-bleed `px-6 md:px-14` for galleries/grids/hero, `container-site-reading` centered `max-w-6xl` for prose, `container-site-narrow` centered `max-w-3xl` for legal — single source, no hand-rolled page containers)
 
 ## Notes
 
@@ -390,6 +390,13 @@ Everything below is a terminal dependency imported by multiple components:
   sample copy — flag for legal-counsel review before treating as final.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
+- **Page container contract**: two tiers, one source (`container-site-*` utilities in
+  `styles/global.css`). Canvas (full-bleed `px-6 md:px-14`, no cap — galleries, grids,
+  hero, collection/curator/blog listing wrappers, `Header`/`BannerBar`) matches the
+  landing edges at every viewport; reading (`mx-auto max-w-6xl`) caps `BlogPost` body
+  and `Footer` inner; narrow (`mx-auto max-w-3xl`) caps `LegalPage`. Explicitly
+  bespoke and out of contract: `Hero` split-layout cell (`px-6 lg:px-16`),
+  `ArtworkPage` immersive split, `ArtworkInfoPanel` rail padding.
 - **Orphaned / not reachable from any page** (candidates for cleanup):
   - `molecules/GlobalLoader.tsx`
 - **`Image` atom height prop**: `atoms/Image.astro` supports an optional `height` prop (`"full"` default | `"auto"`). `ImageRowCard` uses `height="auto"` so each artwork renders at its natural aspect ratio (no fixed-height crop); all other consumers (`ImageCard`, `ImageBanner`, `Hero`) keep the default `full` behavior. `lib/utils` `cn` now composes via `clsx` + `tailwind-merge` (last-wins on conflicting utilities).
