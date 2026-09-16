@@ -76,12 +76,39 @@
       },
       "collection": {
         "eyebrow": "Selección",
-        "title": "Obras disponibles"
+        "title": "Obras disponibles",
+        "viewObras": "Ver todas las obras",
+        "viewArtistas": "Ver artistas"
       },
       "salas": {
         "eyebrow": "Capítulos",
-        "title": "Salas curadas para usted"
+        "title": "Salas curadas para usted",
+        "viewAll": "Ver todas las salas"
       }
+    },
+    "obras": {
+      "eyebrow": "Selección",
+      "title": "Obras",
+      "description": "Explora todas las obras disponibles de EnredArte.",
+      "keywords": "obras, arte, galería, EnredArte"
+    },
+    "salas": {
+      "eyebrow": "Capítulos",
+      "title": "Salas",
+      "description": "Explora todas las salas curadas de EnredArte.",
+      "keywords": "salas, arte, curaduría, EnredArte"
+    },
+    "artistas": {
+      "eyebrow": "Creadores",
+      "title": "Artistas",
+      "description": "Conoce a los artistas de EnredArte.",
+      "keywords": "artistas, arte, EnredArte"
+    },
+    "curadores": {
+      "eyebrow": "Curaduría",
+      "title": "Curadores",
+      "description": "Conoce a nuestros curadores de arte.",
+      "keywords": "curadores, arte, curaduría, EnredArte"
     },
     "curator": {
       "title": "Curaduría",

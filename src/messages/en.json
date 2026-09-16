@@ -76,12 +76,39 @@
       },
       "collection": {
         "eyebrow": "Selection",
-        "title": "Available works"
+        "title": "Available works",
+        "viewObras": "View all works",
+        "viewArtistas": "View artists"
       },
       "salas": {
         "eyebrow": "Chapters",
-        "title": "Rooms curated for you"
+        "title": "Rooms curated for you",
+        "viewAll": "View all rooms"
       }
+    },
+    "obras": {
+      "eyebrow": "Selection",
+      "title": "Works",
+      "description": "Explore all available works from EnredArte.",
+      "keywords": "works, art, gallery, EnredArte"
+    },
+    "salas": {
+      "eyebrow": "Chapters",
+      "title": "Rooms",
+      "description": "Explore all curated rooms from EnredArte.",
+      "keywords": "rooms, art, curation, EnredArte"
+    },
+    "artistas": {
+      "eyebrow": "Creators",
+      "title": "Artists",
+      "description": "Meet the EnredArte artists.",
+      "keywords": "artists, art, EnredArte"
+    },
+    "curadores": {
+      "eyebrow": "Curation",
+      "title": "Curators",
+      "description": "Meet our art curators.",
+      "keywords": "curators, art, curation, EnredArte"
     },
     "curator": {
       "title": "Curatorship",

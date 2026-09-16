@@ -3,6 +3,22 @@ export const routes = {
     en: "en",
     es: "",
   },
+  obras: {
+    en: "en/obras",
+    es: "obras",
+  },
+  salas: {
+    en: "en/salas",
+    es: "salas",
+  },
+  artistas: {
+    en: "en/artistas",
+    es: "artistas",
+  },
+  curadores: {
+    en: "en/curadores",
+    es: "curadores",
+  },
   "aviso-de-privacidad": {
     en: "en/aviso-de-privacidad",
     es: "aviso-de-privacidad",

@@ -1,0 +1,74 @@
+---
+import PageSEO from "@/components/seo/PageSEO.astro"
+import Title from "@/components/atoms/Title.astro"
+import Headline from "@/components/atoms/Headline.astro"
+import ImageCard from "@/components/molecules/ImageCard.astro"
+import {
+  resolveArtistArtworks,
+  resolveArtistName,
+  toArtworkView,
+  toSalaView,
+} from "@/data/api"
+import type { SiteData } from "@/data/api"
+import type { Lang } from "@/lib/api/types"
+import { getTranslations, getLocalizedArtistPath, getLocalizedCuratorPath, pickTranslation } from "@/lib/i18n/utils"
+
+export interface Props {
+  lang: Lang
+  pageKey: "obras" | "salas" | "artistas" | "curadores"
+  siteData: SiteData
+}
+
+const { lang, pageKey, siteData } = Astro.props
+const t = getTranslations(lang)
+
+const eyebrow = t(`pages.${pageKey}.eyebrow`) as string
+const title = t(`pages.${pageKey}.title`) as string
+const description = t(`pages.${pageKey}.description`) as string
+
+const cards = pageKey === "obras"
+  ? siteData.artworks.map((artwork) => {
+      const view = toArtworkView(artwork, resolveArtistName(artwork.artist, siteData.artists), lang, siteData.filterGroups)
+      return { src: view.src, alt: view.alt, title: view.title, href: view.href, meta: view.meta }
+    })
+  : pageKey === "salas"
+    ? siteData.galleries.map((gallery, index) => {
+        const view = toSalaView(gallery, siteData.curators, siteData.artworks, lang, index)
+        return { src: view.src, alt: view.alt, title: view.title, href: view.href, meta: view.meta }
+      })
+    : pageKey === "artistas"
+      ? siteData.artists.map((artist) => {
+          const works = resolveArtistArtworks(artist, siteData.artworks)
+          const img = works[0]?.images.find((i) => i.is_primary) ?? works[0]?.images[0]
+          const name = artist.name || artist.slug
+          return {
+            src: artist.photo ?? img?.image ?? "",
+            alt: name,
+            title: name,
+            href: getLocalizedArtistPath(artist.slug, lang),
+            meta: t("global.artist.works"),
+          }
+        })
+      : siteData.curators.map((curator) => ({
+          src: curator.photo ?? "",
+          alt: curator.name,
+          title: curator.name,
+          href: getLocalizedCuratorPath(curator.slug, lang),
+          meta: t("global.curator.curator"),
+        }))
+---
+
+<PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
+
+<div class="mx-auto max-w-6xl px-6 py-16 md:px-14">
+  <Title>
+    <Headline color="muted" class="block mb-2 tracking-[0.2em]">{eyebrow}</Headline>
+    {title}
+  </Title>
+  <p class="mt-2 text-sm text-muted">{description}</p>
+  <div class="mt-10 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
+    {cards.map((card) => (
+      <ImageCard {...card} class="aspect-[4/5]" />
+    ))}
+  </div>
+</div>

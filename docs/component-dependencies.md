@@ -367,12 +367,13 @@ Everything below is a terminal dependency imported by multiple components:
   (`fetchAll(listPosts)` + `detail(slug)` per post) which fetches the DRF API using `API_BASE_URL`/`API_TOKEN`
   (server-only, never `PUBLIC_*`). The backend must be reachable and the token valid during `astro build`;
   a failure surfaces a `FetchError` (no silent fallback, blog outage fails whole build).
-- **Nav anchors**: the `obras`/`artistas` nav items point at the homepage collection
-  section (`#artworks-collection`) and `salas` at the homepage gallery section
-  (`#salas-gallery`) — real in-page targets, shared by Header and Footer via `getNavLinks`.
+- **Nav links (dedicated pages)**: all content nav items point at dedicated index pages
+  (`/obras`, `/salas`, `/artistas`, `/curadores` es; `/en/`-prefixed en) via `getLocalizedPath`,
+  shared by Header and Footer via `getNavLinks`.
   The `Blog` nav item points to `getLocalizedBlogPath(lang)` (`/blog` es / `/en/blog` en), after Salas (`home → obras → salas → blog → artistas → curadores`).
-  The `curadores` item points at `#curadores` (no matching homepage section yet — aspirational anchor until a curadores section lands).
-  There is no salas, artists, or curadores index page in scope.
+  Index pages render `CollectionIndex.astro`;
+  the homepage collection (`#artworks-collection`) and gallery (`#salas-gallery`) sections remain as content
+  with "Ver todo" CTAs pointing at the same indexes.
 - **Artist detail pages**: `ArtistPage.astro` renders an artist hero (photo/initials,
   localized bio, years · location metadata, contact/social links), their artworks as a
   static editorial list (featured `ImageBanner` + alternating `ImageRowCard`s with

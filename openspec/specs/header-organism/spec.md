@@ -25,7 +25,7 @@ The `Header` MUST delegate navigation rendering entirely to the `Menu` molecule 
 #### Scenario: Rendering the five-item navigation
 - **WHEN** the `Header` is rendered
 - **THEN** it outputs a `<Menu>` molecule containing exactly five navigation links: **Obras**, **Salas**, **Blog**, **Artistas**, **Curadores** (no Home link; home stays reachable via the logo)
-- **THEN** the **Obras** and **Artistas** links point to the homepage collection section anchor (`#artworks-collection`), the **Salas** link points to the homepage gallery section anchor (`#salas-gallery`), and the **Curadores** link points to `#curadores` — real in-page targets, not dead placeholders
+- **THEN** the **Obras**, **Salas**, **Artistas**, and **Curadores** links point to their dedicated index pages via `getLocalizedPath` (`/obras`, `/salas`, `/artistas`, `/curadores` for Spanish; `/en/`-prefixed for English) — no anchor links, working from any page
 - **THEN** the **Blog** link points to `getLocalizedBlogPath(lang)` (`/blog` for Spanish, `/en/blog` for English), positioned after **Salas** (`obras → salas → blog → artistas → curadores`)
 
 #### Scenario: Localizing navigation labels
