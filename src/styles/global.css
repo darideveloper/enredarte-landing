@@ -27,6 +27,15 @@
   scrollbar-width: thin;
   scrollbar-color: #8A8478 #F2EDE4;
 }
+/* ponytail: unlayered on purpose — layered Tailwind utilities lose to the
+   unlayered `*` above, so filter rows use this scoped class instead. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 :focus-visible {
   outline: 2px solid oklch(0.62 0.18 20);
   outline-offset: 2px;
