@@ -92,8 +92,21 @@ Home.astro ──────────────► data/api.ts (toHeroView
 ├── Headline.astro
 ├── Filters.tsx (React island, client:load) ─► atoms/FilterBtn.tsx, atoms/FilterToggle.tsx ─► store/catalog.ts, lib/utils
 │   └── data/api.ts (API-derived groups + artwork facets, localized in Home.astro; viability via store/catalog.ts `computeViableOptions`)
-└── Artworks.tsx (React island, client:load) ─► store/catalog.ts, lib/utils
-    └── ImageCard.astro (slot children, stamped with space-separated data-* facets, formatted `price` from `lang`) ─► { Image, CardInfo }
+└── Artworks.tsx (React island, client:load, `limit={LANDING_LIMIT}` = 12) ─► store/catalog.ts, lib/utils
+    └── ImageCard.astro (ALL artworks as slot children in API order, stamped with space-separated data-* facets, formatted `price` from `lang`; Artworks shows the last 12 matches — filter-then-cap-tail) ─► { Image, CardInfo }
+```
+
+### CollectionIndex.astro tree (index pages, `/obras` + `/salas` + `/artistas` + `/curadores` es/en)
+
+```
+CollectionIndex.astro ──► data/api.ts (siteData prop: toArtworkView/toSalaView, resolveArtistName/resolveArtistArtworks)
+├── PageSEO.astro ─► BaseSEO.astro (title/description from pages.<pageKey>.*)
+├── Title.astro + Headline.astro (eyebrow/title/description header, all four indexes)
+├── IF pageKey === "obras" (obras-catalog: same composition as Home collection, uncapped)
+│   ├── Filters.tsx (React island, client:load; all 6 groups, same labels/viability/collapse as landing)
+│   └── Artworks.tsx (React island, client:load; default grid, no `limit`)
+│       └── ImageCard.astro (all artworks, `aspect-[4/5]`, per-lang `price`, all six data-* facets) ─► { Image, CardInfo }
+└── ELSE (salas/artistas/curadores): static `<div mt-10 grid lg:grid-cols-3>` of ImageCards, no islands
 ```
 
 ### GalleryPage.astro tree (per gallery, `/salas/<slug>` es + `/en/salas/<slug>` en)
@@ -397,3 +410,4 @@ Everything below is a terminal dependency imported by multiple components:
 - **Store machinery**: `store/` (`form.ts`, `useField.ts` — zustand + zod) is kept as shared state for upcoming form work. `store/catalog.ts` (zustand + persist, `useCatalog` hook, `matchesArtwork` predicate, `computeViableOptions` helper) is the shared filter-state store for the interactive collection section.
 - **Currency display is language-driven**: artwork prices are no longer pre-formatted server-side. `ArtworkView` / `ArtworkDetailView` / `HeroArtworkView` carry the raw `priceMxn` / `priceUsd` numbers from the DRF API; each leaf renderer (`CardSummary` → `ImageBanner` / `ImageRowCard`, `ArtworkInfoPanel`, `Hero`, plus `CardInfo` on the homepage collection grid via a pre-formatted `price` string from `Home.astro`) calls `formatPrice(pickPrice(priceMxn, priceUsd, currencyForLang(lang)), currencyForLang(lang))` so the URL language is the only source of truth (`es → MX$`, `en → US$`, via `Intl.NumberFormat`). The previously-invisible homepage collection grid now displays prices for the first time. `CardInfo` / `ImageCard` expose a `price` slot for that grid. The hero's hardcoded Spanish fallback ("Desde consulta con curador") was moved to `pages.home.hero.consultCurator` in `src/messages/{es,en}.json` and surfaces only when no featured artwork has a price.
 - **Interactive collection**: filter groups and artwork data are derived from the backend API in `data/api.ts` and threaded into pages via the `siteData` prop. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store, and disables chips that can no longer match any artwork (`disabled` prop on `FilterBtn`, viability computed client-side from the `facets` prop via `computeViableOptions`); `Artworks` receives `ImageCard.astro` slot children stamped with space-separated `data-*` facet attributes (parsed into arrays before matching), toggles their visibility, and renders a localized empty-state block (`emptyLabel`/`resetLabel` props) with a restart-filters button backed by the store's `reset` action when no card matches. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.
+- **Artworks cap + obras catalog (`unify-obras-artworks-grid`)**: `Artworks` accepts an optional `limit?: number` prop with filter-then-cap-tail semantics — it computes the full matching set first, then shows only the last `limit` matches in DOM order (`slice(-limit)`); omitted `limit` keeps uncapped behavior, and the empty-state flag keys off match count (cap never empties). Home passes the full catalog with `limit={LANDING_LIMIT}` (12 = 3 full rows at `lg:4`); both pages map `siteData.artworks` without re-sorting so DOM order equals API order and "last N" is well-defined. `/obras` (`CollectionIndex`, `pageKey === "obras"`) reuses the exact Home composition (`Filters` all 6 groups + `Artworks` default `lg:4` grid + priced/faceted `ImageCards`); selections **and** panel expansion carry over landing ↔ `/obras` via the persisted store (no reset; "all visible" is the empty-selection state). `salas`/`artistas`/`curadores` keep the static grid.

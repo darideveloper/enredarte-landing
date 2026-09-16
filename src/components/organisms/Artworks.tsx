@@ -11,6 +11,40 @@ export interface ArtworksProps {
   resetLabel?: string
   gridClassName?: string
   className?: string
+  limit?: number
+}
+
+/**
+ * Pure filter-then-cap-tail pass over raw `data-*` attribute values (DOM order).
+ * Returns per-card hidden flags plus whether any card matched (drives the empty state;
+ * the cap itself never empties the grid). Exported for verification.
+ */
+export function computeVisibility(
+  rawFacets: Record<GroupKey, string>[],
+  selections: Record<GroupKey, string[]>,
+  limit?: number,
+): { hidden: boolean[]; hasVisible: boolean } {
+  const matching = rawFacets.map((raw) => {
+    const facets = {} as ArtworkFacets
+    for (const key of GROUP_KEYS) {
+      facets[key] = (raw[key] ?? "").split(" ").filter(Boolean)
+    }
+    return matchesArtwork(facets, selections)
+  })
+  const visibleIndexes = new Set(
+    (limit != null
+      ? matching
+          .map((matches, index) => (matches ? index : -1))
+          .filter((index) => index >= 0)
+          .slice(-limit)
+      : matching
+          .map((matches, index) => (matches ? index : -1))
+          .filter((index) => index >= 0)),
+  )
+  return {
+    hidden: matching.map((_, index) => !visibleIndexes.has(index)),
+    hasVisible: matching.some(Boolean),
+  }
 }
 
 export function Artworks({
@@ -20,6 +54,7 @@ export function Artworks({
   resetLabel = "Empezar de nuevo",
   gridClassName,
   className,
+  limit,
 }: ArtworksProps) {
   const gridRef = React.useRef<HTMLDivElement>(null)
   const selections = useCatalogStore((state) => state.selections)
@@ -31,19 +66,20 @@ export function Artworks({
     if (isLoading) return
     const grid = gridRef.current
     if (!grid) return
-    const cards = grid.querySelectorAll<HTMLElement>("[data-artist]")
-    let visible = 0
-    for (const card of cards) {
-      const facets = {} as ArtworkFacets
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>("[data-artist]"))
+    const rawFacets = cards.map((card) => {
+      const raw = {} as Record<GroupKey, string>
       for (const key of GROUP_KEYS) {
-        facets[key] = (card.dataset[key] ?? "").split(" ").filter(Boolean)
+        raw[key] = card.dataset[key] ?? ""
       }
-      const matches = matchesArtwork(facets, selections)
-      card.hidden = !matches
-      if (matches) visible += 1
-    }
-    setHasVisibleCards(visible > 0)
-  }, [selections, isLoading])
+      return raw
+    })
+    const { hidden, hasVisible } = computeVisibility(rawFacets, selections, limit)
+    cards.forEach((card, index) => {
+      card.hidden = hidden[index]
+    })
+    setHasVisibleCards(hasVisible)
+  }, [selections, isLoading, limit])
 
   return (
     <div className="relative">

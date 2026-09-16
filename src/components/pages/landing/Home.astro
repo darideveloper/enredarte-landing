@@ -22,6 +22,9 @@ export interface Props {
 const { lang, siteData } = Astro.props
 const t = getTranslations(lang)
 
+// Curated preview: filters search the full catalog, grid shows the last N matches.
+const LANDING_LIMIT = 12
+
 const localizedGroups = siteData.filterGroups.map((group) => ({
   key: group.key,
   label: group.label[lang],
@@ -86,6 +89,7 @@ const homePrice = (mxn: number | undefined, usd: number | undefined) =>
     loadingLabel={t("global.loading")}
     emptyLabel={t("global.filters.noResults")}
     resetLabel={t("global.filters.reset")}
+    limit={LANDING_LIMIT}
   >
     {artworks.map((artwork) => (
       <ImageCard
