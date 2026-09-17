@@ -310,7 +310,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
 - `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
-- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group)
+- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group) + page container contract (`container-site-canvas` full-bleed `px-6 md:px-14` for galleries/grids/hero, `container-site-reading` centered `max-w-6xl` for prose, `container-site-narrow` centered `max-w-3xl` for legal — single source, no hand-rolled page containers)
 
 ## Notes
 
@@ -341,9 +341,12 @@ Everything below is a terminal dependency imported by multiple components:
   on the left (layered `.artwork-image` children crossfaded by a GSAP `ScrollTrigger`
   pin+scrub timeline, `ease: "none"`, end derived from image count; single-image artworks
   fall back to a static `Image` with no pin; disabled via `gsap.matchMedia()` for
-  `prefers-reduced-motion` and `max-width: 767px`) and a fixed `ArtworkInfoPanel` on the
+  `prefers-reduced-motion` and viewport below `1024px`) and a fixed `ArtworkInfoPanel` on the
   right (title, artist, year/dimensions, description, price/status, taxonomy spec rows,
-  mailto CTA) that stays visually fixed because the whole section is pinned. Localized SEO
+  mailto CTA) that stays visually fixed because the whole section is pinned. The panel
+  sticks via `lg:sticky lg:top-[93px] lg:h-[calc(100svh-93px)]` (93px header token shared
+  with the ScrollTrigger `start: "top 93px"`); `overflow-hidden` is scoped to the image
+  zone so it never vetoes the panel's sticky. Localized SEO
   via `PageSEO` (`ogImage` = primary image). `LangBtns` `localizedPaths` preserve the
   artwork slug across languages.
 - **Artwork card hrefs**: `toArtworkView` now emits `getLocalizedArtworkPath` (real links)
@@ -410,6 +413,13 @@ Everything below is a terminal dependency imported by multiple components:
   + crimson hairline + bilingual `pages.notFound.*` copy + `Btn` primary (`/`) / ghost (`/obras`),
   centered via its own `min-h-[60svh] grid place-items-center` section. `PageSEO` with `noIndex`.
   `Layout`, `Header`, `Footer`, and all atoms reused unchanged.
+- **Page container contract**: two tiers, one source (`container-site-*` utilities in
+  `styles/global.css`). Canvas (full-bleed `px-6 md:px-14`, no cap — galleries, grids,
+  hero, collection/curator/blog listing wrappers, `Header`/`BannerBar`) matches the
+  landing edges at every viewport; reading (`mx-auto max-w-6xl`) caps `BlogPost` body
+  and `Footer` inner; narrow (`mx-auto max-w-3xl`) caps `LegalPage`. Explicitly
+  bespoke and out of contract: `Hero` split-layout cell (`px-6 lg:px-16`),
+  `ArtworkPage` immersive split, `ArtworkInfoPanel` rail padding.
 - **Orphaned / not reachable from any page** (candidates for cleanup):
   - `molecules/GlobalLoader.tsx`
 - **`Image` atom height prop**: `atoms/Image.astro` supports an optional `height` prop (`"full"` default | `"auto"`). `ImageRowCard` uses `height="auto"` so each artwork renders at its natural aspect ratio (no fixed-height crop); all other consumers (`ImageCard`, `ImageBanner`, `Hero`) keep the default `full` behavior. `lib/utils` `cn` now composes via `clsx` + `tailwind-merge` (last-wins on conflicting utilities).

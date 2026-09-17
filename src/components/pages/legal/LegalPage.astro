@@ -25,7 +25,7 @@ const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; bod
 
 <PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
 
-<div class="mx-auto max-w-3xl px-6 py-16 md:px-14">
+<div class="container-site-narrow py-16">
   <Headline>{t("global.footer.legal.label")}</Headline>
   <h1 class="mt-4 font-serif text-4xl text-ink">{title}</h1>
   <p class="mt-2 text-sm text-muted">{description}</p>

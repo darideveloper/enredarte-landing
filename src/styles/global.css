@@ -17,6 +17,21 @@
   --color-card-dark: #0D0D0D;
 }
 
+/* Page container contract (unify-page-containers) — single source of truth
+   for horizontal page spacing. Canvas = full-bleed like the landing
+   (`px-6 md:px-14`, no cap) for galleries/grids/hero; reading = centered
+   capped prose (`mx-auto max-w-6xl`); narrow = legal/long-form (`max-w-3xl`).
+   Page/section wrappers consume these instead of hand-rolled classes. */
+@utility container-site-canvas {
+  @apply px-6 md:px-14;
+}
+@utility container-site-reading {
+  @apply mx-auto max-w-6xl px-6 md:px-14;
+}
+@utility container-site-narrow {
+  @apply mx-auto max-w-3xl px-6 md:px-14;
+}
+
 /* Gallery Salon — browser surfaces (craft floor) */
 ::selection {
   background: #C41E3A;
@@ -26,6 +41,15 @@
   caret-color: oklch(0.62 0.18 20);
   scrollbar-width: thin;
   scrollbar-color: #8A8478 #F2EDE4;
+}
+/* ponytail: unlayered on purpose — layered Tailwind utilities lose to the
+   unlayered `*` above, so filter rows use this scoped class instead. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 :focus-visible {
   outline: 2px solid oklch(0.62 0.18 20);

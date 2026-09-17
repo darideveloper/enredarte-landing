@@ -171,7 +171,7 @@ function FilterRow({
       <div className="relative flex-1 min-w-0">
         <div
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-2 overflow-x-auto select-none no-scrollbar"
         >
           {group.options.map((option) => (
             <FilterBtn
