@@ -100,7 +100,7 @@ Home.astro ──────────────► data/api.ts (toHeroView
 ### CollectionIndex.astro tree (index pages, `/obras` + `/salas` + `/artistas` + `/curadores` es/en)
 
 ```
-CollectionIndex.astro ──► data/api.ts (siteData prop: toArtworkView/toSalaView, resolveArtistName/resolveArtistArtworks)
+CollectionIndex.astro (wrapper: `container-site-canvas py-16`) ──► data/api.ts (siteData prop: toArtworkView/toSalaView, resolveArtistName/resolveArtistArtworks)
 ├── PageSEO.astro ─► BaseSEO.astro (title/description from pages.<pageKey>.*)
 ├── Title.astro + Headline.astro (eyebrow/title/description header, all four indexes)
 ├── IF pageKey === "obras" (obras-catalog: same composition as Home collection, uncapped)
