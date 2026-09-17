@@ -378,13 +378,19 @@ Key optimizations for page speed:
 ### 7.3 Hero Image Preload
 ```astro
 ---
-{preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+{preloadSrcSet
+  ? <link rel="preload" as="image" imagesrcset={preloadSrcSet} imagesizes={preloadSizes ?? "100vw"} fetchpriority="high" />
+  : preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
 ---
 ```
 
-Pass `preloadImage` as a prop to `Layout.astro`:
+Pass `preloadImage` plus the responsive set as props to `Layout.astro` (computed in `[...path].astro` via `lcpPreload(url, IMAGE_SLOTS.<slot>)` with the same transform the `Image` atom applies, so preloaded bytes match the rendered variant):
 ```astro
-<Layout preloadImage={heroImage.src}>
+<Layout
+  preloadImage={preloadImage || undefined}
+  preloadSrcSet={preloadSet?.srcSet}
+  preloadSizes={preloadSet?.sizes}
+>
 ```
 
 ### 7.4 Inline CSS

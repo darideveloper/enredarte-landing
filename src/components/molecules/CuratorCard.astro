@@ -2,6 +2,7 @@
 import Image from "@/components/atoms/Image.astro"
 import Markdown from "@/components/atoms/Markdown.astro"
 import { cn, stripUrlScheme } from "@/lib/utils"
+import { IMAGE_SLOTS } from "@/lib/images"
 import type { ArtCurator, Lang } from "@/lib/api/types"
 import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
 
@@ -30,7 +31,13 @@ const initials = curator.name
 >
   <div class="relative aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
     {curator.photo ? (
-      <Image src={curator.photo} alt={curator.name} class="absolute inset-0 w-full h-full object-cover" />
+      <Image
+        src={curator.photo}
+        alt={curator.name}
+        widths={IMAGE_SLOTS.portrait.widths}
+        sizes={IMAGE_SLOTS.portrait.sizes}
+        class="absolute inset-0 w-full h-full object-cover"
+      />
     ) : (
       <span class="absolute inset-0 flex items-center justify-center text-paper/30 font-serif text-5xl">
         {initials}

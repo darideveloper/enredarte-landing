@@ -26,7 +26,30 @@ try {
 } catch {
   // No .env — process.env / fallback below apply.
 }
+// Remote image hosts allowed through astro:assets (optimize-ssg-images).
+// Dashboard/API host is derived from API_BASE_URL so dev (.localhost),
+// Docker, and prod each allowlist their own backend without code changes;
+// the DigitalOcean Spaces CDN host is static (artwork/blog media).
+function remoteImagePatterns() {
+  const patterns = [
+    { protocol: "https", hostname: "daridev-django.sfo3.cdn.digitaloceanspaces.com" },
+  ]
+  const apiBase = process.env.API_BASE_URL ?? ""
+  try {
+    const host = new URL(apiBase).hostname
+    if (host) {
+      patterns.push({ protocol: "https", hostname: host })
+      patterns.push({ protocol: "http", hostname: host })
+    }
+  } catch {
+    // No/invalid API_BASE_URL — CDN host above still applies.
+  }
+  return patterns
+}
 export default defineConfig({
+  image: {
+    remotePatterns: remoteImagePatterns(),
+  },
   // Origin chain: per-checkout Portless URL wins in dev (each worktree gets
   // its own branch-subdomain URL), explicit SITE_URL covers Docker/CI builds.
   // Fallback is the prod domain (documented in docs/astro-worktrees.md,

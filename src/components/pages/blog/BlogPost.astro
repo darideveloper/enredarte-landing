@@ -1,9 +1,11 @@
 ---
 import { renderMarkdown, renderInline } from "@/lib/markdown"
 import Markdown from "@/components/atoms/Markdown.astro"
+import Image from "@/components/atoms/Image.astro"
 import PageSEO from "@/components/seo/PageSEO.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import Btn from "@/components/atoms/Btn.astro"
+import { IMAGE_SLOTS } from "@/lib/images"
 import { pickPostField } from "@/lib/api/posts"
 import { getLocalizedPostPath, getLocalizedBlogPath } from "@/lib/i18n/utils"
 import { getTranslations } from "@/lib/i18n/utils"
@@ -89,7 +91,15 @@ const backHref = getLocalizedBlogPath(lang)
   {bannerSrc ? (
     <div class="relative overflow-hidden bg-card-dark">
       <div class="relative h-[48svh] md:h-[62svh] min-h-[360px] max-h-[720px]">
-        <img src={bannerSrc} alt={title} class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" decoding="async" />
+        <Image
+          src={bannerSrc}
+          alt={title}
+          loading="eager"
+          fetchpriority="high"
+          widths={IMAGE_SLOTS.heroFull.widths}
+          sizes={IMAGE_SLOTS.heroFull.sizes}
+          class="absolute inset-0 w-full h-full object-cover"
+        />
         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10" />
         <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent hidden md:block" />
         <div class="absolute inset-x-0 bottom-0">
@@ -210,7 +220,14 @@ const backHref = getLocalizedBlogPath(lang)
         </div>
         {bannerSrc && (
           <div class="mt-3 border border-border-theme overflow-hidden bg-card-dark">
-            <img src={bannerSrc} alt="" class="w-full aspect-[4/3] object-cover opacity-90" loading="lazy" aria-hidden="true" />
+            <Image
+              src={bannerSrc}
+              alt=""
+              widths={IMAGE_SLOTS.grid.widths}
+              sizes={IMAGE_SLOTS.grid.sizes}
+              class="w-full aspect-[4/3] object-cover opacity-90"
+              aria-hidden="true"
+            />
           </div>
         )}
       </aside>

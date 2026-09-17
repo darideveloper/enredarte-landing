@@ -10,8 +10,9 @@ import BlogPost from "@/components/pages/blog/BlogPost.astro"
 import CuratorPage from "@/components/pages/curador/CuratorPage.astro"
 import CollectionIndex from "@/components/pages/index/CollectionIndex.astro"
 import LegalPage from "@/components/pages/legal/LegalPage.astro"
-import { buildSiteData, resolveArtistArtworks } from "@/data/api"
+import { buildSiteData, resolveArtistArtworks, resolveGalleryArtworks, toHeroView } from "@/data/api"
 import type { SiteData } from "@/data/api"
+import { IMAGE_SLOTS, lcpPreload } from "@/lib/images"
 import {
   getLocalizedArtworkPath,
   getLocalizedArtistPath,
@@ -212,9 +213,42 @@ const preloadImage =
             const img = work?.images.find((i) => i.is_primary) ?? work?.images[0]
             return img?.image ?? ""
           })()
-        : undefined
+        : gallerySlug
+          ? (() => {
+              const gallery = siteData.galleries.find((x) => x.slug === gallerySlug)
+              if (gallery?.logo) return gallery.logo
+              const work = gallery ? resolveGalleryArtworks(gallery, siteData.artworks)[0] : undefined
+              const img = work?.images.find((i) => i.is_primary) ?? work?.images[0]
+              return img?.image ?? ""
+            })()
+          : curatorSlug
+            ? (siteData.curators.find((x) => x.slug === curatorSlug)?.photo ?? "")
+            : pageKey === "home"
+              ? (toHeroView(siteData.galleries, siteData.curators, siteData.artworks, siteData.artists, lang).artwork.src ?? "")
+              : undefined
+
+// Responsive preload set with the same transform the Image atom applies,
+// so preloaded bytes match the rendered LCP variant (no double-download).
+// Falls back to the plain `href` preload in Layout when null.
+const preloadSlot =
+  postSlug ? IMAGE_SLOTS.heroFull
+  : artworkSlug ? IMAGE_SLOTS.viewer
+  : artistSlug ? IMAGE_SLOTS.portrait
+  : gallerySlug ? IMAGE_SLOTS.heroFull
+  : curatorSlug ? IMAGE_SLOTS.portrait
+  : pageKey === "home" ? IMAGE_SLOTS.hero
+  : undefined
+const preloadSet =
+  preloadImage && preloadSlot && /^https?:\/\//.test(preloadImage)
+    ? await lcpPreload(preloadImage, preloadSlot)
+    : null
 ---
-<Layout localizedPaths={localizedPaths} preloadImage={preloadImage}>
+<Layout
+  localizedPaths={localizedPaths}
+  preloadImage={preloadImage || undefined}
+  preloadSrcSet={preloadSet?.srcSet}
+  preloadSizes={preloadSet?.sizes}
+>
   {PageComponent && pageKey === "blog" ? (
     <PageComponent
       lang={lang}

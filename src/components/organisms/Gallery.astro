@@ -4,6 +4,7 @@ import Title from "@/components/atoms/Title.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import ImageCard from "@/components/molecules/ImageCard.astro"
 import type { Lang } from "@/lib/api/types"
+import { IMAGE_SLOTS } from "@/lib/images"
 import { getTranslations, getLocalizedPath } from "@/lib/i18n/utils"
 
 export interface SalaData {
@@ -41,6 +42,8 @@ const t = getTranslations(lang)
     {salas.map(sala => (
       <ImageCard 
         {...sala}
+        widths={sala.isLarge ? IMAGE_SLOTS.gridLarge.widths : IMAGE_SLOTS.grid.widths}
+        sizes={sala.isLarge ? IMAGE_SLOTS.gridLarge.sizes : IMAGE_SLOTS.grid.sizes}
         class={cn(sala.isLarge ? "gallery-card-large" : "gallery-card-item")}
       />
     ))}

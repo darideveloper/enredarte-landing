@@ -18,6 +18,7 @@ import {
 } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import { getTranslations, getLocalizedArtistPath, pickTranslation } from "@/lib/i18n/utils"
+import { IMAGE_SLOTS } from "@/lib/images"
 import { stripUrlScheme } from "@/lib/utils"
 import type { Lang } from "@/lib/api/types"
 
@@ -123,7 +124,15 @@ const alternateUrls = {
     </div>
     <div class="relative aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
       {artist.photo ? (
-        <Image src={artist.photo} alt={artist.name} class="absolute inset-0 w-full h-full object-cover" />
+        <Image
+          src={artist.photo}
+          alt={artist.name}
+          loading="eager"
+          fetchpriority="high"
+          widths={IMAGE_SLOTS.portrait.widths}
+          sizes={IMAGE_SLOTS.portrait.sizes}
+          class="absolute inset-0 w-full h-full object-cover"
+        />
       ) : (
         <span class="absolute inset-0 flex items-center justify-center text-paper/30 font-serif text-5xl">
           {initials}
@@ -153,6 +162,8 @@ const alternateUrls = {
           lang={lang}
           href={featured.href}
           overlay="darker"
+          widths={IMAGE_SLOTS.heroFull.widths}
+          sizes={IMAGE_SLOTS.heroFull.sizes}
           class="mb-1"
         />
       )}
@@ -182,7 +193,13 @@ const alternateUrls = {
     <div class="grid grid-cols-1 md:grid-cols-3 auto-rows-[280px] md:auto-rows-[340px] gap-1">
       {salas.map((sala) => {
         const { isLarge, ...salaData } = sala
-        return <ImageCard {...salaData} />
+        return (
+          <ImageCard
+            {...salaData}
+            widths={IMAGE_SLOTS.grid3.widths}
+            sizes={IMAGE_SLOTS.grid3.sizes}
+          />
+        )
       })}
     </div>
   </section>

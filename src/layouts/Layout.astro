@@ -7,10 +7,12 @@ import { ClientRouter } from "astro:transitions"
 
 export interface Props {
   preloadImage?: string
+  preloadSrcSet?: string
+  preloadSizes?: string
   localizedPaths?: Record<"en" | "es", string>
 }
 
-const { preloadImage, localizedPaths } = Astro.props
+const { preloadImage, preloadSrcSet, preloadSizes, localizedPaths } = Astro.props
 const lang = getLangFromUrl(Astro.url)
 ---
 <!doctype html>
@@ -23,7 +25,9 @@ const lang = getLangFromUrl(Astro.url)
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />
     <slot name="seo" />
-    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+    {preloadSrcSet
+      ? <link rel="preload" as="image" imagesrcset={preloadSrcSet} imagesizes={preloadSizes ?? "100vw"} fetchpriority="high" />
+      : preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
   </head>
   <body class="flex min-h-screen flex-col font-sans bg-paper">
     <Header localizedPaths={localizedPaths} />

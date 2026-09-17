@@ -1,25 +1,33 @@
 ---
+import { getImage, type ImageMetadata } from "astro:assets"
 import { cn } from "@/lib/utils"
+import { AVIF_QUALITY, WEBP_QUALITY } from "@/lib/images"
 
 export interface Props {
-  src: string
+  src: string | ImageMetadata
   alt: string
   aspectRatio?: 'video' | 'square' | '4/5' | 'auto'
   height?: 'full' | 'auto'
   loading?: 'lazy' | 'eager'
   decoding?: 'async' | 'auto' | 'sync'
+  fetchpriority?: 'high' | 'low' | 'auto'
+  widths?: number[]
+  sizes?: string
   class?: string
 }
 
-const { 
-  src, 
-  alt, 
-  aspectRatio = 'auto', 
-  height = 'full', 
+const {
+  src,
+  alt,
+  aspectRatio = 'auto',
+  height = 'full',
   loading = 'lazy',
   decoding = 'async',
-  class: className, 
-  ...props 
+  fetchpriority = 'auto',
+  widths = [640, 1080, 1600],
+  sizes = '100vw',
+  class: className,
+  ...props
 } = Astro.props
 
 const aspectClasses = {
@@ -33,14 +41,75 @@ const heightClasses = {
   'full': 'h-full',
   'auto': 'h-auto',
 }
+
+const imgClass = cn("object-cover w-full", heightClasses[height], aspectClasses[aspectRatio], className)
+const isRemote = typeof src === "string" && /^https?:\/\//.test(src)
+
+interface OptimizedSet {
+  avifSrcSet: string
+  webpSrcSet: string
+  fallbackSrc: string
+  width: number
+  height: number
+}
+
+// ponytail: two getImage calls (avif + webp) share widths; a single bad
+// remote falls back to the verbatim URL instead of failing the whole build.
+// One retry absorbs transient remote-fetch flakes under build concurrency.
+let optimized: OptimizedSet | null = null
+if (isRemote || typeof src !== "string") {
+  const base = typeof src === "string" ? { src, inferSize: true as const } : { src }
+  for (let attempt = 0; attempt < 4 && !optimized; attempt++) {
+    try {
+      const [avif, webp] = await Promise.all([
+        getImage({ ...base, widths, format: "avif", quality: AVIF_QUALITY }),
+        getImage({ ...base, widths, format: "webp", quality: WEBP_QUALITY }),
+      ])
+      if (avif.srcSet.attribute && webp.srcSet.attribute) {
+        optimized = {
+          avifSrcSet: avif.srcSet.attribute,
+          webpSrcSet: webp.srcSet.attribute,
+          fallbackSrc: webp.src,
+          width: webp.attributes.width ?? widths[Math.min(1, widths.length - 1)],
+          height: webp.attributes.height ?? widths[Math.min(1, widths.length - 1)],
+        }
+      }
+    } catch (err) {
+      optimized = null
+      console.warn(`[images] transform attempt ${attempt + 1} failed for ${typeof src === "string" ? src : "local-asset"}: ${err instanceof Error ? err.message : err}`)
+      if (attempt < 3) await new Promise((r) => setTimeout(r, 250 * (attempt + 1)))
+    }
+  }
+}
 ---
 
-<img 
-  src={src} 
-  alt={alt} 
-  title={alt}
-  loading={loading}
-  decoding={decoding}
-  class={cn("object-cover w-full", heightClasses[height], aspectClasses[aspectRatio], className)} 
-  {...props} 
-/>
+{optimized ? (
+  <picture class="contents">
+    <source type="image/avif" srcset={optimized.avifSrcSet} sizes={sizes} />
+    <source type="image/webp" srcset={optimized.webpSrcSet} sizes={sizes} />
+    <img
+      src={optimized.fallbackSrc}
+      alt={alt}
+      title={alt}
+      width={optimized.width}
+      height={optimized.height}
+      loading={loading}
+      decoding={decoding}
+      fetchpriority={fetchpriority}
+      sizes={sizes}
+      class={imgClass}
+      {...props}
+    />
+  </picture>
+) : (
+  <img
+    src={typeof src === "string" ? src : src.src}
+    alt={alt}
+    title={alt}
+    loading={loading}
+    decoding={decoding}
+    fetchpriority={fetchpriority}
+    class={imgClass}
+    {...props}
+  />
+)}

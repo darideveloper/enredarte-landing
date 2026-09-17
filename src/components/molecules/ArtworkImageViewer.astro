@@ -1,5 +1,6 @@
 ---
 import Image from "@/components/atoms/Image.astro"
+import { IMAGE_SLOTS } from "@/lib/images"
 import type { ArtworkDetailView } from "@/data/api"
 
 export interface Props {
@@ -21,7 +22,15 @@ const multi = images.length > 1
           class="artwork-image absolute inset-0"
           style={i === 0 ? undefined : { opacity: 0, visibility: "hidden" }}
         >
-          <Image src={image.src} alt={image.alt} class="w-full h-full object-cover" />
+          <Image
+            src={image.src}
+            alt={image.alt}
+            loading={i === 0 ? "eager" : "lazy"}
+            fetchpriority={i === 0 ? "high" : "auto"}
+            widths={IMAGE_SLOTS.viewer.widths}
+            sizes={IMAGE_SLOTS.viewer.sizes}
+            class="w-full h-full object-cover"
+          />
         </div>
       ))}
       {images.length > 1 && (
@@ -32,7 +41,15 @@ const multi = images.length > 1
     </div>
   ) : (
     <div class="overflow-hidden bg-[#0D0D0D] h-full">
-      <Image src={images[0].src} alt={images[0].alt} class="w-full h-full object-cover" />
+      <Image
+        src={images[0].src}
+        alt={images[0].alt}
+        loading="eager"
+        fetchpriority="high"
+        widths={IMAGE_SLOTS.viewer.widths}
+        sizes={IMAGE_SLOTS.viewer.sizes}
+        class="w-full h-full object-cover"
+      />
     </div>
   )}
 </div>

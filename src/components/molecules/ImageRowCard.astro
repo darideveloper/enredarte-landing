@@ -3,6 +3,7 @@ import Image from "@/components/atoms/Image.astro"
 import CardSummary from "@/components/atoms/CardSummary.astro"
 import type { ArtworkView } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
+import { IMAGE_SLOTS } from "@/lib/images"
 import { cn } from "@/lib/utils"
 
 export interface Props {
@@ -22,7 +23,14 @@ const visibleTags = tags.filter(Boolean)
   immersive ? (
     <div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme bg-paper", className)} {...props}>
       <div class={cn(reverse && "md:order-2")}>
-        <Image src={artwork.src} alt={artwork.alt} height="auto" class="w-full" />
+        <Image
+          src={artwork.src}
+          alt={artwork.alt}
+          height="auto"
+          widths={IMAGE_SLOTS.row.widths}
+          sizes={IMAGE_SLOTS.row.sizes}
+          class="w-full"
+        />
       </div>
       <div
         class={cn(
@@ -55,7 +63,14 @@ const visibleTags = tags.filter(Boolean)
   ) : (
     <div class={cn("grid grid-cols-1 md:grid-cols-2 border-b border-border-theme", className)} {...props}>
       <div class={cn(reverse && "md:order-2")}>
-        <Image src={artwork.src} alt={artwork.alt} height="auto" class="w-full" />
+        <Image
+          src={artwork.src}
+          alt={artwork.alt}
+          height="auto"
+          widths={IMAGE_SLOTS.row.widths}
+          sizes={IMAGE_SLOTS.row.sizes}
+          class="w-full"
+        />
       </div>
       <div
         class={cn(

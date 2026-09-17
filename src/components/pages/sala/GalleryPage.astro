@@ -17,6 +17,7 @@ import {
 } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import { getTranslations, pickTranslation, getLocalizedSalaPath } from "@/lib/i18n/utils"
+import { IMAGE_SLOTS } from "@/lib/images"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -84,7 +85,15 @@ const alternateUrls = {
     <Markdown content={galleryDescription} class="text-[15px] text-description leading-[1.85] max-w-[560px]" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />
   </div>
   <div class="relative h-[55svh] md:h-[75svh] overflow-hidden bg-[#0D0D0D]">
-    <Image src={heroSrc} alt={galleryName} class="absolute inset-0 w-full h-full object-cover" />
+    <Image
+      src={heroSrc}
+      alt={galleryName}
+      loading="eager"
+      fetchpriority="high"
+      widths={IMAGE_SLOTS.heroFull.widths}
+      sizes={IMAGE_SLOTS.heroFull.sizes}
+      class="absolute inset-0 w-full h-full object-cover"
+    />
   </div>
 </section>
 

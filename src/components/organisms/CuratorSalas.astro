@@ -3,6 +3,7 @@ import Title from "@/components/atoms/Title.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import ImageCard from "@/components/molecules/ImageCard.astro"
 import { getTranslations } from "@/lib/i18n/utils"
+import { IMAGE_SLOTS } from "@/lib/images"
 import { cn } from "@/lib/utils"
 import type { SalaView } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
@@ -27,18 +28,20 @@ const t = getTranslations(lang)
 
   {salas.length > 0 ? (
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-      {salas.map((sala) => (
-        <ImageCard
-          src={sala.src}
-          alt={sala.alt}
-          title={sala.title}
-          href={sala.href}
-          subtitle={sala.subtitle}
-          meta={sala.meta}
-          headingTag="h3"
-          class="aspect-[4/3]"
-        />
-      ))}
+        {salas.map((sala) => (
+          <ImageCard
+            src={sala.src}
+            alt={sala.alt}
+            title={sala.title}
+            href={sala.href}
+            subtitle={sala.subtitle}
+            meta={sala.meta}
+            headingTag="h3"
+            widths={IMAGE_SLOTS.grid3.widths}
+            sizes={IMAGE_SLOTS.grid3.sizes}
+            class="aspect-[4/3]"
+          />
+        ))}
     </div>
   ) : (
     <p class="text-muted text-sm italic">{t("global.curator.noSalas")}</p>

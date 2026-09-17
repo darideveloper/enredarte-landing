@@ -2,6 +2,8 @@
 import { pickPostField } from "@/lib/api/posts"
 import { renderInline } from "@/lib/markdown"
 import { getTranslations } from "@/lib/i18n/utils"
+import Image from "@/components/atoms/Image.astro"
+import { IMAGE_SLOTS } from "@/lib/images"
 import type { Lang, PostSummary } from "@/lib/api/types"
 
 export interface Props {
@@ -45,12 +47,12 @@ const meta = formattedDate ? `${post.author} • ${formattedDate}` : post.author
 >
   {bannerSrc ? (
     <div class:list={["relative overflow-hidden bg-card-dark", featured ? "flex-1 min-h-0 w-full aspect-[16/10]" : "shrink-0 aspect-[4/3]"]}>
-      <img
+      <Image
         src={bannerSrc}
         alt={title}
+        widths={featured ? IMAGE_SLOTS.featured.widths : IMAGE_SLOTS.grid3.widths}
+        sizes={featured ? IMAGE_SLOTS.featured.sizes : IMAGE_SLOTS.grid3.sizes}
         class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.05] brightness-[0.92] group-hover:brightness-[0.72]"
-        loading="lazy"
-        decoding="async"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-90 group-hover:from-black/85 group-hover:via-black/35 transition-all duration-500" />
       <!-- date badge -->

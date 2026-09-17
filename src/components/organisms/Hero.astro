@@ -7,6 +7,8 @@ import Btn from '@/components/atoms/Btn.astro'
 import type { HeroView } from '@/data/api'
 import type { Lang } from '@/lib/api/types'
 import { getTranslations } from '@/lib/i18n/utils'
+import { IMAGE_SLOTS } from '@/lib/images'
+import heroFallback from '@/assets/hero-wood-geometry.jpg'
 
 export interface Props {
   lang: Lang
@@ -22,7 +24,7 @@ const description = hero?.description ?? t("pages.home.hero.description")
 const curator = hero?.curator ?? ""
 const galleryHref = hero?.galleryHref ?? "#"
 const artwork = hero?.artwork ?? {
-  src: "/images/hero-wood-geometry.jpg",
+  src: heroFallback,
   alt: "Obra insignia",
   title: "Horizonte en tres tiempos",
   artist: "Obra insignia de la sala",
@@ -72,6 +74,10 @@ const priceFallback = showConsultCurator ? t("pages.home.hero.priceFallback") : 
       priceFallback={priceFallback}
       href={artwork.href}
       overlay="darker"
+      loading="eager"
+      fetchpriority="high"
+      widths={IMAGE_SLOTS.hero.widths}
+      sizes={IMAGE_SLOTS.hero.sizes}
       class="w-full h-full"
     />
   </div>

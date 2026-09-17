@@ -3,6 +3,7 @@ import Headline from "@/components/atoms/Headline.astro"
 import Markdown from "@/components/atoms/Markdown.astro"
 import Image from "@/components/atoms/Image.astro"
 import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
+import { IMAGE_SLOTS } from "@/lib/images"
 import { stripUrlScheme, cn } from "@/lib/utils"
 import type { ArtCurator, Lang } from "@/lib/api/types"
 
@@ -36,8 +37,11 @@ const initials = curator.name
         <Image 
           src={curator.photo} 
           alt={curator.name} 
-          loading="eager" 
-          decoding="async" 
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          widths={IMAGE_SLOTS.portrait.widths}
+          sizes={IMAGE_SLOTS.portrait.sizes}
           class="absolute inset-0 w-full h-full object-cover" 
         />
       ) : (
