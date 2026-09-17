@@ -1,7 +1,4 @@
-## Purpose
-Defines the behavior of the `ImageRowCard` molecule when rendering a single artwork row in the gallery view, including how it surfaces the artwork price through the shared `CardSummary` atom and how it preserves each artwork's natural aspect ratio.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Render artwork title, artist, and price
 The `ImageRowCard` molecule SHALL pass the artwork's title, `href`, artist metadata, and price information to the `CardSummary` atom so the price is displayed consistently with other artwork cards. The molecule SHALL forward the raw `priceMxn` and `priceUsd` numbers plus the current `lang` and SHALL NOT pre-format a price string.
@@ -41,7 +38,6 @@ When the `ImageRowCard` molecule receives the `immersive` prop, it SHALL render 
 
 #### Scenario: Short row centers the info card
 - **GIVEN** an `ImageRowCard` with `immersive` rendering a square or landscape artwork that fits within the viewport
-- **WHEN** the row is scrolled into the middle of the viewport
 - **THEN** the info card is vertically centered relative to the artwork image and no pinning is applied
 
 #### Scenario: Reverse flips the image side
@@ -76,6 +72,8 @@ The `ImageRowCard` molecule SHALL derive the displayed price from the raw `price
 #### Scenario: English page shows USD
 - **WHEN** `ImageRowCard` is rendered on an English page (`lang === "en"`)
 - **THEN** the price line is formatted in USD (`US$` symbol, English-locale grouping)
+
+## ADDED Requirements
 
 ### Requirement: Half-width responsive sizes
 The `ImageRowCard` image SHALL use `sizes="(max-width:768px) 100vw, 50vw"` with `widths [640,1080,1600]`, `loading="lazy" decoding="async"`, preserving natural aspect ratio (`height="auto"`) and immersive/sticky behavior.

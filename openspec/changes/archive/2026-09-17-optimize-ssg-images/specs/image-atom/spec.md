@@ -1,7 +1,4 @@
-## Purpose
-Defines the behavior and constraints for the Image atom component, which acts as a standard, responsive image container for the design system.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Render image with standard properties
 The `Image` component SHALL render an optimized image via `astro:assets` with AVIF/WebP variants, responsive `srcset/sizes`, explicit dimensions for CLS safety, and accessibility enforcement.
@@ -36,6 +33,8 @@ The `Image` component SHALL support an optional `aspectRatio` property that wrap
 #### Scenario: No aspect ratio is provided
 - **WHEN** the `aspectRatio` property is omitted
 - **THEN** the image applies the `aspect-auto` class, allowing it to conform to its parent's dimensions.
+
+## ADDED Requirements
 
 ### Requirement: Responsive and priority props
 The `Image` component SHALL accept `widths`, `sizes`, `formats`, `quality`, `width`, `height`, `loading`, `decoding`, and `fetchpriority` props with defaults `loading="lazy"`, `decoding="async"`, `fetchpriority="auto"`, `formats="['avif','webp']"`, and SHALL use `inferSize` for allowlisted remotes when explicit dimensions are absent.

@@ -1,9 +1,4 @@
-# post-card Specification
-
-## Purpose
-Salon letterbox card for `PostSummary` entries in the blog grid, distinct from gallery `ImageCard` chrome, using paper/ink/crimson/muted/card-dark/border-theme tokens. Surfaces title, description, author+date via `pickPostField` and `Intl.DateTimeFormat`. Banner images are absolute URLs used verbatim.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Minimal post card for the blog grid
 The system SHALL provide `PostCard.astro` (`src/components/pages/blog/PostCard.astro`) as a Salon letterbox card for `PostSummary` entries, using `paper/ink/crimson/muted/card-dark/border-theme` tokens: `bg-card-dark` image letterbox `aspect-[4/3]` regular / `16/10` featured — featured wrapper is `flex-1 min-h-0 w-full` retaining `aspect-[16/10]` as intrinsic min inside `flex flex-col h-full` so `object-cover` fills the whole `auto-rows-fr` cell, overlay is `absolute inset-x-0 bottom-0` (not `inset-0`) with `pt-12` top reservation —, `brightness [0.92→0.72] scale-[1.05] 700ms`, `from-black/75` gradient, top-left date badge `bg-paper/90` (`absolute top-3 left-3`), `border border-transparent` resting + `shadow-2xl -translate-y-1` hover (Flat-By-Default), `focus-visible:ring-brand-500`, `flex flex-col h-full` outer + regular `shrink-0` image + `bg-paper p-5 md:p-6 flex flex-col flex-1` info, accent bar `2px crimson rounded-full` sliding in with `translate-x-3` (transform-only, no reflow), `h3 line-clamp-2 min-h-[48px] text-balance` + `p line-clamp-2` + `meta mt-auto pt-3 10px tracking[0.14em] uppercase muted` pinned, and an optional `featured` prop that spans `lg:col-span-2` with overlay title/CTA (`Headline` style + `readMore` `pages.blog.readMore` + `→` translate). Distinct from `molecules/ImageCard.astro` overlay chrome. The read contract (`pickPostField title/description`, `author • Intl.DateTimeFormat`, absolute `banner_image` URL used verbatim as `src` when present and hidden when `null` (no `API_BASE_URL` prefix), whole card `href=getLocalizedPostPath`) is preserved; `banner_image==null` renders a `bg-card-dark` gradient placeholder with no image chrome.
@@ -35,6 +30,8 @@ The system SHALL provide `PostCard.astro` (`src/components/pages/blog/PostCard.a
 #### Scenario: Card remains keyboard-accessible
 - **WHEN** the card is focused via keyboard
 - **THEN** a `ring-2 ring-brand-500 ring-offset-2 ring-offset-paper` is visible and the entire card is an anchor to `href`
+
+## ADDED Requirements
 
 ### Requirement: PostCard responsive sizes
 `PostCard` covers SHALL use slot-matched `sizes` (regular `"100vw/50vw/33vw"`, featured `"100vw/100vw/66vw"` on lg) with `widths [400,800,1200]`, `loading="lazy" decoding="async"`.

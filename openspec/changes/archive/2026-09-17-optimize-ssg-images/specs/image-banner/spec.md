@@ -1,7 +1,4 @@
-## Purpose
-Defines the `ImageBanner` component that composes an image and artwork metadata for display in featured sections like the Hero.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Display composed artwork information
 The `ImageBanner` molecule SHALL accept artwork metadata (title, artist, price, href) and image properties (src, alt), and compose them visually.
@@ -24,6 +21,8 @@ The `ImageBanner` component SHALL accept an optional `overlay` prop (`'hover' | 
 #### Scenario: Hover overlay mode in general banners
 - **WHEN** `ImageBanner` is rendered with `overlay="hover"` (or default mode)
 - **THEN** it renders a subtle base overlay (`bg-gradient-to-t from-black/65 via-black/25 to-transparent`) and deepens the dark overlay on parent hover (`group-hover:from-black/90 group-hover:via-black/50`) with smooth `duration-300` transition timing
+
+## ADDED Requirements
 
 ### Requirement: Forward responsive priority props
 The `ImageBanner` component SHALL forward `loading`, `fetchpriority`, `widths`, and `sizes` to the `Image` atom and SHALL default hero usage to `sizes="(max-width:1024px) 100vw, 51vw"` with `widths [960,1600,2400]`.

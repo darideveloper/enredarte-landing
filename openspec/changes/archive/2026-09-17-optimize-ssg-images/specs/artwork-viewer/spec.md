@@ -1,8 +1,4 @@
-## Purpose
-
-Defines the required behavior of the artwork image viewer (`src/components/molecules/ArtworkImageViewer.astro`), rendered by the artwork detail page (`src/components/pages/obra/ArtworkPage.astro`) inside `src/layouts/Layout.astro`. It covers deterministic single initialization of the GSAP ScrollTrigger scrub gallery, correct pin measurement, primary-image preload, and no load-time blink, across desktop (motion allowed), reduced-motion, and mobile. The reduced-motion / mobile stacked-image fallback is preserved from the prior implementation.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Single deterministic scrub initialization
 The artwork image viewer SHALL initialize its GSAP ScrollTrigger scrub gallery exactly once per page view. A new initialization MUST first revert any previously created `gsap.matchMedia()` instance before creating a new one, and the viewer MUST NOT initialize both at module-evaluation time and again on `astro:page-load`.
@@ -16,7 +12,7 @@ The artwork image viewer SHALL initialize its GSAP ScrollTrigger scrub gallery e
 - **THEN** `astro:after-swap` reverts the prior `matchMedia` instance and `astro:page-load` creates a single fresh timeline
 
 ### Requirement: Scroll-scrub reveals sequential images on desktop
-For viewports at or above 1024px with `prefers-reduced-motion: no-preference`, the viewer SHALL pin the artwork section and progressively reveal each additional image as the user scrolls, updating the `1 / N` counter in sync with scroll progress. The pin SHALL engage when the section's top reaches the bottom of the sticky header (`start: "top 93px"`).
+For viewports at or above 1024px with `prefers-reduced-motion: no-preference`, the viewer SHALL pin the artwork section and progressively reveal each additional image as the user scrolls, updating the `1 / N` counter in sync with scroll progress. The pin SHALL engage when the section's top reaches the bottom of the sticky header (`start: "top 80px"`).
 
 #### Scenario: Scrolling advances the gallery
 - **WHEN** a multi-image artwork (2+ images) is viewed on a desktop viewport (≥1024px) with motion allowed and the user scrolls through the pinned range
@@ -24,7 +20,7 @@ For viewports at or above 1024px with `prefers-reduced-motion: no-preference`, t
 
 #### Scenario: Scrub engages immediately below the header
 - **WHEN** the user scrolls on a multi-image artwork at desktop width
-- **THEN** the pin-and-scrub begins as soon as the section top reaches the header's bottom edge, with no dead-zone where the user scrolls without animation
+- **THEN** the pin-and-scrub begins as soon as the section top reaches 80px from the viewport top, with no dead-zone where the user scrolls without animation
 
 #### Scenario: Single-image artwork shows a static image
 - **WHEN** an artwork has exactly one image
@@ -69,8 +65,10 @@ The change SHALL be verified with the `playwright-cli` skill: load a multi-image
 - **WHEN** the Playwright check runs against a multi-image artwork page
 - **THEN** scrolling changes the displayed image and counter, the scrub begins below the sticky header, and the network/preload confirms the primary image was preloaded
 
+## ADDED Requirements
+
 ### Requirement: Viewer first image is LCP with responsive sizes
-The viewer SHALL render `images[0]` with `loading="eager" fetchpriority="high"` and `sizes="(max-width:1024px) 100vw, calc(100vw - 400px)"` (`widths [960,1600,2400]`), and remaining slides with `loading="lazy"` and identical `sizes`, preserving scrub, counter, and stacked fallback.
+The viewer SHALL render `images[0]` with `loading="eager" fetchpriority="high"` and `sizes="(max-width:1024px) 100vw, calc(100vw - 380px)"` (`widths [960,1600,2400]`), and remaining slides with `loading="lazy"` and identical `sizes`, preserving scrub, counter, and stacked fallback.
 
 #### Scenario: First paint fetches right-sized LCP
 - **WHEN** an artwork page loads on desktop

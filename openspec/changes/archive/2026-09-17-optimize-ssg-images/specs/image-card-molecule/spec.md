@@ -1,8 +1,5 @@
-# image-card-molecule Specification
+## MODIFIED Requirements
 
-## Purpose
-Combines a background image and a text overlay into a cohesive, interactive card with hover effects.
-## Requirements
 ### Requirement: Render a composite interactive card
 The system SHALL render a card combining a background image and an overlay link.
 
@@ -23,6 +20,8 @@ The system SHALL support configurable hover overlay darkening via an `overlay` p
 #### Scenario: User hovers over the card
 - **WHEN** the user hovers over the `ImageCard` container with `overlay="hover"` (default)
 - **THEN** the background image scales smoothly (`group-hover:scale-105`) over a 500ms transition and the dark overlay deepens on hover (`group-hover:from-black/90 group-hover:via-black/50`) to optimize text contrast
+
+## ADDED Requirements
 
 ### Requirement: Responsive card sizes per grid slot
 The system SHALL render `ImageCard` images with slot-matched `sizes`: standard `"(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw"` for 4-col grids (`Home`), `"... 33vw"` for 3-col grids (`CollectionIndex`, `CuratorSalas`), and a large/featured variant (`~60-66vw` on md/lg) when `isLarge` or featured, using `widths [400,800,1200]` and `loading="lazy"`.

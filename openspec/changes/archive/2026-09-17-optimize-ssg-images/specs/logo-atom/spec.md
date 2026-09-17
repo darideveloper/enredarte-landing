@@ -1,10 +1,7 @@
-# logo-atom Specification
+## MODIFIED Requirements
 
-## Purpose
-Defines the behavior contract, asset mapping, variant options, and link wrapper requirements for the `Logo` atom component.
-## Requirements
 ### Requirement: Asset Variant Mapping
-The `Logo` component SHALL support `default`, `dark`, `light`, `bg-red`, `bg-red-circle`, and `icon` variants mapped to corresponding optimized image assets.
+The `Logo` component SHALL support `default`, `dark`, `light`, `bg-red`, and `icon` variants mapped to corresponding optimized image assets.
 
 #### Scenario: Rendering default variant
 - **WHEN** `variant="default"` is specified or defaulted
@@ -37,10 +34,11 @@ The `Logo` component SHALL render an `<a>` link tag defaulting to the homepage `
 - **WHEN** the `Logo` component is clicked
 - **THEN** it navigates to the specified `href` route (defaulting to `/`)
 
+## ADDED Requirements
+
 ### Requirement: Intrinsic dimensions and decoding
 The `Logo` image SHALL carry explicit `width/height`, `decoding="async"`, and `fetchpriority="low"` (header instance may use `eager`), sourced from `src/assets/` through the optimizer so header/footer reuse costs one cached variant.
 
 #### Scenario: No layout shift on header load
 - **WHEN** the header renders
 - **THEN** the logo box is reserved via intrinsic dimensions before decode
-
