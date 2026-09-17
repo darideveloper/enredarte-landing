@@ -29,7 +29,7 @@ const price = formatPrice(pickPrice(artwork.priceMxn, artwork.priceUsd, currency
 const statusLabel = t(`pages.artwork.status.${artwork.status}`)
 ---
 
-<aside class="artwork-info-panel flex flex-col gap-8 border-l border-border-theme px-8 lg:px-12 xl:px-14 py-12 lg:py-16 lg:sticky lg:top-0 lg:h-[calc(100vh-80px)] lg:overflow-y-auto">
+<aside class="artwork-info-panel flex flex-col gap-8 border-l border-border-theme px-8 lg:px-12 xl:px-14 py-12 lg:py-16 lg:sticky lg:top-[93px] lg:h-[calc(100svh-93px)] lg:overflow-y-auto lg:self-start">
   <div>
     <a href={getLocalizedArtistPath(artwork.artistSlug, lang)} class="block w-fit hover:underline">
       <Headline color="muted" class="block mb-4 tracking-[0.2em]">{artwork.artist}</Headline>
