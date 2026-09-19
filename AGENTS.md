@@ -86,9 +86,32 @@ git fetch origin
 git worktree add ../enredarte-mehedi mehedi                  # existing branch
 git worktree add ../enredarte-feature -b feature/xyz main    # new branch
 git worktree list
-# ... after merge, stop dev first (Ctrl+C), then:
-git worktree remove ../enredarte-mehedi
+# ... after merge, if the merged branch touched pages/components/imports,
+# regenerate docs/component-dependencies.md on main first (see § Component dependency map),
+# then full clean (stop dev first — deleting never stops its server):
+git worktree remove ../enredarte-mehedi   # --force only if dirty/locked, after review
 git worktree prune
+git branch -d mehedi                      # merged only; never -D with unreviewed work
+# git push origin --delete mehedi         # only if the remote branch exists and the merge is pushed
+git fetch -p
+git worktree list                         # verify: only expected checkouts remain
+git branch -a                             # verify: branch gone
+ls -1 .. | grep -E "^enredarte-"          # verify: sibling directory actually gone
+```
+
+Orphan recovery — `worktree list` is clean but the sibling directory remains
+(not registered, missing `.git` pointer, or `remove` failed/skipped). Stop dev
+first, confirm the merge is on `main`, then delete the directory directly:
+
+```bash
+git worktree list                         # confirm sibling NOT listed
+test -e ../enredarte-<branch>/.git && echo "REGISTERED — use git worktree remove, never rm -rf" || echo "orphan — safe to delete"
+git log --oneline --graph -5              # confirm merge commit is on main
+rm -rf ../enredarte-<branch>              # orphans only; never on a registered worktree
+git worktree prune
+git fetch -p
+git worktree list
+ls -1 .. | grep -E "^enredarte-"
 ```
 
 Bootstrap each new sibling (gitignored paths are per-checkout — `node_modules/`, `.env`, `.astro/`, `dist/` don't transfer):
@@ -112,8 +135,9 @@ Then start the server manually (`pnpm run dev`, no autostart) and verify with `p
 
 Gotchas:
 
+- Never `rm -rf` a registered worktree (`worktree list` still shows it) — always `git worktree remove`; `rm -rf` is for orphans only (see Orphan recovery above).
 - Real `pnpm install` per sibling (no `node_modules` symlink).
-- `.env` keys per worktree: `SITE_URL`, `API_BASE_URL`, `API_TOKEN`. Keep `API_BASE_URL=https://enredarte-dashboard.localhost` (shared backend) unless testing against another backend. A fresh `.env` copy keeps main's `SITE_URL` — harmless, the `PORTLESS_URL → SITE_URL → prod` chain resolves each checkout's own URL first.
+- `.env` keys per worktree: `SITE_URL`, `PUBLIC_API_BASE_URL`, `API_TOKEN`. Keep `PUBLIC_API_BASE_URL=https://enredarte-dashboard.localhost` (shared backend — single URL var feeds both build-time fetch and browser sales calls) unless testing against another backend. A fresh `.env` copy keeps main's `SITE_URL` — harmless, the `PORTLESS_URL → SITE_URL → prod` chain resolves each checkout's own URL first.
 - Openspec: nothing crosses automatically (see bootstrap above).
 - New siblings start from committed `HEAD` only — commit or stash uncommitted changes first.
 - Branch names with `/` get sanitized in the subdomain — check `portless list` after first run.
@@ -124,6 +148,11 @@ Gotchas:
 `docs/component-dependencies.md` is a living diagram of pages → components → subcomponents → shared libs.
 
 **Keep it in sync.** Whenever you add, remove, or rename a page or component, or change how components import each other (including `Layout`, `Header`, or `Footer`), update `docs/component-dependencies.md` to match the new dependency structure, and refresh the Notes section (e.g. the orphaned-components list) if relevant.
+
+**Post-merge rule (conditional overwrite).** After merging a worktree branch into main, on main:
+1. Check: `git diff --name-only HEAD~1 HEAD -- src/pages src/components src/layouts src/lib src/data src/store src/styles` (for squash merges, use the merge diff range instead).
+2. No hits → skip, no doc change.
+3. Hits → overwrite `docs/component-dependencies.md` from current `main` state: regenerate Pages layer, Full diagram, per-page trees, Shared leaf layer, and refresh Notes. Commit the doc update on main before `git worktree remove`.
 
 ## Documentation
 
