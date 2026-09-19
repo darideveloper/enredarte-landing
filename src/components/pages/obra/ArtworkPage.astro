@@ -39,6 +39,7 @@ const alternateUrls = {
 
 <section
   data-scroll-section
+  data-artwork-slug={artworkSlug}
   class="bg-paper"
   transition:animate="none"
 >
@@ -51,3 +52,24 @@ const alternateUrls = {
     </div>
   </div>
 </section>
+
+<script>
+  import { recordArtworkVisit } from "@/lib/api/artwork-visits"
+
+  // Single module-level listener (same pattern as ArtworkImageViewer/Hero):
+  // astro:page-load fires once per navigation by framework contract, and the
+  // slug is read live from the DOM each time, so one navigation = one POST.
+  const fireVisit = () => {
+    const slug = document
+      .querySelector("[data-artwork-slug]")
+      ?.getAttribute("data-artwork-slug")
+    if (!slug) return
+    recordArtworkVisit(slug).catch((err) => {
+      if (import.meta.env.DEV) {
+        console.warn("[artwork-visit]", err instanceof Error ? err.message : err)
+      }
+    })
+  }
+
+  document.addEventListener("astro:page-load", fireVisit)
+</script>

@@ -161,6 +161,8 @@ ArtworkPage.astro
     data/api.ts (toArtworkDetailView → images/alt, title, description, artist,
         artistSlug, year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel)
     lib/i18n/utils (getLocalizedArtworkPath)
+    lib/api/artwork-visits.ts (recordArtworkVisit: astro:page-load fire-and-forget POST :slug/visit/,
+        no body/auth, keepalive, no retry, dev-only console.warn; slug via data-artwork-slug)
 ```
 
 ### ArtistPage.astro tree (per artist, `/artistas/<slug>` + `/en/artistas/<slug>`)
