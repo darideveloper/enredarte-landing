@@ -70,11 +70,11 @@ Resolution chain: `PORTLESS_URL → SITE_URL → prod-domain fallback` (`https:/
 
 ```bash
 SITE_URL=https://enredarte-landing.localhost
-API_BASE_URL=https://enredarte-dashboard.localhost
+PUBLIC_API_BASE_URL=https://enredarte-dashboard.localhost
 API_TOKEN=<paste-drf-token-here>
 ```
 
-(`API_BASE_URL` stays on the shared dashboard unless testing another backend. On a fresh clone with no `.env` to copy, start from `.env.example`, which carries the same keys.)
+(`PUBLIC_API_BASE_URL` is the single backend URL — build-time fetch and browser sales calls share it. Keep it on the shared dashboard unless testing another backend. On a fresh clone with no `.env` to copy, start from `.env.example`, which carries the same keys.)
 
 Full portless reference → see [[astro-portless]].
 

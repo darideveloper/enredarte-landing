@@ -8,6 +8,8 @@ import ArtistPage from "@/components/pages/artista/ArtistPage.astro"
 import BlogIndex from "@/components/pages/blog/BlogIndex.astro"
 import BlogPost from "@/components/pages/blog/BlogPost.astro"
 import CuratorPage from "@/components/pages/curador/CuratorPage.astro"
+import SuccessPage from "@/components/pages/compra/SuccessPage.astro"
+import CancelPage from "@/components/pages/compra/CancelPage.astro"
 import CollectionIndex from "@/components/pages/index/CollectionIndex.astro"
 import LegalPage from "@/components/pages/legal/LegalPage.astro"
 import { buildSiteData, resolveArtistArtworks, resolveGalleryArtworks, toHeroView } from "@/data/api"
@@ -137,6 +139,8 @@ const COMPONENT_MAP: Record<string, any> = {
   blog: BlogIndex,
   post: BlogPost,
   curator: CuratorPage,
+  "compra-exitosa": SuccessPage,
+  "compra-cancelada": CancelPage,
   obras: CollectionIndex,
   salas: CollectionIndex,
   artistas: CollectionIndex,
@@ -260,6 +264,8 @@ const preloadSet =
       lang={lang}
       post={post}
     />
+  ) : PageComponent && (pageKey === "compra-exitosa" || pageKey === "compra-cancelada") ? (
+    <PageComponent lang={lang} />
   ) : PageComponent && (
     <PageComponent
       lang={lang}

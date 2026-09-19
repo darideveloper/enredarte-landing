@@ -27,14 +27,14 @@ try {
   // No .env — process.env / fallback below apply.
 }
 // Remote image hosts allowed through astro:assets (optimize-ssg-images).
-// Dashboard/API host is derived from API_BASE_URL so dev (.localhost),
+// Dashboard/API host is derived from PUBLIC_API_BASE_URL so dev (.localhost),
 // Docker, and prod each allowlist their own backend without code changes;
 // the DigitalOcean Spaces CDN host is static (artwork/blog media).
 function remoteImagePatterns() {
   const patterns = [
     { protocol: "https", hostname: "daridev-django.sfo3.cdn.digitaloceanspaces.com" },
   ]
-  const apiBase = process.env.API_BASE_URL ?? ""
+  const apiBase = process.env.PUBLIC_API_BASE_URL ?? ""
   try {
     const host = new URL(apiBase).hostname
     if (host) {
@@ -42,7 +42,7 @@ function remoteImagePatterns() {
       patterns.push({ protocol: "http", hostname: host })
     }
   } catch {
-    // No/invalid API_BASE_URL — CDN host above still applies.
+    // No/invalid PUBLIC_API_BASE_URL — CDN host above still applies.
   }
   return patterns
 }
@@ -72,5 +72,5 @@ export default defineConfig({
     port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
     strictPort: true,
   },
-  integrations: [react(), sitemap()],
+  integrations: [react(), sitemap({ filter: (page) => !page.includes("/compra-") })],
 })

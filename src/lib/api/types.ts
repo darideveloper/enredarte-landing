@@ -102,7 +102,7 @@ export interface Scale extends Base {
   translations: Translations<{ name: string }>
 }
 
-export type ArtworkStatus = "available" | "reserved" | "sold"
+export type ArtworkStatus = "available" | "reserved" | "sold" | "on_loan" | "not_available"
 
 export interface ArtworkImage {
   id: number

@@ -1,12 +1,11 @@
 ---
 import Headline from "@/components/atoms/Headline.astro"
 import Markdown from "@/components/atoms/Markdown.astro"
-import Btn from "@/components/atoms/Btn.astro"
+import { BuyWidget, type BuyCopy } from "@/components/organisms/BuyWidget"
 import type { ArtworkDetailView } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
 import { getTranslations, getLocalizedArtistPath } from "@/lib/i18n/utils"
 import { formatPrice, pickPrice, currencyForLang } from "@/lib/format/price"
-import { EMAIL } from "@/data/site-config"
 
 export interface Props {
   artwork: ArtworkDetailView
@@ -27,6 +26,24 @@ const specRows: { label: string; values: string[] }[] = [
 const currency = currencyForLang(lang)
 const price = formatPrice(pickPrice(artwork.priceMxn, artwork.priceUsd, currency), currency)
 const statusLabel = t(`pages.artwork.status.${artwork.status}`)
+
+const buyCopy: BuyCopy = {
+  currencyLabel: t("pages.purchase.buy.currencyLabel"),
+  emailLabel: t("pages.purchase.buy.emailLabel"),
+  emailPlaceholder: t("pages.purchase.buy.emailPlaceholder"),
+  submit: t("pages.purchase.buy.submit"),
+  buying: t("pages.purchase.buy.buying"),
+  emailInvalid: t("pages.purchase.buy.emailInvalid"),
+  unavailable: t("pages.purchase.buy.unavailable"),
+  inProgress: t("pages.purchase.buy.inProgress"),
+  retryLater: t("pages.purchase.buy.retryLater"),
+  tooMany: t("pages.purchase.buy.tooMany"),
+}
+const badgeLabel = artwork.status === "reserved"
+  ? t("pages.purchase.badges.inProgress")
+  : artwork.status === "sold"
+    ? t("pages.purchase.badges.sold")
+    : t("pages.purchase.badges.unavailable")
 ---
 
 <aside class="artwork-info-panel flex flex-col gap-8 border-l border-border-theme px-8 lg:px-12 xl:px-14 py-12 lg:py-16 lg:sticky lg:top-[93px] lg:h-[calc(100svh-93px)] lg:overflow-y-auto lg:self-start">
@@ -64,9 +81,13 @@ const statusLabel = t(`pages.artwork.status.${artwork.status}`)
     </dl>
   )}
 
-  <Btn variant="primary" href={EMAIL.href} class="self-start">
-    {t("pages.artwork.cta")}
-  </Btn>
+  {artwork.status === "available" ? (
+    <BuyWidget client:load artworkSlug={artwork.slug} lang={lang} copy={buyCopy} />
+  ) : (
+    <p class="self-start border border-border-theme px-[18px] py-[9px] text-[10px] uppercase tracking-[0.06em] font-sans text-muted">
+      {badgeLabel}
+    </p>
+  )}
 </aside>
 
 <style>

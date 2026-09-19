@@ -23,7 +23,9 @@ src/pages/
   (galleries, artists, art-curators, the five taxonomies, artworks) via the `src/lib/api/*`
   endpoint modules and `fetchAll` pagination helper, then derives localized filter groups.
 - Emits the route-map pages (`home` + the three legal stubs `aviso-de-privacidad`,
-  `terminos-y-condiciones`, `politica-de-cookies`, each es root-level / `en/…`),
+  `terminos-y-condiciones`, `politica-de-cookies`, each es root-level / `en/…`)
+  plus the two purchase shells (`compra-exitosa`, `compra-cancelada`, es / `en/…`,
+  static shells hosting sales islands — no backend fetch),
   one detail page per gallery from the API
   (`salas/<slug>` es / `en/salas/<slug>` en), one detail page per artwork
   (`obras/<slug>` es / `en/obras/<slug>` en), one detail page per artist
@@ -37,6 +39,7 @@ src/pages/
   Detail pages fetch full `Post` via `detail(slug)` and thread `post: Post` + `postSlug` to `BlogPost`.
 - Looks up the page component in `COMPONENT_MAP` → `home: Home`, `gallery: GalleryPage`,
   `artwork: ArtworkPage`, `artist: ArtistPage`, `blog: BlogIndex`, `post: BlogPost`, `curator: CuratorPage`,
+  `compra-exitosa: SuccessPage`, `compra-cancelada: CancelPage`,
   `aviso-de-privacidad`/`terminos-y-condiciones`/`politica-de-cookies`: `LegalPage` (generic, `pageKey` selects the `pages.legal.*` copy).
 - Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery/artwork/artist/curator *or*
   blog page/post URLs via `getLocalizedSalaPath`/`getLocalizedArtworkPath`/`getLocalizedArtistPath`/
@@ -150,8 +153,9 @@ ArtworkPage.astro
 └── ArtworkInfoPanel.astro (molecule, right column)
     ├── Headline.astro ───────────► lib/utils
     ├── atoms/Markdown.astro ─────► lib/markdown (description)
-    ├── Btn.astro ────────────────► lib/utils (mailto CTA via data/site-config EMAIL)
-    ├── lib/i18n/utils (getTranslations for status/spec labels)
+    ├── BuyWidget.tsx (React island, client:load, only when `status == "available"`) ─► lib/api/sales (postBuy), zod email, sessionStorage artwork-stash
+    ├── status badge (static `<p>`, reserved → in-progress / sold → sold / else unavailable)
+    ├── lib/i18n/utils (getTranslations for status/spec labels + purchase copy)
     ├── lib/format/price (formatPrice + pickPrice + currencyForLang on `lang`)
     └── data/api.ts (ArtworkDetailView prop)
     data/api.ts (toArtworkDetailView → images/alt, title, description, artist,
@@ -237,6 +241,23 @@ CuratorPage.astro
 └── lib/i18n/utils (getLocalizedCuratorPath, pickTranslation)
 ```
 
+### Compra trees (purchase shells, `/compra-exitosa` + `/compra-cancelada` es/en)
+
+```
+SuccessPage.astro (static shell, PageSEO noIndex)
+├── Headline.astro ───────────► lib/utils
+├── OrderFlow.tsx (React island, client:load) ─► lib/api/sales (getOrderSummary), ?order= parse, 3s/×20 poll, timeout+retry, 429-pause
+│   ├── OrderSummaryCard.tsx ─► lib/format/price
+│   └── DeliveryForm.tsx (React, two-step, only when paid_pending_data) ─► lib/api/sales (postDelivery/getOrderSummary)
+│       └── OrderSummaryCard.tsx (confirmation: summary + receipt note)
+└── lib/i18n/utils (getLocalizedPath obras for fallback link)
+
+CancelPage.astro (static, PageSEO noIndex, no island)
+├── Headline.astro + Btn.astro (ghost → obras fallback)
+├── primary anchor [data-cancel-artwork] → obras href, upgraded client-side to the sessionStorage-stashed artwork slug via inline is:inline script
+└── lib/i18n/utils (getLocalizedPath)
+```
+
 ### Layout.astro tree (Header + Footer shared by every page)
 
 ```
@@ -305,6 +326,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/api/client.ts` — `safeFetch`/`FetchError`/`apiFetch` (token-injecting fetch)
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
 - `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`)
+- `lib/api/sales.ts` — token-free public sales client (`POST artworks/:slug/buy/`, `GET orders/:slug/`, `POST orders/:slug/delivery/` on `PUBLIC_API_BASE_URL`, no `Authorization`, typed `SalesError` from the `{status,message,data}` envelope, sales types co-located; never reads `API_TOKEN`)
 - `lib/markdown.ts` — `renderMarkdown`/`renderInline` (marked 15 GFM `breaks: true`, BlogPost custom renderer: h1→h2, figure, external ↗, code badge+copy; trusted, no sanitize) + `stripMarkdown` (plain-text excerpts for SEO)
 - `lib/code-copy.ts` — `attachCodeCopy()` (idempotent code-block copy handler, used by `BlogPost` + `Markdown` atom scripts)
 - `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
@@ -382,7 +404,7 @@ Everything below is a terminal dependency imported by multiple components:
   primary gallery's array index. `<Hero />` without props still renders via safe defaults
   (design-system showcase).
 - **Build-time backend dependency**: `getStaticPaths` calls `buildSiteData()` plus an isolated blog fetch
-  (`fetchAll(listPosts)` + `detail(slug)` per post) which fetches the DRF API using `API_BASE_URL`/`API_TOKEN`
+   (`fetchAll(listPosts)` + `detail(slug)` per post) which fetches the DRF API using `PUBLIC_API_BASE_URL`/`API_TOKEN`
   (server-only, never `PUBLIC_*`). The backend must be reachable and the token valid during `astro build`;
   a failure surfaces a `FetchError` (no silent fallback, blog outage fails whole build).
 - **Nav links (dedicated pages)**: all content nav items point at dedicated index pages
@@ -413,6 +435,11 @@ Everything below is a terminal dependency imported by multiple components:
   + crimson hairline + bilingual `pages.notFound.*` copy + `Btn` primary (`/`) / ghost (`/obras`),
   centered via its own `min-h-[60svh] grid place-items-center` section. `PageSEO` with `noIndex`.
   `Layout`, `Header`, `Footer`, and all atoms reused unchanged.
+- **Purchase flow (`artwork-sales` change)**: `BuyWidget`/`OrderFlow`/`DeliveryForm`/`OrderSummaryCard`
+  are React islands (`client:load`) receiving localized copy as props (no message imports in
+  client bundles). `ArtworkInfoPanel` no longer renders the mailto CTA — the conversion slot
+  hosts `BuyWidget` (available) or a status badge. `ArtworkStatus` is the 5-value backend enum.
+  `compra-exitosa`/`compra-cancelada` are static shells (no backend fetch at build, `noIndex`).
 - **Page container contract**: two tiers, one source (`container-site-*` utilities in
   `styles/global.css`). Canvas (full-bleed `px-6 md:px-14`, no cap — galleries, grids,
   hero, collection/curator/blog listing wrappers, `Header`/`BannerBar`) matches the

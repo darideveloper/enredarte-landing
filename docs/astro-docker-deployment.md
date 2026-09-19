@@ -26,9 +26,11 @@ FROM node:22-alpine AS build
 RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
 WORKDIR /app
 
-# Build-time environment variables — add one ARG/ENV pair per server-only var
-ARG API_BASE_URL
-ENV API_BASE_URL=$API_BASE_URL
+# Build-time environment variables — one ARG/ENV pair per var
+# (PUBLIC_API_BASE_URL is read server-side at build AND inlined into client
+# bundles for the public sales endpoints; API_TOKEN stays server-only)
+ARG PUBLIC_API_BASE_URL
+ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
 
 # Add more as needed:
 ARG API_TOKEN
@@ -43,7 +45,7 @@ RUN pnpm install --frozen-lockfile
 # Build the static site
 COPY . .
 # Fail fast if any required build-time env var is missing
-RUN node -e 'const req=["API_BASE_URL","API_TOKEN"];const m=req.filter(v=>!process.env[v]);if(m.length){console.error("Missing build-time env var(s): "+m.join(", ")+"\nPass them with: --build-arg <NAME>=<value>");process.exit(1)}'
+RUN node -e 'const req=["PUBLIC_API_BASE_URL","API_TOKEN"];const m=req.filter(v=>!process.env[v]);if(m.length){console.error("Missing build-time env var(s): "+m.join(", ")+"\nPass them with: --build-arg <NAME>=<value>");process.exit(1)}'
 RUN pnpm build
 
 # === Stage 2: Serve ===
@@ -119,9 +121,9 @@ The template works for both PWA and non-PWA projects. Delete every section marke
 ## Build & Run Commands
 
 ```bash
-# Build image (pass build args for server-only env vars)
+# Build image (pass build args for build-time env vars)
 docker build \
-  --build-arg API_BASE_URL=https://api.example.com \
+  --build-arg PUBLIC_API_BASE_URL=https://api.example.com \
   --build-arg API_TOKEN=<your-token> \
   -t your-app:latest .
 
@@ -137,7 +139,7 @@ docker run -d -p 8080:80 your-app:latest
 
 1. Point to your Git repo
 2. Set build pack to **Dockerfile**
-3. Add `API_BASE_URL` and `API_TOKEN` as **Build Time** variables (server-only, no `PUBLIC_` prefix) — both are required or the build fails before `pnpm build`
+3. Add `PUBLIC_API_BASE_URL` and `API_TOKEN` as **Build Time** variables (`API_TOKEN` server-only, no `PUBLIC_` prefix) — both are required or the build fails before `pnpm build`
 4. The Dockerfile uses `node:22-alpine` — ensure the platform supports `corepack`
 
 ### CI/CD (GitHub Actions)
@@ -155,7 +157,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg API_BASE_URL=${{ secrets.API_URL }} \
+            --build-arg PUBLIC_API_BASE_URL=${{ secrets.API_URL }} \
             --build-arg API_TOKEN=${{ secrets.API_TOKEN }} \
             -t your-app:${{ github.sha }} .
       - name: Push to registry
@@ -190,11 +192,11 @@ Ensure `package.json` has the pnpm engines constraint:
 
 | Pattern | When available | Example |
 |---|---|---|
-| `PUBLIC_*` | Build-time + client-side | `PUBLIC_EXAMPLE` (this project uses unprefixed names like `SITE_URL`) |
-| Server-only (no prefix) | Build-time only | `API_BASE_URL`, `API_TOKEN` |
-| `import.meta.env.*` | Build-time code (SSG) | `import.meta.env.API_BASE_URL` |
+| `PUBLIC_*` | Build-time + client-side | `PUBLIC_API_BASE_URL` (single backend URL: build fetch + browser sales) |
+| Server-only (no prefix) | Build-time only | `API_TOKEN` |
+| `import.meta.env.*` | Build-time code (SSG) | `import.meta.env.PUBLIC_API_BASE_URL` |
 
-Astro inlines all env vars at build time via Vite. Server-only vars (no `PUBLIC_` prefix) are not exposed to client bundles. Pass them as Docker build args so they're available during `pnpm build`.
+Astro inlines all env vars at build time via Vite. Server-only vars (no `PUBLIC_` prefix, e.g. `API_TOKEN`) are not exposed to client bundles. Pass them as Docker build args so they're available during `pnpm build`.
 
 ## New Project Setup
 

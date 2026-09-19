@@ -1,0 +1,61 @@
+---
+import PageSEO from "@/components/seo/PageSEO.astro"
+import Headline from "@/components/atoms/Headline.astro"
+import Btn from "@/components/atoms/Btn.astro"
+import { getTranslations, getLocalizedPath } from "@/lib/i18n/utils"
+import type { Lang } from "@/lib/api/types"
+
+export interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const t = getTranslations(lang)
+
+const alternateUrls = {
+  en: getLocalizedPath("compra-cancelada", "en"),
+  es: getLocalizedPath("compra-cancelada", "es"),
+}
+const obrasHref = getLocalizedPath("obras", lang)
+---
+
+<PageSEO
+  currentPage="compra-cancelada"
+  lang={lang}
+  title={t("pages.compra.cancel.title")}
+  description={t("pages.compra.cancel.description")}
+  alternateUrls={alternateUrls}
+  noIndex
+  slot="seo"
+/>
+
+<div class="container-site-narrow py-16">
+  <Headline>{t("pages.compra.cancel.title")}</Headline>
+  <p class="mt-4 text-sm text-muted">{t("pages.compra.cancel.description")}</p>
+  <div class="mt-8 flex flex-wrap gap-3">
+    <a
+      data-cancel-artwork
+      href={obrasHref}
+      class="inline-flex items-center justify-center border uppercase tracking-[0.1em] font-sans font-medium transition-all duration-300 cursor-pointer bg-crimson text-paper border-crimson hover:bg-transparent hover:text-crimson hover:border-crimson text-[11px] py-[15px] px-[32px]"
+    >
+      {t("pages.compra.cancel.backToArtwork")}
+    </a>
+    <Btn variant="ghost" href={obrasHref}>
+      {t("pages.compra.cancel.backToObras")}
+    </Btn>
+  </div>
+</div>
+
+<script is:inline define:vars={{ lang }}>
+  try {
+    const slug = sessionStorage.getItem("enredarte-last-artwork")
+    if (slug) {
+      const link = document.querySelector("[data-cancel-artwork]")
+      if (link) {
+        link.setAttribute("href", lang === "en" ? `/en/obras/${slug}` : `/obras/${slug}`)
+      }
+    }
+  } catch {
+    // Private mode — the catalog fallback href stays.
+  }
+</script>

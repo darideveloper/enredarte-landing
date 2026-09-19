@@ -110,7 +110,7 @@ The build pipeline documentation SHALL include every validation step that actual
 - **THEN** every validation command in the `build` script is listed and explained
 
 ### Requirement: Environment variable type correctness
-Documented `ImportMetaEnv` type declarations SHALL declare every env var the app reads via `import.meta.env`, including server-only vars (e.g. `API_BASE_URL`, `API_TOKEN`). Server-only vars SHALL NOT be `PUBLIC_*`-prefixed, so they are never exposed to client bundles; `PUBLIC_*` vars SHALL be documented as available in client-side code.
+Documented `ImportMetaEnv` type declarations SHALL declare every env var the app reads via `import.meta.env`, including server-only vars (e.g. `API_TOKEN`). Secrets SHALL NOT be `PUBLIC_*`-prefixed, so they are never exposed to client bundles; `PUBLIC_*` vars (e.g. `PUBLIC_API_BASE_URL`, the single backend URL) SHALL be documented as available in client-side code.
 
 #### Scenario: Server-only vars typed in ImportMetaEnv
 - **WHEN** the env.d.ts example is shown in documentation

@@ -32,7 +32,7 @@ Each worktree SHALL be bootstrappable independently using only the repo's docume
 
 #### Scenario: Required env is documented
 - **WHEN** a developer reads the worktree workflow docs
-- **THEN** they learn which variables each worktree needs (`SITE_URL`, `API_BASE_URL`, `API_TOKEN`), that `API_BASE_URL` stays pointed at the shared dashboard (`https://enredarte-dashboard.localhost`) unless they override it, and that a stale `SITE_URL` copy is harmless because the `PORTLESS_URL → SITE_URL → prod` chain resolves each checkout's own URL first
+- **THEN** they learn which variables each worktree needs (`SITE_URL`, `PUBLIC_API_BASE_URL`, `API_TOKEN`), that `PUBLIC_API_BASE_URL` stays pointed at the shared dashboard (`https://enredarte-dashboard.localhost`) unless they override it, and that a stale `SITE_URL` copy is harmless because the `PORTLESS_URL → SITE_URL → prod` chain resolves each checkout's own URL first
 
 #### Scenario: Fresh clone falls back to .env.example
 - **WHEN** a developer bootstraps a worktree on a fresh clone with no `.env` to copy from main

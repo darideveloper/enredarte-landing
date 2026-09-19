@@ -42,14 +42,14 @@ async function attemptFetch<T>(url: string, options: RequestInit, timeoutMs: num
 }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const missing = ["API_BASE_URL", "API_TOKEN"].filter((name) => !import.meta.env[name])
+  const missing = ["PUBLIC_API_BASE_URL", "API_TOKEN"].filter((name) => !import.meta.env[name])
   if (missing.length) {
     throw new Error(
       `Missing build-time env var(s): ${missing.join(", ")}\n` +
         `Supply them as Docker build args: --build-arg <NAME>=<value>`,
     )
   }
-  const baseUrl = import.meta.env.API_BASE_URL as string
+  const baseUrl = import.meta.env.PUBLIC_API_BASE_URL as string
   const token = import.meta.env.API_TOKEN as string
 
   const headers = new Headers(init.headers)

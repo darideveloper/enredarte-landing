@@ -52,8 +52,8 @@ Plus: `design-system.astro` (noindex showcase, not part of the runtime tree), `r
 ## 4. Backend dependency
 
 Build-time only. `getStaticPaths` calls `buildSiteData()` (catalog) plus an
-isolated blog fetch (`fetchAll(listPosts)` + `detail(slug)` per post). Server-only
-`API_BASE_URL` / `API_TOKEN` must be present or the build throws (`FetchError`,
+isolated blog fetch (`fetchAll(listPosts)` + `detail(slug)` per post). `PUBLIC_API_BASE_URL`
+(single backend URL for build-time fetch and browser sales calls) / `API_TOKEN` must be present or the build throws (`FetchError`,
 no silent fallback). New posts need a rebuild.
 
 > Backend spec lives in a **separate project** — it is intentionally not linked
@@ -64,7 +64,7 @@ no silent fallback). New posts need a rebuild.
 
 | Var | Value / source |
 |---|---|
-| `API_BASE_URL` | backend base URL (deploy secret) |
+| `PUBLIC_API_BASE_URL` | backend base URL (deploy secret; feeds build fetch + browser sales) |
 | `API_TOKEN` | DRF token (deploy secret; never commit) |
 | `SITE_URL` | `https://enredarte-landing.localhost` (dev) |
 

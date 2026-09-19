@@ -1,0 +1,83 @@
+---
+import PageSEO from "@/components/seo/PageSEO.astro"
+import Headline from "@/components/atoms/Headline.astro"
+import { OrderFlow, type OrderFlowCopy } from "@/components/organisms/OrderFlow"
+import type { ConfirmationCopy, DeliveryCopy } from "@/components/organisms/DeliveryForm"
+import { getTranslations, getLocalizedPath } from "@/lib/i18n/utils"
+import type { Lang } from "@/lib/api/types"
+
+export interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const t = getTranslations(lang)
+
+const copy: OrderFlowCopy = {
+  polling: t("pages.compra.success.polling"),
+  timeoutTitle: t("pages.compra.success.timeoutTitle"),
+  timeoutDescription: t("pages.compra.success.timeoutDescription"),
+  retry: t("pages.compra.success.retry"),
+  missingTitle: t("pages.compra.success.missingTitle"),
+  missingDescription: t("pages.compra.success.missingDescription"),
+  backToObras: t("pages.compra.success.backToObras"),
+}
+const delivery: DeliveryCopy = {
+  contactTitle: t("pages.purchase.delivery.contactTitle"),
+  addressTitle: t("pages.purchase.delivery.addressTitle"),
+  continue: t("pages.purchase.delivery.continue"),
+  back: t("pages.purchase.delivery.back"),
+  submit: t("pages.purchase.delivery.submit"),
+  sending: t("pages.purchase.delivery.sending"),
+  receiverName: t("pages.purchase.delivery.receiverName"),
+  receiverPhone: t("pages.purchase.delivery.receiverPhone"),
+  country: t("pages.purchase.delivery.country"),
+  state: t("pages.purchase.delivery.state"),
+  city: t("pages.purchase.delivery.city"),
+  postalCode: t("pages.purchase.delivery.postalCode"),
+  neighborhood: t("pages.purchase.delivery.neighborhood"),
+  street: t("pages.purchase.delivery.street"),
+  exteriorNumber: t("pages.purchase.delivery.exteriorNumber"),
+  interiorNumber: t("pages.purchase.delivery.interiorNumber"),
+  betweenStreet1: t("pages.purchase.delivery.betweenStreet1"),
+  betweenStreet2: t("pages.purchase.delivery.betweenStreet2"),
+  reference: t("pages.purchase.delivery.reference"),
+  deliveryNotes: t("pages.purchase.delivery.deliveryNotes"),
+  tooMany: t("pages.purchase.delivery.tooMany"),
+  notFound: t("pages.purchase.delivery.notFound"),
+}
+const confirmation: ConfirmationCopy = {
+  title: t("pages.purchase.confirmation.title"),
+  receiptNote: t("pages.purchase.confirmation.receiptNote"),
+  shipped: t("pages.purchase.confirmation.shipped"),
+  delivered: t("pages.purchase.confirmation.delivered"),
+}
+const alternateUrls = {
+  en: getLocalizedPath("compra-exitosa", "en"),
+  es: getLocalizedPath("compra-exitosa", "es"),
+}
+---
+
+<PageSEO
+  currentPage="compra-exitosa"
+  lang={lang}
+  title={t("pages.compra.success.title")}
+  description={t("pages.compra.success.description")}
+  alternateUrls={alternateUrls}
+  noIndex
+  slot="seo"
+/>
+
+<div class="container-site-narrow py-16">
+  <Headline>{t("pages.compra.success.title")}</Headline>
+  <p class="mt-2 text-sm text-muted">{t("pages.compra.success.description")}</p>
+  <div class="mt-10">
+    <OrderFlow
+      client:load
+      obrasHref={getLocalizedPath("obras", lang)}
+      copy={copy}
+      delivery={delivery}
+      confirmation={confirmation}
+    />
+  </div>
+</div>

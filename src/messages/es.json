@@ -118,7 +118,9 @@
       "status": {
         "available": "Disponible",
         "reserved": "Reservada",
-        "sold": "Vendida"
+        "sold": "Vendida",
+        "on_loan": "En préstamo",
+        "not_available": "No disponible"
       },
       "spec": {
         "discipline": "Disciplina",
@@ -126,8 +128,75 @@
         "theme": "Temática",
         "format": "Formato",
         "scale": "Escala"
+      }
+    },
+    "purchase": {
+      "buy": {
+        "currencyLabel": "Moneda",
+        "emailLabel": "Correo electrónico",
+        "emailPlaceholder": "usted@ejemplo.com",
+        "submit": "Comprar",
+        "buying": "Procesando…",
+        "emailInvalid": "Correo electrónico inválido",
+        "unavailable": "Obra no disponible.",
+        "inProgress": "Otro comprador está finalizando esta obra — intente de nuevo en unos minutos.",
+        "retryLater": "Servicio de pago no disponible — intente de nuevo.",
+        "tooMany": "Demasiados intentos — espere y reintente."
       },
-      "cta": "Consultar"
+      "badges": {
+        "inProgress": "Venta en curso",
+        "sold": "Vendida",
+        "unavailable": "No disponible"
+      },
+      "delivery": {
+        "contactTitle": "Datos de contacto",
+        "addressTitle": "Dirección de entrega",
+        "continue": "Continuar",
+        "back": "Atrás",
+        "submit": "Confirmar datos",
+        "sending": "Enviando…",
+        "receiverName": "Nombre del destinatario",
+        "receiverPhone": "Teléfono",
+        "country": "País",
+        "state": "Estado",
+        "city": "Ciudad",
+        "postalCode": "Código postal",
+        "neighborhood": "Colonia",
+        "street": "Calle",
+        "exteriorNumber": "Número exterior",
+        "interiorNumber": "Número interior (opcional)",
+        "betweenStreet1": "Entre calle 1 (opcional)",
+        "betweenStreet2": "Entre calle 2 (opcional)",
+        "reference": "Referencias (opcional)",
+        "deliveryNotes": "Notas de entrega (opcional)",
+        "tooMany": "Demasiados intentos — espere y reintente.",
+        "notFound": "Pedido no encontrado — revise el enlace."
+      },
+      "confirmation": {
+        "title": "¡Gracias por su compra!",
+        "receiptNote": "Recibirá su comprobante por correo electrónico.",
+        "shipped": "Su obra ya fue enviada.",
+        "delivered": "Su obra fue entregada."
+      }
+    },
+    "compra": {
+      "success": {
+        "title": "¡Compra exitosa!",
+        "description": "Su pago fue aprobado. Complete sus datos de entrega.",
+        "polling": "Confirmando su pago…",
+        "timeoutTitle": "Su pago se está confirmando",
+        "timeoutDescription": "Revise su correo electrónico e intente de nuevo en unos momentos.",
+        "retry": "Reintentar",
+        "missingTitle": "Pedido no especificado",
+        "missingDescription": "Revise el enlace e intente de nuevo.",
+        "backToObras": "Ver obras"
+      },
+      "cancel": {
+        "title": "Compra cancelada",
+        "description": "Su compra fue cancelada — la obra sigue disponible si aún no se vende.",
+        "backToArtwork": "Volver a la obra",
+        "backToObras": "Ver obras"
+      }
     },
     "blog": {
       "title": "Blog",

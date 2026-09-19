@@ -236,7 +236,7 @@ import { safeFetch } from "./client"
 import type { MyResponse } from "./types"
 
 export function myEndpoint(param: string) {
-  const baseUrl = import.meta.env.API_BASE_URL
+  const baseUrl = import.meta.env.PUBLIC_API_BASE_URL
   return safeFetch<MyResponse>(`${baseUrl}/endpoint`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -248,11 +248,11 @@ export function myEndpoint(param: string) {
 ## 8. Environment Variables
 
 ```env
-API_BASE_URL=https://api.example.com
+PUBLIC_API_BASE_URL=https://api.example.com
 API_TOKEN=<your-token>
 ```
 
-Server-only env vars (no `PUBLIC_` prefix) are accessed via `import.meta.env` in build-time code (SSG). Vite statically replaces them at build time. In this project `apiFetch` (`client.ts`) reads `API_BASE_URL`/`API_TOKEN` centrally; endpoint modules pass API-relative paths.
+`PUBLIC_API_BASE_URL` (backend URL, also available client-side for the public sales endpoints) and server-only `API_TOKEN` are accessed via `import.meta.env` in build-time code (SSG). Vite statically replaces them at build time. In this project `apiFetch` (`client.ts`) reads `PUBLIC_API_BASE_URL`/`API_TOKEN` centrally; endpoint modules pass API-relative paths.
 
 See [[astro-docker-deployment|Dockerized Deployment]] for how to pass build-time env vars in Docker.
 

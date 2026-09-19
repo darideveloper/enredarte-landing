@@ -118,7 +118,9 @@
       "status": {
         "available": "Available",
         "reserved": "Reserved",
-        "sold": "Sold"
+        "sold": "Sold",
+        "on_loan": "On loan",
+        "not_available": "Not available"
       },
       "spec": {
         "discipline": "Discipline",
@@ -126,8 +128,75 @@
         "theme": "Theme",
         "format": "Format",
         "scale": "Scale"
+      }
+    },
+    "purchase": {
+      "buy": {
+        "currencyLabel": "Currency",
+        "emailLabel": "Email",
+        "emailPlaceholder": "you@example.com",
+        "submit": "Buy",
+        "buying": "Processing…",
+        "emailInvalid": "Invalid email",
+        "unavailable": "Artwork unavailable.",
+        "inProgress": "Another buyer is checking out this piece — try again in a few minutes.",
+        "retryLater": "Payment service unavailable — try again.",
+        "tooMany": "Too many attempts — wait and retry."
       },
-      "cta": "Inquire"
+      "badges": {
+        "inProgress": "Sale in progress",
+        "sold": "Sold",
+        "unavailable": "Not available"
+      },
+      "delivery": {
+        "contactTitle": "Contact details",
+        "addressTitle": "Delivery address",
+        "continue": "Continue",
+        "back": "Back",
+        "submit": "Confirm details",
+        "sending": "Sending…",
+        "receiverName": "Recipient name",
+        "receiverPhone": "Phone",
+        "country": "Country",
+        "state": "State",
+        "city": "City",
+        "postalCode": "Postal code",
+        "neighborhood": "Neighborhood",
+        "street": "Street",
+        "exteriorNumber": "Exterior number",
+        "interiorNumber": "Interior number (optional)",
+        "betweenStreet1": "Between street 1 (optional)",
+        "betweenStreet2": "Between street 2 (optional)",
+        "reference": "Reference (optional)",
+        "deliveryNotes": "Delivery notes (optional)",
+        "tooMany": "Too many attempts — wait and retry.",
+        "notFound": "Order not found — check the link."
+      },
+      "confirmation": {
+        "title": "Thank you for your purchase!",
+        "receiptNote": "You will receive your receipt by email.",
+        "shipped": "Your artwork has been shipped.",
+        "delivered": "Your artwork was delivered."
+      }
+    },
+    "compra": {
+      "success": {
+        "title": "Purchase successful!",
+        "description": "Your payment was approved. Please complete your delivery details.",
+        "polling": "Confirming your payment…",
+        "timeoutTitle": "Your payment is being confirmed",
+        "timeoutDescription": "Check your email and try again in a few moments.",
+        "retry": "Retry",
+        "missingTitle": "No order specified",
+        "missingDescription": "Check the link and try again.",
+        "backToObras": "View artworks"
+      },
+      "cancel": {
+        "title": "Purchase cancelled",
+        "description": "Your purchase was cancelled — the piece is still available if unsold.",
+        "backToArtwork": "Back to the artwork",
+        "backToObras": "View artworks"
+      }
     },
     "blog": {
       "title": "Blog",

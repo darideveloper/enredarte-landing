@@ -137,7 +137,7 @@ Astro projects handle env vars natively via Vite, but they're untyped by default
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly API_BASE_URL: string;
+  readonly PUBLIC_API_BASE_URL: string;
   readonly API_TOKEN: string;
 }
 
@@ -235,4 +235,4 @@ Then:
 ## 8. Connection to Other Patterns
 
 - `BUSINESS_DATA` is consumed by `BaseSEO.astro` for JSON-LD → see [[astro-seo]]
-- `API_BASE_URL` env var is passed through Docker build args → see [[astro-docker-deployment]]
+- `PUBLIC_API_BASE_URL` env var is passed through Docker build args → see [[astro-docker-deployment]]
