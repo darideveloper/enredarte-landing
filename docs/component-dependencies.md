@@ -361,16 +361,17 @@ Everything below is a terminal dependency imported by multiple components:
   Localized SEO is provided via `PageSEO`. `LangBtns` `localizedPaths` preserve the curator
   slug across languages.
 - **Artwork detail pages**: `ArtworkPage.astro` renders `toArtworkDetailView` (all artwork
-  data from `buildSiteData()`) in a two-column layout — a scroll-driven `ArtworkImageViewer`
-  on the left (layered `.artwork-image` children crossfaded by a GSAP `ScrollTrigger`
-  pin+scrub timeline, `ease: "none"`, end derived from image count; single-image artworks
-  fall back to a static `Image` with no pin; disabled via `gsap.matchMedia()` for
-  `prefers-reduced-motion` and viewport below `1024px`) and a fixed `ArtworkInfoPanel` on the
+  data from `buildSiteData()`) in a two-column layout with a single page scrollbar — a sticky
+  image stage on the left (`.artwork-image-zone`: `lg:sticky lg:top-[93px]
+  lg:h-[calc(100svh-93px)]`, layered `.artwork-image` children crossfaded by a pin-less GSAP
+  `ScrollTrigger` scrub timeline, `ease: "none"`, trigger = section, `start: "top 93px"`,
+  `end: "bottom bottom"`, skipped when the section fits the viewport; single-image artworks
+  fall back to a static `Image` with no timeline; disabled via `gsap.matchMedia()` for
+  `prefers-reduced-motion` and viewport below `1024px`) and a flowing `ArtworkInfoPanel` on the
   right (title, artist, year/dimensions, description, price/status, taxonomy spec rows,
-  mailto CTA) that stays visually fixed because the whole section is pinned. The panel
-  sticks via `lg:sticky lg:top-[93px] lg:h-[calc(100svh-93px)]` (93px header token shared
-  with the ScrollTrigger `start: "top 93px"`); `overflow-hidden` is scoped to the image
-  zone so it never vetoes the panel's sticky. Localized SEO
+  buy widget / status badge) in normal document flow, so the footer is only reachable past
+  the conversion slot. `overflow-hidden` is scoped to the image
+  zone. Localized SEO
   via `PageSEO` (`ogImage` = primary image). `LangBtns` `localizedPaths` preserve the
   artwork slug across languages.
 - **Artwork card hrefs**: `toArtworkView` now emits `getLocalizedArtworkPath` (real links)

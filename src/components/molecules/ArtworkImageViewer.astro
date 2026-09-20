@@ -74,13 +74,16 @@ const multi = images.length > 1
     mm = gsap.matchMedia()
 
     mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+      // Pin-less scrub: the image zone itself is sticky (ArtworkPage), so the
+      // page scroll drives the crossfade while the info column flows past.
+      // Skip when the section fits the viewport — no scroll distance to scrub.
+      if (section.offsetHeight <= window.innerHeight) return
       const tl = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: section,
           start: "top 93px",
-          end: () => `+=${(images.length - 1) * 100}%`,
-          pin: true,
+          end: "bottom bottom",
           scrub: 1,
           onUpdate: (self) => {
             if (counter) {
@@ -141,7 +144,8 @@ const multi = images.length > 1
 
   @media (min-width: 1024px) {
     .artwork-viewer {
-      min-height: 100vh;
+      min-height: 0;
+      height: 100%;
     }
   }
 

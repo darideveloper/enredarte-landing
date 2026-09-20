@@ -1,8 +1,4 @@
-## Purpose
-
-Defines the required behavior of the artwork image viewer (`src/components/molecules/ArtworkImageViewer.astro`), rendered by the artwork detail page (`src/components/pages/obra/ArtworkPage.astro`) inside `src/layouts/Layout.astro`. It covers deterministic single initialization of the GSAP ScrollTrigger scrub gallery, correct scrub measurement against the sticky image stage, primary-image preload, and no load-time blink, across desktop (motion allowed), reduced-motion, and mobile. The reduced-motion / mobile stacked-image fallback is preserved from the prior implementation.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Single deterministic scrub initialization
 The artwork image viewer SHALL initialize its GSAP ScrollTrigger scrub gallery exactly once per page view. A new initialization MUST first revert any previously created `gsap.matchMedia()` instance before creating a new one, and the viewer MUST NOT initialize both at module-evaluation time and again on `astro:page-load`.
@@ -30,19 +26,19 @@ For viewports at or above 1024px with `prefers-reduced-motion: no-preference`, t
 - **WHEN** an artwork has exactly one image
 - **THEN** the viewer renders a single static image with no ScrollTrigger and no counter
 
+## RENAMED Requirements
+
+- FROM: `### Requirement: Pin is measured against final layout`
+- TO: `### Requirement: Scrub trigger is measured against final layout`
+
+## MODIFIED Requirements
+
 ### Requirement: Scrub trigger is measured against final layout
 After the scrub timeline is (re)created, the viewer MUST call `ScrollTrigger.refresh()` so the trigger is measured after images and fonts have settled. The measured scrub range SHALL NOT be zero/collapsed; when the section fits the viewport (no scroll distance to drive the scrub) the timeline SHALL be skipped and the first image shown statically.
 
 #### Scenario: Scrub range is valid after load
 - **WHEN** the viewer initializes on a multi-image artwork
 - **THEN** the ScrollTrigger end is computed from the final layout (non-zero scroll distance) so the scrub actually progresses
-
-### Requirement: Primary image is preloaded
-The artwork page MUST pass the primary artwork image to `<Layout>` as `preloadImage` so the browser fetches the responsive variant via `<link rel="preload" as="image" imagesrcset imagesizes fetchpriority="high">` before render.
-
-#### Scenario: No hero pop-in on load
-- **WHEN** the artwork page loads
-- **THEN** the primary image variant matching the viewer `sizes` is preloaded (no plain-`href`/double-download) and rendered without a deferred pop-in flash
 
 ### Requirement: No load-time layout shift or blink
 The viewer SHALL reserve its display box at the sticky stage height on desktop (`calc(100svh - 93px)` at ≥1024px) and at a minimum of `60vh` on viewports below 1024px, so decoding images does not cause a layout shift or blink on load.
@@ -51,27 +47,9 @@ The viewer SHALL reserve its display box at the sticky stage height on desktop (
 - **WHEN** the artwork page loads and images decode
 - **THEN** no visible reflow/blink occurs because the image container's display box is reserved at the sticky stage height on desktop (and at least `60vh` below `1024px`)
 
-### Requirement: Reduced-motion and mobile fallback stacks images
-For `prefers-reduced-motion: reduce` OR viewports below 1024px, the viewer SHALL render all images stacked vertically (no pin, no scrub). Stacked images SHALL display at a `4/5` aspect ratio. This behavior is preserved from the current implementation, with the mobile threshold aligned to the immersive desktop breakpoint.
-
-#### Scenario: Reduced-motion user sees stacked images
-- **WHEN** a user with `prefers-reduced-motion: reduce` (desktop or mobile) views a multi-image artwork
-- **THEN** all images are displayed stacked and the `1 / N` counter reads the total count, with no scroll animation
-
-#### Scenario: Tablet and mobile see stacked images
-- **WHEN** a multi-image artwork is viewed below 1024px (mobile or tablet)
-- **THEN** images are displayed stacked in full-width rows at a `4/5` aspect ratio with no scrub
-
 ### Requirement: Verification via automated browser check
 The change SHALL be verified with the `playwright-cli` skill: load a multi-image artwork on desktop (motion allowed), scroll through the section, and assert that the visible image and the `1 / N` counter change, that the scrub engages immediately (no dead-zone below the header), that the page keeps a single scrollbar with no nested panel scroll, that the buy widget is passed before the footer, and that the primary image is preloaded (no late pop-in).
 
 #### Scenario: Playwright confirms scrub and preload
 - **WHEN** the Playwright check runs against a multi-image artwork page
 - **THEN** scrolling changes the displayed image and counter, the scrub begins below the sticky header, the page scrolls with a single scrollbar, the buy widget passes through the viewport before the footer, and the network/preload confirms the primary image was preloaded
-
-### Requirement: Viewer first image is LCP with responsive sizes
-The viewer SHALL render `images[0]` with `loading="eager" fetchpriority="high"` and `sizes="(max-width:1024px) 100vw, calc(100vw - 400px)"` (`widths [960,1600,2400]`), and remaining slides with `loading="lazy"` and identical `sizes`, preserving scrub, counter, and stacked fallback.
-
-#### Scenario: First paint fetches right-sized LCP
-- **WHEN** an artwork page loads on desktop
-- **THEN** only the first-image variant matching `calc(100vw-380px)` is high-priority; hidden slides defer

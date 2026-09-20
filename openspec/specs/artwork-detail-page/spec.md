@@ -1,7 +1,7 @@
 # artwork-detail-page Specification
 
 ## Purpose
-Provides a build-time generated artwork detail page per artwork in both languages (`/obras/<slug>` for Spanish, `/en/obras/<slug>` for English) rendered through the existing catch-all route — a scroll-driven multi-image viewer on the left with a fixed editorial info panel on the right, real artwork hrefs everywhere, a slug-preserving language switch, and localized SEO metadata.
+Provides a build-time generated artwork detail page per artwork in both languages (`/obras/<slug>` for Spanish, `/en/obras/<slug>` for English) rendered through the existing catch-all route — a sticky image stage on the left with a flowing editorial info panel on the right under a single page scroll, real artwork hrefs everywhere, a slug-preserving language switch, and localized SEO metadata.
 
 ## Requirements
 
@@ -14,9 +14,9 @@ The conversion slot of the info panel SHALL render in normal document flow direc
 - **THEN** the conversion slot appears directly after the spec list in normal document flow, spaced by the panel's standard vertical gap
 
 #### Scenario: CTA does not overflow short viewports
-- **GIVEN** a desktop viewport whose height is short enough that the sticky info panel's content exceeds the viewport
+- **GIVEN** a desktop viewport whose height is short enough that the info panel's content exceeds the viewport
 - **WHEN** the page renders
-- **THEN** the conversion slot remains inside the scrollable panel and does not overflow the panel or the viewport
+- **THEN** the page keeps a single scrollbar and the conversion slot is reached via normal page scroll — it never hides inside a nested scrollable panel
 
 #### Scenario: Available artwork hosts the buy widget
 - **GIVEN** an artwork with `status == "available"`
@@ -49,10 +49,10 @@ The artwork page SHALL render an immersive two-part layout: the artwork images o
 - **WHEN** the artwork detail page renders at `lg` viewport or wider
 - **THEN** the image viewer occupies the full-bleed left column and the info panel occupies a fixed-width right column with no horizontal container padding
 
-#### Scenario: Info panel is sticky on desktop
+#### Scenario: Image stage is sticky on desktop
 - **GIVEN** an artwork detail page at `lg` viewport or wider
-- **WHEN** the user scrolls through the pinned image viewer
-- **THEN** the info panel stays fixed in the viewport (`sticky`, `top: 93px`, height `calc(100svh - 93px)`, `overflow-y-auto`) with a left border separator, and its bottom aligns with the viewport bottom
+- **WHEN** the user scrolls through the info panel
+- **THEN** the image zone stays fixed in the viewport (`sticky`, `top: 93px`, height `calc(100svh - 93px)`) with a left border separator on the flowing info column, and the page keeps a single scrollbar so the footer is only reachable past the conversion slot
 
 #### Scenario: Mobile stacks image above info
 - **GIVEN** an artwork detail page below `lg` viewport
@@ -64,23 +64,23 @@ The artwork page SHALL render an immersive two-part layout: the artwork images o
 - **THEN** the title and description render in Spanish (from the artwork's translation dictionary)
 
 ### Requirement: Scroll-driven multi-image viewer
-For an artwork with more than one image, the image viewer SHALL be pinned via the installed GSAP `ScrollTrigger` while a scrubbed timeline cycles through the artwork's images (crossfading and/or translating) as the user scrolls, with the right info panel remaining fixed for the duration of the pin. The pin SHALL engage once the pinned section's top reaches the bottom of the sticky header (`start: "top 93px"`) so the scrub begins immediately with no scroll dead-zone. The pin SHALL end once the last image has been reached. The scrubbed timeline SHALL use `ease: "none"` and SHALL animate the image children, never the pinned element itself.
+For an artwork with more than one image, a scrubbed GSAP `ScrollTrigger` timeline SHALL cycle through the artwork's images (crossfading and/or translating) as the user scrolls the section, while the sticky image stage holds the viewport and the info panel flows past it in normal page scroll. The timeline SHALL use the section as trigger (`start: "top 93px"`, `end: "bottom bottom"`, no `pin`) so the scrub begins once the section's top reaches the bottom of the sticky header (`start: "top 93px"`) with no scroll dead-zone and completes when the section's bottom reaches the viewport bottom. The scrubbed timeline SHALL use `ease: "none"` and SHALL animate the image children, never the stage element itself.
 
 #### Scenario: Multiple images scrub on scroll
 - **GIVEN** an artwork with three images
-- **WHEN** the user scrolls through the pinned section on desktop
-- **THEN** the viewer transitions through the three images in order, and the info panel stays fixed
-- **AND** once the third image is reached, the pin releases and normal page scroll resumes
+- **WHEN** the user scrolls through the section on desktop
+- **THEN** the viewer transitions through the three images in order while the image stage stays sticky and the info panel scrolls past it
+- **AND** once the third image is reached and the section ends, normal page scroll continues to the footer
 
 #### Scenario: Scrub begins below the sticky header
 - **GIVEN** a multi-image artwork and the sticky header at the top of the viewport
 - **WHEN** the user starts scrolling
-- **THEN** the pinned scrub engages immediately when the section top reaches the header's bottom edge (`top 93px`), with no initial scroll distance without animation
+- **THEN** the scrub engages immediately when the section top reaches the header's bottom edge (`top 93px`), with no initial scroll distance without animation
 
-#### Scenario: Reduced-motion preference disables pinning
+#### Scenario: Reduced-motion preference disables scrub
 - **GIVEN** the user has `prefers-reduced-motion: reduce` active
 - **WHEN** the artwork detail page renders
-- **THEN** the images display without the pin-and-scrub effect (e.g. stacked or shown statically), via `gsap.matchMedia()`
+- **THEN** the images display without the scrub effect (e.g. stacked or shown statically), via `gsap.matchMedia()`
 
 ### Requirement: Viewer lifecycle follows the shared GSAP pattern
 The scrubbed timeline SHALL be reverted on `astro:after-swap` and re-initialized on `astro:page-load`, following the existing `src/lib/gsap.ts` lifecycle.
