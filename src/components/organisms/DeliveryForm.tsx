@@ -1,7 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { getOrderSummary, postDelivery, SalesError, type DeliveryPayload, type OrderSummary } from "@/lib/api/sales"
-import { OrderSummaryCard } from "@/components/organisms/OrderSummaryCard"
 
 export interface DeliveryCopy {
   contactTitle: string
@@ -38,7 +37,9 @@ export interface ConfirmationCopy {
 export interface DeliveryFormProps {
   orderSlug: string
   copy: DeliveryCopy
-  confirmation: ConfirmationCopy
+  onComplete: (summary: OrderSummary) => void
+  obrasHref: string
+  backToObras: string
 }
 
 type FieldName = keyof DeliveryPayload
@@ -90,13 +91,12 @@ function firstMessage(value: string | string[] | undefined): string | null {
   return Array.isArray(value) ? (value[0] ?? null) : value
 }
 
-export function DeliveryForm({ orderSlug, copy, confirmation }: DeliveryFormProps) {
+export function DeliveryForm({ orderSlug, copy, onComplete, obrasHref, backToObras }: DeliveryFormProps) {
   const [step, setStep] = React.useState<1 | 2>(1)
   const [values, setValues] = React.useState<DeliveryPayload>(EMPTY)
   const [errors, setErrors] = React.useState<Partial<Record<FieldName, string>>>({})
   const [sending, setSending] = React.useState(false)
   const [terminal, setTerminal] = React.useState<"tooMany" | "notFound" | null>(null)
-  const [done, setDone] = React.useState<OrderSummary | null>(null)
 
   const set = (name: FieldName, value: string) => {
     setValues((v) => ({ ...v, [name]: value }))
@@ -115,12 +115,12 @@ export function DeliveryForm({ orderSlug, copy, confirmation }: DeliveryFormProp
     setTerminal(null)
     try {
       const summary = await postDelivery(orderSlug, values)
-      setDone(summary)
+      onComplete(summary)
     } catch (err) {
       if (err instanceof SalesError && err.status === 409) {
         // Idempotent re-submit — confirm against the fresh summary.
         try {
-          setDone(await getOrderSummary(orderSlug))
+          onComplete(await getOrderSummary(orderSlug))
         } catch {
           setTerminal("tooMany")
           setSending(false)
@@ -150,15 +150,6 @@ export function DeliveryForm({ orderSlug, copy, confirmation }: DeliveryFormProp
     }
   }
 
-  if (done) {
-    return (
-      <div className="flex flex-col gap-6">
-        <h2 className="font-serif text-3xl text-ink">{confirmation.title}</h2>
-        <OrderSummaryCard summary={done} note={confirmation.receiptNote} />
-      </div>
-    )
-  }
-
   const stepFields = FIELDS.filter((f) => f.step === step)
 
   return (
@@ -183,9 +174,16 @@ export function DeliveryForm({ orderSlug, copy, confirmation }: DeliveryFormProp
         </label>
       ))}
       {terminal && (
-        <p className="text-sm text-ink" role="alert">
-          {terminal === "tooMany" ? copy.tooMany : copy.notFound}
-        </p>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-ink" role="alert">
+            {terminal === "tooMany" ? copy.tooMany : copy.notFound}
+          </p>
+          {terminal === "notFound" && (
+            <a href={obrasHref} className="w-fit text-sm text-crimson underline underline-offset-4">
+              {backToObras}
+            </a>
+          )}
+        </div>
       )}
       <div className="flex gap-3">
         {step === 2 && (

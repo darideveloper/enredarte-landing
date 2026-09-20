@@ -134,7 +134,7 @@ export function OrderFlow({ obrasHref, copy, delivery, confirmation }: OrderFlow
     return (
       <div className="flex flex-col gap-8">
         <OrderSummaryCard summary={phase.summary} />
-        {orderSlug && <DeliveryForm orderSlug={orderSlug} copy={delivery} confirmation={confirmation} />}
+        {orderSlug && <DeliveryForm orderSlug={orderSlug} copy={delivery} onComplete={(summary) => setPhase({ kind: "complete", summary })} obrasHref={obrasHref} backToObras={copy.backToObras} />}
       </div>
     )
   }
