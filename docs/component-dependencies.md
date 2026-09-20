@@ -249,9 +249,8 @@ CuratorPage.astro
 SuccessPage.astro (static shell, PageSEO noIndex)
 ├── Headline.astro ───────────► lib/utils
 ├── OrderFlow.tsx (React island, client:load) ─► lib/api/sales (getOrderSummary), ?order= parse, 3s/×20 poll, timeout+retry, 429-pause
-│   ├── OrderSummaryCard.tsx ─► lib/format/price
-│   └── DeliveryForm.tsx (React, two-step, only when paid_pending_data) ─► lib/api/sales (postDelivery/getOrderSummary)
-│       └── OrderSummaryCard.tsx (confirmation: summary + receipt note)
+│   ├── OrderSummaryCard.tsx ─► lib/format/price (single card owner: ready + complete phases)
+│   └── DeliveryForm.tsx (React, two-step, only when paid_pending_data) ─► lib/api/sales (postDelivery/getOrderSummary, onComplete(summary) → complete phase)
 └── lib/i18n/utils (getLocalizedPath obras for fallback link)
 
 CancelPage.astro (static, PageSEO noIndex, no island)
