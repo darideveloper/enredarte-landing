@@ -1,20 +1,4 @@
-# delivery-form Specification
-
-## Purpose
-Two-step delivery data capture for paid orders and the purchase confirmation screen.
-
-## Requirements
-
-### Requirement: Two-step delivery form
-When the order summary has `status == "paid_pending_data"`, the system SHALL show a two-step form: step 1 contact (`receiver_name`, `receiver_phone`), step 2 address (`country`, `state`, `city`, `postal_code`, `neighborhood`, `street`, `exterior_number` required; `interior_number`, `between_street_1`, `between_street_2`, `reference`, `delivery_notes` optional). Client-side validation SHALL mirror backend max-lengths. A single `POST orders/:slug/delivery/` with all 14 fields SHALL fire on step-2 submit.
-
-#### Scenario: Paid order shows step one
-- **WHEN** the summary reports `paid_pending_data`
-- **THEN** the delivery form renders starting at the contact step
-
-#### Scenario: Address step submits the full payload
-- **WHEN** the user completes step 2 and submits
-- **THEN** one delivery request carries all required and optional fields
+## MODIFIED Requirements
 
 ### Requirement: Delivery submit states
 On `200` the system SHALL lift completion to the parent (`OrderFlow`), which renders the purchase confirmation (order is `data_complete`); `DeliveryForm` SHALL NOT render its own confirmation screen. On `409` (not awaiting data, e.g. re-submit) it SHALL fetch the fresh summary and lift it the same way. On `400` it SHALL render per-field errors from `data` on the originating step. On `404` (unknown order slug) it SHALL show an order-not-found state with a catalog link. On `429` it SHALL show wait-and-retry without losing entered data.
