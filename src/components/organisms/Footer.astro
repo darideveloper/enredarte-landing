@@ -3,10 +3,16 @@ import Logo from "@/components/atoms/Logo.astro"
 import Link from "@/components/atoms/Link.astro"
 import Headline from "@/components/atoms/Headline.astro"
 import LangBtns from "@/components/atoms/LangBtns.astro"
+import { RandomArtworkBtn } from "@/components/atoms/RandomArtworkBtn"
 import { getNavLinks } from "@/lib/nav"
 import { BUSINESS_DATA, EMAIL, PHONES, WHATSAPP } from "@/data/site-config"
 import { getLangFromUrl, getLocalizedPath, getTranslations } from "@/lib/i18n/utils"
 
+export interface Props {
+  artworkSlugs?: string[]
+}
+
+const { artworkSlugs = [] } = Astro.props
 const lang = getLangFromUrl(Astro.url)
 const t = getTranslations(lang)
 const navLinks = getNavLinks(lang)
@@ -16,6 +22,19 @@ const legalLinks = [
   { key: "terms", pageKey: "terminos-y-condiciones" },
   { key: "cookies", pageKey: "politica-de-cookies" },
 ] as const
+
+// Current artwork slug from the URL (/obras/<slug> or /en/obras/<slug>),
+// excluded from the random draw. Undefined off artwork pages.
+const urlSegments = Astro.url.pathname.split("/").filter(Boolean)
+const currentSlug =
+  urlSegments[0] === "obras"
+    ? urlSegments[1]
+    : urlSegments[0] === "en" && urlSegments[1] === "obras"
+      ? urlSegments[2]
+      : undefined
+const hasDestination =
+  artworkSlugs.length > 0 &&
+  (currentSlug == null || artworkSlugs.some((slug) => slug !== currentSlug))
 ---
 
 <footer class="border-t border-white/10 bg-ink text-paper">
@@ -56,6 +75,17 @@ const legalLinks = [
               <Link variant="footer" href={link.href}>{link.label}</Link>
             </li>
           ))}
+          {hasDestination && (
+            <li>
+              <RandomArtworkBtn
+                client:load
+                slugs={artworkSlugs}
+                lang={lang}
+                label={t("global.footer.random")}
+                currentSlug={currentSlug}
+              />
+            </li>
+          )}
         </ul>
       </div>
 

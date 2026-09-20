@@ -47,6 +47,8 @@ src/pages/
   pages like `home` and the legal stubs need none — `LangBtns` falls back to `getLocalizedPath(pageKey)`)
    to `Layout` → `Header` → `LangBtns`
    so the language switch preserves the slug/page, and `preloadImage` prefers `Post.banner_image` (verbatim absolute URL, no prefix) for post detail.
+- Also computes `availableSlugs` (artwork slugs with `status === "available"`) and passes them as
+  `artworkSlugs` to `Layout` → `Footer` → `RandomArtworkBtn` (footer random-artwork island).
 
 ## Full dependency diagram
 
@@ -64,9 +66,9 @@ src/pages/
                     │                    Layout.astro                    │
                     │  global.css                                        │
                     │  <body>                                            │
-                    │   ├─ Header.astro (localizedPaths → LangBtns)      │
-                    │   ├─ <slot/> = page content                        │
-                    │   └─ Footer.astro                                  │
+                     │   ├─ Header.astro (localizedPaths → LangBtns)      │
+                     │   ├─ <slot/> = page content                        │
+                     │   └─ Footer.astro (artworkSlugs → RandomArtworkBtn) │
                     └───────────────────────────────────────────────────┘
 ```
 
@@ -275,10 +277,11 @@ Layout.astro
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
-└── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug stubs)
+└── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug stubs; nav column ends with the RandomArtworkBtn island when `artworkSlugs` yields a destination)
     ├── Logo.astro (bg-red-circle variant) ──► lib/utils (cn)
     ├── Link.astro (footer variant) ─► lib/utils
     ├── Headline.astro ───────────────► lib/utils
+    ├── RandomArtworkBtn.tsx (React island, client:load; `slugs` + `lang` + `global.footer.random` label + `currentSlug` parsed from `Astro.url`; uniform pick via exported `pickRandom`, same-tab `location.assign(getLocalizedArtworkPath)`, renders nothing on empty draw) ─► lib/i18n/utils
     ├── LangBtns.astro (inverse variant)
     │   └── lib/i18n/utils (getLocalizedPath)
     ├── lib/nav.ts (shared getNavLinks with Header)
@@ -293,6 +296,7 @@ Layout.astro
 design-system.astro
 ├── Btn, Logo, Link, Headline, Image, BannerText (atoms, .astro)
 ├── FilterBtn (atoms, .tsx React island, named export)
+├── RandomArtworkBtn (atoms, .tsx React island, named export)
 ├── H1, Menu, ImageBanner (molecules, .astro)
 ├── LangBtns, CardSummary, Title, CardInfo (atoms, .astro)
 ├── Filters (molecules, .tsx React island, named export)
@@ -430,6 +434,12 @@ Everything below is a terminal dependency imported by multiple components:
   location plain text `Mexico City, Mexico`. `GOOGLE_MAPS` + full `ADDRESS` detail are parked
   (unrendered) for later map use; `BUSINESS_DATA.url` is `https://enredarte.mx`. Legal stubs are
   sample copy — flag for legal-counsel review before treating as final.
+- **Footer random-artwork button**: `[...path].astro` threads `availableSlugs` (`status === "available"` only)
+  into `Layout` → `Footer`, whose nav column ends with the `RandomArtworkBtn` React island
+  (`client:load`, label `global.footer.random` — "Descubrir una obra" / "Discover an artwork",
+  crimson-accent styling distinct from `Link variant="footer"`). The current artwork slug
+  (parsed from `Astro.url`) is excluded from the draw; the item renders nothing on empty draw
+  (including the 404 page, whose `Layout` passes no slugs).
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **404 page** (`404.astro`, `not-found-page` change): static, no `getStaticPaths`, no backend

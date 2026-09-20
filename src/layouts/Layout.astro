@@ -10,9 +10,10 @@ export interface Props {
   preloadSrcSet?: string
   preloadSizes?: string
   localizedPaths?: Record<"en" | "es", string>
+  artworkSlugs?: string[]
 }
 
-const { preloadImage, preloadSrcSet, preloadSizes, localizedPaths } = Astro.props
+const { preloadImage, preloadSrcSet, preloadSizes, localizedPaths, artworkSlugs } = Astro.props
 const lang = getLangFromUrl(Astro.url)
 ---
 <!doctype html>
@@ -34,6 +35,6 @@ const lang = getLangFromUrl(Astro.url)
     <main>
       <slot />
     </main>
-    <Footer />
+    <Footer artworkSlugs={artworkSlugs} />
   </body>
 </html>

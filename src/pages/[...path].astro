@@ -246,9 +246,15 @@ const preloadSet =
   preloadImage && preloadSlot && /^https?:\/\//.test(preloadImage)
     ? await lcpPreload(preloadImage, preloadSlot)
     : null
+
+// Random-artwork footer button: available-only slugs, computed at build time.
+const availableSlugs = siteData.artworks
+  .filter((artwork) => artwork.status === "available")
+  .map((artwork) => artwork.slug)
 ---
 <Layout
   localizedPaths={localizedPaths}
+  artworkSlugs={availableSlugs}
   preloadImage={preloadImage || undefined}
   preloadSrcSet={preloadSet?.srcSet}
   preloadSizes={preloadSet?.sizes}
