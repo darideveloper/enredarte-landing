@@ -6,7 +6,7 @@ Provides a build-time generated artwork detail page per artwork in both language
 ## Requirements
 
 ### Requirement: Inquiry CTA follows the spec data
-The conversion slot of the info panel SHALL render in normal document flow directly after the artwork's spec list, spaced by the info panel's standard `gap-8` rhythm, and SHALL NOT be anchored to the bottom of the panel container. For artworks with catalog `status == "available"` the slot SHALL host the buy widget (currency + email + submit) instead of the mailto inquiry CTA; for any other status it SHALL host the corresponding status badge. The full buy-widget behavior (request, redirect, error states, badges) is specified in `artwork-purchase`.
+The conversion slot of the info panel SHALL render in normal document flow directly after the artwork's spec list, spaced by the info panel's standard `gap-8` rhythm, and SHALL NOT be anchored to the bottom of the panel container. For artworks with reconciled `status == "available"` (live status when the status check succeeds, otherwise the baked catalog snapshot) the slot SHALL host the buy widget (currency + email + submit) instead of the mailto inquiry CTA; for any other status it SHALL host the corresponding status badge. The full buy-widget behavior (request, redirect, error states, badges) is specified in `artwork-purchase`.
 
 #### Scenario: CTA renders after the spec data
 - **GIVEN** an artwork detail page with spec rows in the info panel
@@ -19,7 +19,7 @@ The conversion slot of the info panel SHALL render in normal document flow direc
 - **THEN** the page keeps a single scrollbar and the conversion slot is reached via normal page scroll — it never hides inside a nested scrollable panel
 
 #### Scenario: Available artwork hosts the buy widget
-- **GIVEN** an artwork with `status == "available"`
+- **GIVEN** an artwork with reconciled `status == "available"`
 - **WHEN** the page renders
 - **THEN** the conversion slot contains the buy widget and no mailto inquiry CTA
 
@@ -91,7 +91,7 @@ The scrubbed timeline SHALL be reverted on `astro:after-swap` and re-initialized
 - **AND** when `astro:page-load` fires, the scrubbed timeline is re-initialized for the new page
 
 ### Requirement: Render the editorial info panel
-The right info panel SHALL show the artwork's localized title, the artist name, the year, the dimensions, a localized description, the price (in the currency matching the active language), the availability status, and a spec list of its localized discipline, technique, theme, format, and scale labels. The artwork localized description (from `Artwork.translations[lang].description` via `pickTranslation` and `toArtworkDetailView`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{artwork.description}</p>`.
+The right info panel SHALL show the artwork's localized title, the artist name, the year, the dimensions, a localized description, the price (in the currency matching the active language), the availability status, and a spec list of its localized discipline, technique, theme, format, and scale labels. The price and availability status SHALL reflect the reconciled values (live status-check prices/status when the check succeeds, otherwise the baked catalog snapshot). The artwork localized description (from `Artwork.translations[lang].description` via `pickTranslation` and `toArtworkDetailView`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{artwork.description}</p>`.
 
 #### Scenario: Panel shows full artwork data
 - **GIVEN** an artwork with title, artist, year, dimensions, description, prices in both currencies, status, and taxonomy refs
@@ -113,6 +113,11 @@ The right info panel SHALL show the artwork's localized title, the artist name, 
 #### Scenario: Missing optional fields are omitted
 - **GIVEN** an artwork with no price in the active language and no description
 - **THEN** the price and description rows are omitted without error
+
+#### Scenario: Live sale updates price and status labels
+- **GIVEN** a page baked with one status/prices whose live status check returns different values
+- **WHEN** the reconciliation completes
+- **THEN** the price and status labels show the live values in the active language with no layout shift
 #### Scenario: Artwork description renders as markdown
 - **WHEN** the artwork description contains markdown (`**`, links, lists, paragraphs)
 - **THEN** it is parsed via `renderMarkdown` and rendered with `set:html` in prose styling, with single `\n` → `<br>`

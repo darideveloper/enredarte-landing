@@ -153,8 +153,12 @@ ArtworkPage.astro
 └── ArtworkInfoPanel.astro (molecule, right column)
     ├── Headline.astro ───────────► lib/utils
     ├── atoms/Markdown.astro ─────► lib/markdown (description)
-    ├── BuyWidget.tsx (React island, client:load, only when `status == "available"`) ─► lib/api/sales (postBuy), zod email, sessionStorage artwork-stash
-    ├── status badge (static `<p>`, reserved → in-progress / sold → sold / else unavailable)
+    ├── ArtworkPurchase.tsx (React island, client:load, owns price/status/conversion slot;
+    │   renders baked snapshot identically, then reconciles once via lib/api/artwork-status)
+    │   ├── BuyWidget.tsx (only when reconciled `status == "available"`) ─► lib/api/sales (postBuy), zod email, sessionStorage artwork-stash
+    │   └── status badge (static `<p>`, reserved → in-progress / sold → sold / else unavailable)
+    ├── lib/api/artwork-status.ts (getArtworkLiveStatus: fire-and-forget GET :slug/status/,
+    │   no auth, ~8s timeout, null on any failure, decimal-string prices → numbers)
     ├── lib/i18n/utils (getTranslations for status/spec labels + purchase copy)
     ├── lib/format/price (formatPrice + pickPrice + currencyForLang on `lang`)
     └── data/api.ts (ArtworkDetailView prop)
@@ -328,6 +332,7 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
 - `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`)
 - `lib/api/sales.ts` — token-free public sales client (`POST artworks/:slug/buy/`, `GET orders/:slug/`, `POST orders/:slug/delivery/` on `PUBLIC_API_BASE_URL`, no `Authorization`, typed `SalesError` from the `{status,message,data}` envelope, sales types co-located; never reads `API_TOKEN`)
+- `lib/api/artwork-status.ts` — token-free live status check (`GET artworks/:slug/status/`, no auth, ~8s timeout, `null` on any failure so the baked HTML stands; decimal-string prices normalized to numbers)
 - `lib/markdown.ts` — `renderMarkdown`/`renderInline` (marked 15 GFM `breaks: true`, BlogPost custom renderer: h1→h2, figure, external ↗, code badge+copy; trusted, no sanitize) + `stripMarkdown` (plain-text excerpts for SEO)
 - `lib/code-copy.ts` — `attachCodeCopy()` (idempotent code-block copy handler, used by `BlogPost` + `Markdown` atom scripts)
 - `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
@@ -369,7 +374,9 @@ Everything below is a terminal dependency imported by multiple components:
   `prefers-reduced-motion` and viewport below `1024px`) and a flowing `ArtworkInfoPanel` on the
   right (title, artist, year/dimensions, description, price/status, taxonomy spec rows,
   buy widget / status badge) in normal document flow, so the footer is only reachable past
-  the conversion slot. `overflow-hidden` is scoped to the image
+  the conversion slot. The price/status/conversion slot is owned by the `ArtworkPurchase`
+  island, which renders the baked snapshot and reconciles it once against the live
+  status endpoint (silent fallback to baked on any failure). `overflow-hidden` is scoped to the image
   zone. Localized SEO
   via `PageSEO` (`ogImage` = primary image). `LangBtns` `localizedPaths` preserve the
   artwork slug across languages.
