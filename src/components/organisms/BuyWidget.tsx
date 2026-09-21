@@ -1,8 +1,8 @@
 import * as React from "react"
 import { z } from "zod"
 import { cn } from "@/lib/utils"
-import { postBuy, SalesError, type SalesCurrency } from "@/lib/api/sales"
-import type { Lang } from "@/lib/api/types"
+import { postBuy, SalesError } from "@/lib/api/sales"
+import type { Currency } from "@/lib/format/price"
 
 export interface BuyCopy {
   currencyLabel: string
@@ -19,16 +19,25 @@ export interface BuyCopy {
 
 export interface BuyWidgetProps {
   artworkSlug: string
-  lang: Lang
   copy: BuyCopy
+  currency: Currency
+  onCurrencyChange: (currency: Currency) => void
+  priceMxn?: number
+  priceUsd?: number
 }
 
 type TerminalKind = "unavailable" | "inProgress" | "retryLater" | "tooMany"
 
 const LAST_ARTWORK_KEY = "enredarte-last-artwork"
 
-export function BuyWidget({ artworkSlug, lang, copy }: BuyWidgetProps) {
-  const [currency, setCurrency] = React.useState<SalesCurrency>(lang === "en" ? "usd" : "mxn")
+export function BuyWidget({
+  artworkSlug,
+  copy,
+  currency,
+  onCurrencyChange,
+  priceMxn,
+  priceUsd,
+}: BuyWidgetProps) {
   const [email, setEmail] = React.useState("")
   const [loading, setLoading] = React.useState(false)
   const [emailError, setEmailError] = React.useState<string | null>(null)
@@ -53,7 +62,10 @@ export function BuyWidget({ artworkSlug, lang, copy }: BuyWidgetProps) {
     setTerminal(null)
     setLoading(true)
     try {
-      const { checkout_url } = await postBuy(artworkSlug, { currency, email: email.trim() })
+      const { checkout_url } = await postBuy(artworkSlug, {
+        currency: currency === "MXN" ? "mxn" : "usd",
+        email: email.trim(),
+      })
       try {
         sessionStorage.setItem(LAST_ARTWORK_KEY, artworkSlug)
       } catch {
@@ -87,12 +99,16 @@ export function BuyWidget({ artworkSlug, lang, copy }: BuyWidgetProps) {
         <span className="text-[11px] uppercase tracking-[0.14em] text-muted">{copy.currencyLabel}</span>
         <select
           value={currency}
-          onChange={(e) => setCurrency(e.target.value as SalesCurrency)}
+          onChange={(e) => onCurrencyChange(e.target.value as Currency)}
           disabled={loading}
           className="border border-border-theme bg-transparent px-4 py-3 text-sm text-ink disabled:opacity-50"
         >
-          <option value="mxn">MXN</option>
-          <option value="usd">USD</option>
+          <option value="MXN" disabled={!(priceMxn != null && priceMxn > 0)}>
+            MXN
+          </option>
+          <option value="USD" disabled={!(priceUsd != null && priceUsd > 0)}>
+            USD
+          </option>
         </select>
       </label>
       <label className="flex flex-col gap-2 font-sans">

@@ -2,7 +2,7 @@ import * as React from "react"
 import { BuyWidget, type BuyCopy } from "@/components/organisms/BuyWidget"
 import { getArtworkLiveStatus } from "@/lib/api/artwork-status"
 import type { ArtworkStatus, Lang } from "@/lib/api/types"
-import { currencyForLang, formatPrice, pickPrice } from "@/lib/format/price"
+import { currencyForLang, formatPrice, pickPrice, type Currency } from "@/lib/format/price"
 
 export interface ArtworkPurchaseBadgeCopy {
   inProgress: string
@@ -25,6 +25,12 @@ function badgeFor(status: ArtworkStatus, copy: ArtworkPurchaseBadgeCopy): string
   if (status === "reserved") return copy.inProgress
   if (status === "sold") return copy.sold
   return copy.unavailable
+}
+
+function initialCurrency(lang: Lang, priceMxn?: number, priceUsd?: number): Currency {
+  const preferred = currencyForLang(lang)
+  if (pickPrice(priceMxn, priceUsd, preferred) !== undefined) return preferred
+  return preferred === "MXN" ? "USD" : "MXN"
 }
 
 // Purchase zone: renders the baked snapshot identically on first paint,
@@ -63,11 +69,24 @@ export function ArtworkPurchase({
   }, [artworkSlug, bakedStatus, bakedPriceMxn, bakedPriceUsd])
 
   const status = live?.status ?? bakedStatus
-  const currency = currencyForLang(lang)
-  const price = formatPrice(
-    pickPrice(live?.priceMxn ?? bakedPriceMxn, live?.priceUsd ?? bakedPriceUsd, currency),
-    currency,
+  const priceMxn = live?.priceMxn ?? bakedPriceMxn
+  const priceUsd = live?.priceUsd ?? bakedPriceUsd
+  const [currency, setCurrency] = React.useState<Currency>(() =>
+    initialCurrency(lang, bakedPriceMxn, bakedPriceUsd),
   )
+
+  // Keep the selection valid when live prices arrive: if the selected
+  // currency has no price but the other one does, fall over to it.
+  React.useEffect(() => {
+    if (pickPrice(priceMxn, priceUsd, currency) === undefined) {
+      const fallback: Currency = currency === "MXN" ? "USD" : "MXN"
+      if (pickPrice(priceMxn, priceUsd, fallback) !== undefined) {
+        setCurrency(fallback)
+      }
+    }
+  }, [priceMxn, priceUsd, currency])
+
+  const price = formatPrice(pickPrice(priceMxn, priceUsd, currency), currency)
 
   return (
     <>
@@ -78,7 +97,14 @@ export function ArtworkPurchase({
         </p>
       </div>
       {status === "available" ? (
-        <BuyWidget artworkSlug={artworkSlug} lang={lang} copy={buyCopy} />
+        <BuyWidget
+          artworkSlug={artworkSlug}
+          copy={buyCopy}
+          currency={currency}
+          onCurrencyChange={setCurrency}
+          priceMxn={priceMxn}
+          priceUsd={priceUsd}
+        />
       ) : (
         <p className="self-start border border-border-theme px-[18px] py-[9px] text-[10px] uppercase tracking-[0.06em] font-sans text-muted">
           {badgeFor(status, badgeCopy)}
