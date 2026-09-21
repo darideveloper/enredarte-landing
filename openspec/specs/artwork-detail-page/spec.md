@@ -42,12 +42,12 @@ The system SHALL generate an artwork detail page for every artwork fetched from 
 - **THEN** no artwork page is emitted for that slug
 
 ### Requirement: Render the artwork detail layout
-The artwork page SHALL render an immersive two-part layout: the artwork images on the **left** spanning the full remaining viewport width (no `max-w-6xl` container and no horizontal padding), and a fixed-width editorial info panel on the **right** (`lg:grid-cols-[1fr_380px]`, `xl:grid-cols-[1fr_420px]`), reusing existing atoms (`Image`, `Headline`, `Btn`) and the established paper/ink/crimson visual language. Clipping for the absolute-positioned image layers SHALL be scoped to the image zone so no `overflow` ancestor of the info panel vetoes its `position: sticky`.
+The artwork page SHALL render an immersive hero: the artwork's **primary image** on the **left** spanning the full remaining viewport width (no `max-w-6xl` container and no horizontal padding) and a fixed-width editorial info panel on the **right** (`lg:grid-cols-[1fr_380px]`, `xl:grid-cols-[1fr_420px]`), reusing existing atoms (`Image`, `Headline`, `Btn`) and the established paper/ink/crimson visual language. Clipping for the absolute-positioned image layers SHALL be scoped to the image zone so no `overflow` ancestor of the info panel vetoes its `position: sticky`. Below the hero the page SHALL render the artist + gallery section (artist card and image slider) as specified in `artwork-slider-gallery`.
 
-#### Scenario: Layout shows full-bleed images left, info right
+#### Scenario: Layout shows full-bleed primary image left, info right
 - **GIVEN** an artwork with images and metadata
 - **WHEN** the artwork detail page renders at `lg` viewport or wider
-- **THEN** the image viewer occupies the full-bleed left column and the info panel occupies a fixed-width right column with no horizontal container padding
+- **THEN** the primary image occupies the full-bleed left column and the info panel occupies a fixed-width right column with no horizontal container padding
 
 #### Scenario: Image stage is sticky on desktop
 - **GIVEN** an artwork detail page at `lg` viewport or wider
@@ -57,38 +57,16 @@ The artwork page SHALL render an immersive two-part layout: the artwork images o
 #### Scenario: Mobile stacks image above info
 - **GIVEN** an artwork detail page below `lg` viewport
 - **WHEN** the page renders
-- **THEN** the image stacks full-width above the info panel, and the info panel uses a top border separator instead of the left border
+- **THEN** the primary image stacks full-width above the info panel, and the info panel uses a top border separator instead of the left border
+
+#### Scenario: Gallery section follows the hero
+- **GIVEN** an artwork detail page with a resolvable artist or at least one image
+- **WHEN** the page renders
+- **THEN** the artist + gallery section renders below the hero per `artwork-slider-gallery`
 
 #### Scenario: Localized content renders
 - **GIVEN** an artwork opened in Spanish
 - **THEN** the title and description render in Spanish (from the artwork's translation dictionary)
-
-### Requirement: Scroll-driven multi-image viewer
-For an artwork with more than one image, a scrubbed GSAP `ScrollTrigger` timeline SHALL cycle through the artwork's images (crossfading and/or translating) as the user scrolls the section, while the sticky image stage holds the viewport and the info panel flows past it in normal page scroll. The timeline SHALL use the section as trigger (`start: "top 93px"`, `end: "bottom bottom"`, no `pin`) so the scrub begins once the section's top reaches the bottom of the sticky header (`start: "top 93px"`) with no scroll dead-zone and completes when the section's bottom reaches the viewport bottom. The scrubbed timeline SHALL use `ease: "none"` and SHALL animate the image children, never the stage element itself.
-
-#### Scenario: Multiple images scrub on scroll
-- **GIVEN** an artwork with three images
-- **WHEN** the user scrolls through the section on desktop
-- **THEN** the viewer transitions through the three images in order while the image stage stays sticky and the info panel scrolls past it
-- **AND** once the third image is reached and the section ends, normal page scroll continues to the footer
-
-#### Scenario: Scrub begins below the sticky header
-- **GIVEN** a multi-image artwork and the sticky header at the top of the viewport
-- **WHEN** the user starts scrolling
-- **THEN** the scrub engages immediately when the section top reaches the header's bottom edge (`top 93px`), with no initial scroll distance without animation
-
-#### Scenario: Reduced-motion preference disables scrub
-- **GIVEN** the user has `prefers-reduced-motion: reduce` active
-- **WHEN** the artwork detail page renders
-- **THEN** the images display without the scrub effect (e.g. stacked or shown statically), via `gsap.matchMedia()`
-
-### Requirement: Viewer lifecycle follows the shared GSAP pattern
-The scrubbed timeline SHALL be reverted on `astro:after-swap` and re-initialized on `astro:page-load`, following the existing `src/lib/gsap.ts` lifecycle.
-
-#### Scenario: Lifecycle hooks revert and re-initialize
-- **WHEN** `astro:after-swap` fires during a client-side navigation
-- **THEN** the previous `gsap.matchMedia()` context is reverted
-- **AND** when `astro:page-load` fires, the scrubbed timeline is re-initialized for the new page
 
 ### Requirement: Render the editorial info panel
 The right info panel SHALL show the artwork's localized title, the artist name, the year, the dimensions, a localized description, the price (in the currency matching the active language), the availability status, and a spec list of its localized discipline, technique, theme, format, and scale labels. The artwork localized description (from `Artwork.translations[lang].description` via `pickTranslation` and `toArtworkDetailView`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{artwork.description}</p>`.

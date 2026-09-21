@@ -2,9 +2,12 @@
 import PageSEO from "@/components/seo/PageSEO.astro"
 import ArtworkImageViewer from "@/components/molecules/ArtworkImageViewer.astro"
 import ArtworkInfoPanel from "@/components/molecules/ArtworkInfoPanel.astro"
-import { toArtworkDetailView } from "@/data/api"
+import ArtistCard from "@/components/molecules/ArtistCard.astro"
+import { ArtworkSlider, type SliderSlide } from "@/components/organisms/ArtworkSlider"
+import { toArtworkDetailView, resolveLocationName } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
+import { IMAGE_SLOTS, slideSet } from "@/lib/images"
 import { getLocalizedArtworkPath } from "@/lib/i18n/utils"
 
 export interface Props {
@@ -26,6 +29,28 @@ const alternateUrls = {
   en: getLocalizedArtworkPath(artworkSlug, "en"),
   es: getLocalizedArtworkPath(artworkSlug, "es"),
 }
+
+// Hero shows the primary image only; the full gallery lives in the slider below.
+const primary = detail.images.find((img) => img.isPrimary) ?? detail.images[0]
+const heroArtwork = primary ? { ...detail, images: [primary] } : detail
+
+// Precomputed responsive sets so the React slider keeps Image-atom byte parity.
+const slides: SliderSlide[] = await Promise.all(
+  detail.images.map(async (image) => ({
+    alt: image.alt,
+    src: image.src,
+    set: await slideSet(image.src, IMAGE_SLOTS.slider),
+  }))
+)
+
+const artist = siteData.artists.find((a) => a.slug === detail.artistSlug)
+const artistLocation = artist ? resolveLocationName(artist.location, siteData.locations, lang) : ""
+const artistYears = artist?.birth_year
+  ? `${artist.birth_year}${artist.death_year ? `–${artist.death_year}` : ""}`
+  : artist?.death_year
+    ? String(artist.death_year)
+    : ""
+const artistMetadata = [artistYears, artistLocation].filter(Boolean).join(" · ")
 ---
 
 <PageSEO
@@ -45,13 +70,26 @@ const alternateUrls = {
 >
   <div class="artwork-immersive grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px]">
     <div class="artwork-image-zone relative overflow-hidden lg:sticky lg:top-[93px] lg:h-[calc(100svh-93px)] lg:self-start">
-      <ArtworkImageViewer artwork={detail} />
+      <ArtworkImageViewer artwork={heroArtwork} />
     </div>
     <div class="artwork-info-zone">
       <ArtworkInfoPanel artwork={detail} lang={lang} />
     </div>
   </div>
 </section>
+
+{(artist || slides.length > 0) && (
+  <section class="bg-paper container-site-canvas py-16 md:py-24" transition:animate="none">
+    <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 lg:gap-16 items-stretch">
+      {artist && (
+        <ArtistCard artist={artist} lang={lang} metadata={artistMetadata} class="lg:self-start lg:sticky lg:top-[93px] md:grid-cols-1" />
+      )}
+      {slides.length > 0 && (
+        <ArtworkSlider client:visible slides={slides} />
+      )}
+    </div>
+  </section>
+)}
 
 <script>
   import { recordArtworkVisit } from "@/lib/api/artwork-visits"

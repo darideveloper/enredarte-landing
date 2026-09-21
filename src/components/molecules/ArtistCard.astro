@@ -1,0 +1,79 @@
+---
+import Image from "@/components/atoms/Image.astro"
+import Markdown from "@/components/atoms/Markdown.astro"
+import { cn, stripUrlScheme } from "@/lib/utils"
+import { IMAGE_SLOTS } from "@/lib/images"
+import type { Artist, Lang } from "@/lib/api/types"
+import { getLocalizedArtistPath, getTranslations, pickTranslation } from "@/lib/i18n/utils"
+
+export interface Props {
+  artist: Artist
+  lang: Lang
+  metadata?: string
+  class?: string
+}
+
+const { artist, lang, metadata, class: className } = Astro.props
+const t = getTranslations(lang)
+const bio = pickTranslation(artist.translations, lang, "bio")
+const initials = artist.name
+  .split(/\s+/)
+  .map((word) => word[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase()
+---
+
+<div
+  class={cn(
+    "bg-ink text-paper p-8 md:p-14 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 md:gap-14 items-start",
+    className
+  )}
+>
+  <div class="relative aspect-[4/5] overflow-hidden bg-[#0D0D0D]">
+    {artist.photo ? (
+      <Image
+        src={artist.photo}
+        alt={artist.name}
+        widths={IMAGE_SLOTS.portrait.widths}
+        sizes={IMAGE_SLOTS.portrait.sizes}
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+    ) : (
+      <span class="absolute inset-0 flex items-center justify-center text-paper/30 font-serif text-5xl">
+        {initials}
+      </span>
+    )}
+  </div>
+  <div class="min-w-0">
+    <p class="text-[10px] uppercase text-crimson font-bold tracking-[0.2em] mb-3">
+      {t("global.artist.label")}
+    </p>
+    <a href={getLocalizedArtistPath(artist.slug, lang)} class="block w-fit hover:underline">
+      <h3 class="font-serif text-3xl text-paper mb-4">{artist.name}</h3>
+    </a>
+    {metadata && (
+      <p class="text-[12px] uppercase tracking-[0.14em] font-sans text-paper/60 mb-4">{metadata}</p>
+    )}
+    {bio && <Markdown content={bio} variant="on-dark" class="text-[14px] text-paper/80 leading-[1.8] mb-6 max-w-[560px]" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />}
+    {(artist.email || artist.website || artist.social_links.length > 0) && (
+      <div class="flex flex-wrap gap-6 text-[11px] tracking-[0.06em] uppercase">
+        {artist.email && (
+          <a href={`mailto:${artist.email}`} class="text-crimson hover:underline">
+            {artist.email}
+          </a>
+        )}
+        {artist.website && (
+          <a href={artist.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
+            {stripUrlScheme(artist.website)}
+          </a>
+        )}
+        {artist.social_links.map((link) => (
+          <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
+            {link.platform}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
