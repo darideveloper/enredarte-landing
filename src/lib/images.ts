@@ -31,6 +31,9 @@ export const IMAGE_SLOTS = {
   heroFull: { widths: [960, 1600, 2400], sizes: "100vw" },
   /** Artwork viewer (info panel 380-420px on lg, full-bleed below) */
   viewer: { widths: [960, 1600, 2400], sizes: "(max-width: 1024px) 100vw, calc(100vw - 400px)" },
+  /** Artwork detail slider (artist column 380px left + gap on lg, px-14 below):
+   *  column = 100vw - 48px (mobile) / 100vw - 112px (md) / 100vw - 556px (lg) */
+  slider: { widths: [640, 1080, 1600], sizes: "(max-width: 768px) calc(100vw - 48px), (max-width: 1024px) calc(100vw - 112px), calc(100vw - 556px)" },
   /** Fixed portrait column (artist/curator ~360px, full-bleed stacked) */
   portrait: { widths: [360, 720, 1080], sizes: "(max-width: 1024px) 100vw, 360px" },
   /** Header logo (h-14 ≈ 56px tall, ~180px wide) at 1x/2x/3x */
@@ -42,6 +45,47 @@ export type ImageSlotName = keyof typeof IMAGE_SLOTS
 export interface LcpPreload {
   srcSet: string
   sizes: string
+}
+
+export interface SlideSet {
+  avifSrcSet: string
+  webpSrcSet: string
+  fallbackSrc: string
+  width: number
+  height: number
+  sizes: string
+}
+
+/**
+ * Build a responsive AVIF+WebP set for a slider slide with the same transform
+ * the Image atom applies, so React islands (which can't render .astro atoms)
+ * keep byte parity with atom-rendered images. Returns null when the remote
+ * cannot be transformed — callers fall back to the verbatim URL.
+ */
+export async function slideSet(src: string, slot: ImageSlot): Promise<SlideSet | null> {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const [avif, webp] = await Promise.all([
+        getImage({ src, inferSize: true, widths: slot.widths, format: "avif", quality: AVIF_QUALITY }),
+        getImage({ src, inferSize: true, widths: slot.widths, format: "webp", quality: WEBP_QUALITY }),
+      ])
+      if (avif.srcSet.attribute && webp.srcSet.attribute) {
+        return {
+          avifSrcSet: avif.srcSet.attribute,
+          webpSrcSet: webp.srcSet.attribute,
+          fallbackSrc: webp.src,
+          width: webp.attributes.width ?? slot.widths[Math.min(1, slot.widths.length - 1)],
+          height: webp.attributes.height ?? slot.widths[Math.min(1, slot.widths.length - 1)],
+          sizes: slot.sizes,
+        }
+      }
+      return null
+    } catch (err) {
+      console.warn(`[images] slideSet attempt ${attempt + 1} failed for ${src}: ${err instanceof Error ? err.message : err}`)
+      if (attempt < 3) await new Promise((r) => setTimeout(r, 250 * (attempt + 1)))
+    }
+  }
+  return null
 }
 
 /**

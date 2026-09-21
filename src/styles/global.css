@@ -37,6 +37,36 @@
   background: #C41E3A;
   color: #F2EDE4;
 }
+/* Artwork slider (Swiper) — brand the default blue controls via Swiper vars */
+.artwork-slider {
+  --swiper-navigation-color: #1A1A1A;
+  --swiper-pagination-color: #C41E3A;
+  --swiper-pagination-bullet-inactive-color: #1A1A1A;
+  --swiper-pagination-bullet-inactive-opacity: 0.3;
+}
+
+/* Each slide centers its image both ways, so a single portrait image sits
+   mid-column instead of hugging the left. `.artwork-slide` is the same
+   element as Swiper's `.swiper-slide` (via SwiperSlide className). */
+.artwork-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Equal-height card + slider on desktop: force Swiper's flex track (which
+   defaults to min-width:auto and blows out a `1fr` column) to shrink and
+   stretch to the column height. The `.swiper-slide` already inherits
+   height:100% from Swiper's own CSS, so the image's `lg:h-full` fills it. */
+@media (min-width: 1024px) {
+  .artwork-slider,
+  .artwork-slider .swiper,
+  .artwork-slider .swiper-wrapper {
+    height: 100%;
+    min-width: 0;
+  }
+}
 * {
   caret-color: oklch(0.62 0.18 20);
   scrollbar-width: thin;

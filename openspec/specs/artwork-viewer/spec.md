@@ -5,29 +5,26 @@ Defines the required behavior of the artwork image viewer (`src/components/molec
 ## Requirements
 
 ### Requirement: Single deterministic scrub initialization
-The artwork image viewer SHALL initialize its GSAP ScrollTrigger scrub gallery exactly once per page view. A new initialization MUST first revert any previously created `gsap.matchMedia()` instance before creating a new one, and the viewer MUST NOT initialize both at module-evaluation time and again on `astro:page-load`.
+The artwork image viewer SHALL initialize its GSAP ScrollTrigger scrub gallery at most once per view, and only when it is given more than one image. A new initialization MUST first revert any previously created `gsap.matchMedia()` instance before creating a new one, and the viewer MUST NOT initialize both at module-evaluation time and again on `astro:page-load`. When the viewer renders a single image, it SHALL take the static branch and SHALL NOT create a timeline or counter. The artwork detail page currently supplies the primary image only, so this page exercises the static branch.
 
-#### Scenario: Initial page load initializes once
-- **WHEN** the artwork page loads
-- **THEN** exactly one ScrollTrigger timeline is created for the viewer, and no stale/duplicate trigger remains in the DOM
+#### Scenario: Detail page renders the static branch
+- **GIVEN** an artwork detail page (which passes only the primary image to the viewer)
+- **WHEN** the page loads
+- **THEN** the viewer renders a single static image with no ScrollTrigger timeline and no counter
 
-#### Scenario: Client-side navigation re-initializes cleanly
-- **WHEN** the user navigates to an artwork page via an Astro View Transition
-- **THEN** `astro:after-swap` reverts the prior `matchMedia` instance and `astro:page-load` creates a single fresh timeline
+#### Scenario: Multi-image input initializes once
+- **WHEN** the viewer is given two or more images on a desktop viewport with motion allowed
+- **THEN** exactly one ScrollTrigger timeline is created and any prior `matchMedia` instance is reverted first
 
-### Requirement: Scroll-scrub reveals sequential images on desktop
-For viewports at or above 1024px with `prefers-reduced-motion: no-preference`, the viewer SHALL progressively reveal each additional image as the user scrolls the section (pin-less scrub inside the sticky image stage), updating the `1 / N` counter in sync with scroll progress. The scrub SHALL engage when the section's top reaches the bottom of the sticky header (`start: "top 93px"`) and complete when the section's bottom reaches the viewport bottom (`end: "bottom bottom"`), with no `pin`.
+### Requirement: Scroll-scrub reveals sequential images only when given multiple
+Only when the viewer is supplied with more than one image on a desktop viewport (≥1024px, `prefers-reduced-motion: no-preference`) SHALL it progressively reveal each additional image as the user scrolls the section (pin-less scrub inside the sticky image stage), updating the `1 / N` counter in sync with scroll progress. The scrub SHALL engage when the section's top reaches the bottom of the sticky header (`start: "top 93px"`) and complete when the section's bottom reaches the viewport bottom (`end: "bottom bottom"`), with no `pin`. This path is defensive: the artwork detail page passes only the primary image, so it does not engage there.
 
-#### Scenario: Scrolling advances the gallery
-- **WHEN** a multi-image artwork (2+ images) is viewed on a desktop viewport (≥1024px) with motion allowed and the user scrolls through the section
+#### Scenario: Multi-image scroll advances the gallery
+- **WHEN** the viewer is given a multi-image artwork (2+ images) on desktop with motion allowed and the user scrolls
 - **THEN** each subsequent image becomes visible in sequence and the counter reflects the active image index
 
-#### Scenario: Scrub engages immediately below the header
-- **WHEN** the user scrolls on a multi-image artwork at desktop width
-- **THEN** the scrub begins as soon as the section top reaches the header's bottom edge, with no dead-zone where the user scrolls without animation
-
 #### Scenario: Single-image artwork shows a static image
-- **WHEN** an artwork has exactly one image
+- **WHEN** the viewer renders an artwork with exactly one image
 - **THEN** the viewer renders a single static image with no ScrollTrigger and no counter
 
 ### Requirement: Scrub trigger is measured against final layout
@@ -70,8 +67,8 @@ The change SHALL be verified with the `playwright-cli` skill: load a multi-image
 - **THEN** scrolling changes the displayed image and counter, the scrub begins below the sticky header, the page scrolls with a single scrollbar, the buy widget passes through the viewport before the footer, and the network/preload confirms the primary image was preloaded
 
 ### Requirement: Viewer first image is LCP with responsive sizes
-The viewer SHALL render `images[0]` with `loading="eager" fetchpriority="high"` and `sizes="(max-width:1024px) 100vw, calc(100vw - 400px)"` (`widths [960,1600,2400]`), and remaining slides with `loading="lazy"` and identical `sizes`, preserving scrub, counter, and stacked fallback.
+When the viewer renders a one-image (or first) slide with `loading="eager" fetchpriority="high"`, it SHALL use `sizes="(max-width:1024px) 100vw, calc(100vw - 400px)"` (`widths [960,1600,2400]`), and remaining slides with `loading="lazy"` and identical `sizes`. On the artwork detail page the primary (single) image SHALL use the eager/high-priority variant matching these sizes so the preloaded bytes equal the rendered variant.
 
 #### Scenario: First paint fetches right-sized LCP
 - **WHEN** an artwork page loads on desktop
-- **THEN** only the first-image variant matching `calc(100vw-380px)` is high-priority; hidden slides defer
+- **THEN** the primary image variant matching `calc(100vw - 400px)` is high-priority; no other slides are eagerly fetched

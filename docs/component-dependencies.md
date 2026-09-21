@@ -162,9 +162,28 @@ ArtworkPage.astro
     ├── lib/i18n/utils (getTranslations for status/spec labels + purchase copy)
     ├── lib/format/price (formatPrice + pickPrice + currencyForLang on `lang`)
     └── data/api.ts (ArtworkDetailView prop)
+├── hero shows the primary image only (`images: [is_primary ?? first]`, static viewer branch)
+├── gallery section (`bg-paper container-site-canvas`, grid `lg:grid-cols-[380px_1fr]`)
+│   ├── ArtistCard.astro left (molecule, dark `bg-ink` clone of CuratorCard for `Artist`:
+│   │   `global.artist.label` eyebrow, linked name, years · location metadata, on-dark bio,
+│   │   email/website/social links, portrait `IMAGE_SLOTS.portrait`;
+│   │   `className="md:grid-cols-1"` stacks it inside the narrow column)
+│   │   ├── Image.astro
+│   │   ├── atoms/Markdown.astro ──► lib/markdown (bio, variant="on-dark")
+│   │   └── lib/i18n/utils (getTranslations, pickTranslation, getLocalizedArtistPath)
+│   └── ArtworkSlider.tsx right (React island, `client:visible`; Swiper `Navigation` +
+│       clickable `Pagination` + `A11y`, `bg-paper`, `min-w-0` grid-safe; orientation-aware
+│       framing — portrait fills slider height, landscape fills width, both `object-contain`;
+│       counter overlay, chrome-free when a single image; controls branded via
+│       `--swiper-*` vars in global.css; desktop height-fill via the `lg` block in global.css) ─►
+│       swiper/react, swiper/modules, swiper/css
+│       └── slides precomputed in ArtworkPage frontmatter via lib/images `slideSet`
+│           (AVIF+WebP `slider`-slot sets, verbatim-URL fallback) — same bytes as Image atom
     data/api.ts (toArtworkDetailView → images/alt, title, description, artist,
-        artistSlug, year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel)
+        artistSlug, year, dimensions, priceUsd/priceMxn, status, taxonomy labels via getFacetLabel;
+        resolveLocationName for artist metadata)
     lib/i18n/utils (getLocalizedArtworkPath)
+    lib/images (IMAGE_SLOTS.viewer for hero LCP preload, IMAGE_SLOTS.slider for slide sets)
     lib/api/artwork-visits.ts (recordArtworkVisit: astro:page-load fire-and-forget POST :slug/visit/,
         no body/auth, keepalive, no retry, dev-only console.warn; slug via data-artwork-slug)
 ```
