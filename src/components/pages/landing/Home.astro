@@ -2,7 +2,6 @@
 import { getTranslations, getLocalizedPath } from "@/lib/i18n/utils"
 import PageSEO from "@/components/seo/PageSEO.astro"
 import Hero from "@/components/organisms/Hero.astro"
-import BannerBar from "@/components/organisms/BannerBar.astro"
 import Gallery from "@/components/organisms/Gallery.astro"
 import Title from "@/components/atoms/Title.astro"
 import Headline from "@/components/atoms/Headline.astro"
@@ -61,7 +60,7 @@ const homePrice = (mxn: number | undefined, usd: number | undefined) =>
 
 <Hero lang={lang} sala={hero} />
 
-<BannerBar lang={lang} />
+{/* Hidden: <BannerBar lang={lang} /> */}
 
 <Gallery salas={salas} lang={lang} />
 

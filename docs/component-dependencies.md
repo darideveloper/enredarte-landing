@@ -83,7 +83,7 @@ Home.astro ──────────────► data/api.ts (toHeroView
 │   │   ├── Image.astro ────────► lib/utils
 │   │   └── CardSummary.astro ──► lib/utils, lib/format/price (formatPrice + pickPrice + currencyForLang)
 │   └── Btn.astro ─────────────► lib/utils
-├── BannerBar.astro
+├── BannerBar.astro (hidden in Home.astro via comment — component kept for later use)
 │   ├── BannerText.astro ───────► lib/utils
 │   └── lib/markdown (renderInline for global.banner.* `**` → <strong>)
 ├── Gallery.astro
