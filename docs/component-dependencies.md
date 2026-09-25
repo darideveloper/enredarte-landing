@@ -154,7 +154,8 @@ ArtworkPage.astro
     ├── Headline.astro ───────────► lib/utils
     ├── atoms/Markdown.astro ─────► lib/markdown (description)
     ├── ArtworkPurchase.tsx (React island, client:load, owns price/status/conversion slot;
-    │   renders baked snapshot identically, then reconciles once via lib/api/artwork-status)
+    │   renders baked snapshot identically, then reconciles once via lib/api/artwork-status;
+    │   `shippingNote` copy (`pages.purchase.shippingNote`) under price + order summary)
     │   ├── BuyWidget.tsx (only when reconciled `status == "available"`) ─► lib/api/sales (postBuy), zod email, sessionStorage artwork-stash
     │   └── status badge (static `<p>`, reserved → in-progress / sold → sold / else unavailable)
     ├── lib/api/artwork-status.ts (getArtworkLiveStatus: fire-and-forget GET :slug/status/,
@@ -238,7 +239,7 @@ BlogPost.astro
 ├── Headline.astro (eyebrow Revista/Journal) ─► lib/utils
 ├── Btn.astro (ghost backToBlog) ─► lib/utils
 ├── atoms/Markdown.astro ────► lib/markdown (description quote)
-├── lib/markdown (renderMarkdown at build, set:html, trusted CMS → markdown-prose; renderInline for aside description)
+├── lib/markdown (renderMarkdown at build, set:html, trusted CMS → markdown-prose; renderInline for aside description; bare-URL YouTube/Vimeo paragraphs → hardened lazy iframes via `videoTitle`)
 ├── lib/code-copy (shared code-block copy handler, also used by Markdown atom)
 ├── lib/api/posts (pickPostField for title/description/keywords/content)
 ├── lib/i18n/utils (getLocalizedPostPath, getLocalizedBlogPath, getTranslations for back/share/readingTime)
@@ -271,7 +272,7 @@ CuratorPage.astro
 ```
 SuccessPage.astro (static shell, PageSEO noIndex)
 ├── Headline.astro ───────────► lib/utils
-├── OrderFlow.tsx (React island, client:load) ─► lib/api/sales (getOrderSummary), ?order= parse, 3s/×20 poll, timeout+retry, 429-pause
+├── OrderFlow.tsx (React island, client:load) ─► lib/api/sales (getOrderSummary), ?order= parse, 3s/×20 poll, timeout+retry, 429-pause; `shippingNote` copy (`pages.purchase.shippingNote`) via OrderSummaryCard `note`
 │   ├── OrderSummaryCard.tsx ─► lib/format/price (single card owner: ready + complete phases)
 │   └── DeliveryForm.tsx (React, two-step, only when paid_pending_data) ─► lib/api/sales (postDelivery/getOrderSummary, onComplete(summary) → complete phase)
 └── lib/i18n/utils (getLocalizedPath obras for fallback link)
@@ -352,12 +353,12 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`)
 - `lib/api/sales.ts` — token-free public sales client (`POST artworks/:slug/buy/`, `GET orders/:slug/`, `POST orders/:slug/delivery/` on `PUBLIC_API_BASE_URL`, no `Authorization`, typed `SalesError` from the `{status,message,data}` envelope, sales types co-located; never reads `API_TOKEN`)
 - `lib/api/artwork-status.ts` — token-free live status check (`GET artworks/:slug/status/`, no auth, ~8s timeout, `null` on any failure so the baked HTML stands; decimal-string prices normalized to numbers)
-- `lib/markdown.ts` — `renderMarkdown`/`renderInline` (marked 15 GFM `breaks: true`, BlogPost custom renderer: h1→h2, figure, external ↗, code badge+copy; trusted, no sanitize) + `stripMarkdown` (plain-text excerpts for SEO)
+- `lib/markdown.ts` — `renderMarkdown`/`renderInline` (marked 15 GFM `breaks: true`, BlogPost custom renderer: h1→h2, figure, external ↗, code badge+copy; bare-URL YouTube/Vimeo paragraphs → hardened lazy `figure > iframe` embeds titled via `videoTitle`, trusted, no sanitize) + `stripMarkdown` (plain-text excerpts for SEO)
 - `lib/code-copy.ts` — `attachCodeCopy()` (idempotent code-block copy handler, used by `BlogPost` + `Markdown` atom scripts)
 - `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
 - `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
-- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group) + page container contract (`container-site-canvas` full-bleed `px-6 md:px-14` for galleries/grids/hero, `container-site-reading` centered `max-w-6xl` for prose, `container-site-narrow` centered `max-w-3xl` for legal — single source, no hand-rolled page containers)
+- `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group) + `figure iframe` zero-margin/border rule so embedded players fill their figure frame + `@media (prefers-reduced-motion: reduce)` guard neutralizing non-GSAP motion + page container contract (`container-site-canvas` full-bleed `px-6 md:px-14` for galleries/grids/hero, `container-site-reading` centered `max-w-6xl` for prose, `container-site-narrow` centered `max-w-3xl` for legal — single source, no hand-rolled page containers)
 
 ## Notes
 
@@ -485,3 +486,5 @@ Everything below is a terminal dependency imported by multiple components:
 - **Currency display is language-driven**: artwork prices are no longer pre-formatted server-side. `ArtworkView` / `ArtworkDetailView` / `HeroArtworkView` carry the raw `priceMxn` / `priceUsd` numbers from the DRF API; each leaf renderer (`CardSummary` → `ImageBanner` / `ImageRowCard`, `ArtworkInfoPanel`, `Hero`, plus `CardInfo` on the homepage collection grid via a pre-formatted `price` string from `Home.astro`) calls `formatPrice(pickPrice(priceMxn, priceUsd, currencyForLang(lang)), currencyForLang(lang))` so the URL language is the only source of truth (`es → MX$`, `en → US$`, via `Intl.NumberFormat`). The previously-invisible homepage collection grid now displays prices for the first time. `CardInfo` / `ImageCard` expose a `price` slot for that grid. The hero's hardcoded Spanish fallback ("Desde consulta con curador") was moved to `pages.home.hero.consultCurator` in `src/messages/{es,en}.json` and surfaces only when no featured artwork has a price.
 - **Interactive collection**: filter groups and artwork data are derived from the backend API in `data/api.ts` and threaded into pages via the `siteData` prop. `atoms/FilterBtn.tsx` and `atoms/FilterToggle.tsx`, `molecules/Filters.tsx`, and `organisms/Artworks.tsx` are React islands (`client:load`) bound to `store/catalog.ts`; `Filters` collapses to the first group by default with an expand/collapse toggle whose `isExpanded` state is persisted in the store, and disables chips that can no longer match any artwork (`disabled` prop on `FilterBtn`, viability computed client-side from the `facets` prop via `computeViableOptions`); `Artworks` receives `ImageCard.astro` slot children stamped with space-separated `data-*` facet attributes (parsed into arrays before matching), toggles their visibility, and renders a localized empty-state block (`emptyLabel`/`resetLabel` props) with a restart-filters button backed by the store's `reset` action when no card matches. The old `.astro` versions of `Filters`/`FilterBtn`/`Artworks` were removed.
 - **Artworks cap + obras catalog (`unify-obras-artworks-grid`)**: `Artworks` accepts an optional `limit?: number` prop with filter-then-cap-tail semantics — it computes the full matching set first, then shows only the last `limit` matches in DOM order (`slice(-limit)`); omitted `limit` keeps uncapped behavior, and the empty-state flag keys off match count (cap never empties). Home passes the full catalog with `limit={LANDING_LIMIT}` (12 = 3 full rows at `lg:4`); both pages map `siteData.artworks` without re-sorting so DOM order equals API order and "last N" is well-defined. `/obras` (`CollectionIndex`, `pageKey === "obras"`) reuses the exact Home composition (`Filters` all 6 groups + `Artworks` default `lg:4` grid + priced/faceted `ImageCards`); selections **and** panel expansion carry over landing ↔ `/obras` via the persisted store (no reset; "all visible" is the empty-selection state). `salas`/`artistas`/`curadores` keep the static grid.
+- **Shipping-excluded note (`shipping-excluded-note`)**: `pages.purchase.shippingNote` (`+ Gastos de envío` / `+ Shipping`) renders under the price in `ArtworkPurchase` and inside the single `OrderSummaryCard` via `OrderFlow` `copy.shippingNote → note` (covers `SuccessPage` paid/complete phases); `ArtworkInfoPanel` threads it into the island. Verified by `scripts/verify-shipping-note.ts`.
+- **Blog iframe embeds (`blog-iframe-video`)**: a bare YouTube/Vimeo URL alone on its paragraph in `Post.content_*` renders as a hardened lazy `figure > iframe` (`youtube-nocookie` / `player.vimeo`, `loading="lazy"`, `allowfullscreen`, titled via `videoTitle` = post title); inline URLs and unknown hosts stay links. `global.css` zeroes the standalone iframe margin/border inside figures to avoid dark bands. Verified by `scripts/validate-markdown.ts`.
