@@ -11,6 +11,7 @@ export interface OrderFlowCopy {
   missingTitle: string
   missingDescription: string
   backToObras: string
+  shippingNote: string
 }
 
 export interface OrderFlowProps {
@@ -133,7 +134,7 @@ export function OrderFlow({ obrasHref, copy, delivery, confirmation }: OrderFlow
   if (phase.kind === "ready") {
     return (
       <div className="flex flex-col gap-8">
-        <OrderSummaryCard summary={phase.summary} />
+        <OrderSummaryCard summary={phase.summary} note={copy.shippingNote} />
         {orderSlug && <DeliveryForm orderSlug={orderSlug} copy={delivery} onComplete={(summary) => setPhase({ kind: "complete", summary })} obrasHref={obrasHref} backToObras={copy.backToObras} />}
       </div>
     )

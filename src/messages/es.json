@@ -143,6 +143,7 @@
         "retryLater": "Servicio de pago no disponible — intente de nuevo.",
         "tooMany": "Demasiados intentos — espere y reintente."
       },
+      "shippingNote": "+ Gastos de envío",
       "badges": {
         "inProgress": "Venta en curso",
         "sold": "Vendida",

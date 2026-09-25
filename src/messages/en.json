@@ -143,6 +143,7 @@
         "retryLater": "Payment service unavailable — try again.",
         "tooMany": "Too many attempts — wait and retry."
       },
+      "shippingNote": "+ Shipping costs",
       "badges": {
         "inProgress": "Sale in progress",
         "sold": "Sold",

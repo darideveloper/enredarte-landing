@@ -19,6 +19,7 @@ export interface ArtworkPurchaseProps {
   buyCopy: BuyCopy
   badgeCopy: ArtworkPurchaseBadgeCopy
   statusLabels: Record<ArtworkStatus, string>
+  shippingNote: string
 }
 
 function badgeFor(status: ArtworkStatus, copy: ArtworkPurchaseBadgeCopy): string {
@@ -45,6 +46,7 @@ export function ArtworkPurchase({
   buyCopy,
   badgeCopy,
   statusLabels,
+  shippingNote,
 }: ArtworkPurchaseProps) {
   const [live, setLive] = React.useState<{
     status: ArtworkStatus
@@ -92,6 +94,11 @@ export function ArtworkPurchase({
     <>
       <div className="flex flex-col gap-2">
         {price && <p className="text-sm text-ink font-sans font-medium">{price}</p>}
+        {price && status === "available" && (
+          <p className="text-[11px] uppercase tracking-[0.14em] font-sans text-muted">
+            {shippingNote}
+          </p>
+        )}
         <p className="text-[11px] uppercase tracking-[0.14em] font-sans text-muted">
           {statusLabels[status]}
         </p>
