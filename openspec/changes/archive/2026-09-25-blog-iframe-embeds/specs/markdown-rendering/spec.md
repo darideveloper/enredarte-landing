@@ -1,9 +1,4 @@
-# markdown-rendering Specification
-
-## Purpose
-Single build-time markdown pipeline (`src/lib/markdown.ts` + `Markdown` atom + shared `markdown-prose` styles) used by every prose surface: API bio/description fields, blog content, banner proofs, and long i18n keys. Trusted CMS, no sanitization, GFM with `breaks: true`.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Shared build-time markdown rendering
 The system SHALL provide a single build-time markdown renderer `src/lib/markdown.ts` (`renderMarkdown`, `renderInline`) wrapping `marked` GFM with `breaks: true`, reusing the BlogPost custom renderer (heading `h1→h2` with slug, image lazy figure when `alt>12`, link external `↗` + `target_blank`, code `&lt;&gt;` escaped + lang badge + copy button `data-copy`, video-paragraph detection for YouTube/Vimeo bare URLs → hardened lazy iframe `figure.video-embed` with `videoTitle` fallback), trusted CMS with no sanitization (raw HTML passes, legacy raw `<iframe>` unchanged), and SHALL expose a block-only `Markdown` atom `src/components/atoms/Markdown.astro` that renders `set:html={renderMarkdown(content ?? "")}` inside shared `markdown-prose` styles (aliasing existing `blog-prose`, with `compact`/`on-dark` variants for banner/filter and dark surfaces like `CuratorCard`). Inline contexts SHALL use `renderInline()` directly, not the atom — injected via parent-level `set:html` (only `BannerBar` keeps a `Fragment`, as `BannerText` slot content). The system SHALL strip markdown from SEO descriptions once in `BaseSEO` (`stripMarkdown`, including standalone video URLs) so raw markdown never leaks into `<meta>` tags on any page.
@@ -31,10 +26,3 @@ The system SHALL provide a single build-time markdown renderer `src/lib/markdown
 #### Scenario: renderInline never embeds video
 - **WHEN** `renderInline` is called with a standalone video URL
 - **THEN** it returns the existing external link output, never an iframe (only block `renderMarkdown` embeds; the shared paragraph rule applies to every block prose surface, not just blog posts)
-
-### Requirement: Shared prose styles
-The system SHALL define `markdown-prose` (alias `blog-prose`) in `src/styles/global.css` covering headings, paragraphs, links, blockquote, lists, code, tables, figures, with responsive `first-letter` drop-cap optional flag, so blog prose and bio prose share one style source.
-
-#### Scenario: Consistent styling
-- **WHEN** both blog content and artist bio are rendered via `Markdown` atom
-- **THEN** they share the same prose typography (crimson headings/links, border, spacing) with optional `compact` variant for banner/filter contexts

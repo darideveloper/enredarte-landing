@@ -68,7 +68,7 @@ function stripLeadingTitle(md: string, title: string): string {
 const dedupedContent = stripLeadingTitle(content, title)
 
 // Salon: shared gallery-grade markdown output (GFM, breaks:true, trusted CMS)
-const html = renderMarkdown(dedupedContent, { copyLabel: t("pages.blog.copy"), copiedLabel: t("pages.blog.copied") })
+const html = renderMarkdown(dedupedContent, { copyLabel: t("pages.blog.copy"), copiedLabel: t("pages.blog.copied"), videoTitle: title })
 
 const alternateUrls = {
   en: getLocalizedPostPath(post.slug, "en"),

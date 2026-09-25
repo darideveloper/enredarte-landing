@@ -211,6 +211,7 @@ Key behaviors to know:
 - `breaks: true` — a single newline becomes `<br>`. Changing this later reflows all existing content; decide once.
 - `md ?? ""` — `null`/`undefined`/empty all render as `""`, never crash. Plain text without syntax returns a safe `<p>…</p>` wrapper.
 - `renderInline` strips **one** outer `<p>`. Multi-block input (headings, lists) is returned whole — put those through the block atom instead.
+- Video paragraphs (block `renderMarkdown` only): a paragraph that is exactly one YouTube/Vimeo URL renders as `figure.video-embed > div.video-frame > iframe` (lazy, `youtube-nocookie.com`, `title` from link `"title"` attr → `videoTitle` option fallback). `renderInline` never embeds — solo video URLs stay links there. `stripMarkdown` drops standalone video-URL lines so they never leak into SEO meta.
 - No sanitization. Raw HTML in the source passes through to `set:html` untouched (§11).
 
 ## 3. Renderer variants (pick one)

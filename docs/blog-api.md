@@ -89,3 +89,4 @@ Valid `key` values: `title`, `description`, `keywords`, `content` (content only 
 - Posts are **not** part of `buildSiteData` (`src/data/api.ts`) — blog pages fetch per-page in `getStaticPaths` (see `design.md` Risks).
 - `detail` returns 404 for unknown/inactive slugs — handle `FetchError` with `status === 404`.
 - New posts require a rebuild (static build staleness, same as catalog).
+- **Video embeds (iframe-only):** put a bare YouTube/Vimeo URL on its own paragraph line in `content_es` / `content_en` — it renders as a responsive lazy hardened `<iframe>` (`youtube-nocookie.com` for YouTube). Accepted: `watch?v=`, `youtu.be/`, `/embed/`, `/shorts/`, `/live/`, `vimeo.com/<id>`, `player.vimeo.com/video/<id>` (`?t=` → `?start=`). Inline URLs stay links; never store `<iframe>` HTML for new posts (legacy raw `<iframe>` keeps rendering).

@@ -54,3 +54,25 @@ if (flagged.length > 0) {
 } else {
   console.log("✅ Markdown validation passed! No leftover `**` markers in built HTML.")
 }
+
+// Warn-only: raw `<iframe>` in built HTML suggests a hand-written embed where
+// the bare-URL convention (blog-iframe-video) would give a hardened lazy
+// player for free. CMS content is not repo-controlled — never fail the build.
+const iframeFlagged: string[] = []
+
+for (const file of listHtml(distDir)) {
+  const raw = fs.readFileSync(file, "utf-8")
+  const text = stripBlocks(raw)
+  const rel = path.relative(process.cwd(), file)
+  const idx = text.search(/<iframe[\s>]/i)
+  if (idx >= 0 && !iframeFlagged.includes(rel)) {
+    iframeFlagged.push(rel)
+  }
+}
+
+if (iframeFlagged.length > 0) {
+  console.warn("⚠️  Raw `<iframe>` HTML found in built pages (prefer a bare YouTube/Vimeo URL on its own line in `content_*` for a hardened lazy player):")
+  iframeFlagged.slice(0, 10).forEach((line) => console.warn(`  - ${line}`))
+  if (iframeFlagged.length > 10) console.warn(`  …and ${iframeFlagged.length - 10} more`)
+  console.warn("\nLegacy raw `<iframe>` keeps rendering — this warning does not fail the build.")
+}
