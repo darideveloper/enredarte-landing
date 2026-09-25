@@ -65,8 +65,8 @@ const homePrice = (mxn: number | undefined, usd: number | undefined) =>
 
 <Gallery salas={salas} lang={lang} />
 
-<section id="artworks-collection" class="bg-paper container-site-canvas pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
-  <div class="artworks-header">
+<section id="artworks-collection" class="bg-paper container-site-canvas pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden" transition:animate="none">
+  <div class="artworks-header js-home-header">
     <Title
       linkText={t("pages.home.collection.viewObras")}
       linkHref={getLocalizedPath("obras", lang)}
@@ -102,7 +102,7 @@ const homePrice = (mxn: number | undefined, usd: number | undefined) =>
         price={homePrice(artwork.priceMxn, artwork.priceUsd)}
         widths={IMAGE_SLOTS.grid.widths}
         sizes={IMAGE_SLOTS.grid.sizes}
-        class="aspect-[4/5]"
+        class="aspect-[4/5] js-home-card"
         data-artist={artwork.artist.join(" ")}
         data-discipline={artwork.discipline.join(" ")}
         data-technique={artwork.technique.join(" ")}
@@ -113,3 +113,83 @@ const homePrice = (mxn: number | undefined, usd: number | undefined) =>
     ))}
   </Artworks>
 </section>
+
+<script>
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+  let filterObserver: MutationObserver | undefined
+  let refreshTimer: ReturnType<typeof setTimeout> | undefined
+
+  const initHomeCollection = () => {
+    const section = document.querySelector("#artworks-collection")
+    if (!section) return
+    mm?.revert()
+    filterObserver?.disconnect()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const header = section.querySelector(".js-home-header")
+      if (header) {
+        gsap.fromTo(
+          header,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+
+      section.querySelectorAll(".js-home-card").forEach((card) => {
+        gsap.fromTo(
+          card,
+          { y: 40, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.8,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      })
+
+      // Filtering flips card.hidden at runtime — re-measure triggers below the grid.
+      filterObserver = new MutationObserver(() => {
+        clearTimeout(refreshTimer)
+        refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 150)
+      })
+      filterObserver.observe(section, { attributes: true, attributeFilter: ["hidden"], subtree: true })
+
+      return () => {
+        filterObserver?.disconnect()
+        filterObserver = undefined
+      }
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => {
+    mm?.revert()
+    filterObserver?.disconnect()
+  })
+  document.addEventListener("astro:page-load", initHomeCollection)
+  initHomeCollection()
+</script>

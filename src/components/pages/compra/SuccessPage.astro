@@ -68,7 +68,7 @@ const alternateUrls = {
   slot="seo"
 />
 
-<div class="container-site-narrow py-16">
+<div class="container-site-narrow py-16 js-quiet" transition:animate="none">
   <Headline>{t("pages.compra.success.title")}</Headline>
   <p class="mt-2 text-sm text-muted">{t("pages.compra.success.description")}</p>
   <div class="mt-10">
@@ -81,3 +81,43 @@ const alternateUrls = {
     />
   </div>
 </div>
+
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  const initQuiet = () => {
+    const block = document.querySelector(".js-quiet")
+    if (!block) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.fromTo(
+        block,
+        { y: 30, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.7,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+          scrollTrigger: {
+            trigger: block,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        }
+      )
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initQuiet)
+  initQuiet()
+</script>

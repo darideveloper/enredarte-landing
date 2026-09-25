@@ -25,18 +25,84 @@ const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; bod
 
 <PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
 
-<div class="container-site-narrow py-16">
+<div class="container-site-narrow py-16" transition:animate="none">
+  <div class="js-legal-head">
   <Headline>{t("global.footer.legal.label")}</Headline>
   <h1 class="mt-4 font-serif text-4xl text-ink">{title}</h1>
   <p class="mt-2 text-sm text-muted">{description}</p>
   <p class="mt-1 text-xs uppercase tracking-[0.1em] text-muted">{t("pages.legal.updated")}</p>
   <p class="mt-6 border border-crimson/30 bg-crimson/5 px-4 py-3 text-sm text-ink">{t("pages.legal.disclaimer")}</p>
-  <div class="mt-10 space-y-8">
+  </div>
+  <div class="js-legal-list mt-10 space-y-8">
     {sections.map((section) => (
-      <section>
+      <section class="js-legal-sec">
         <h2 class="font-serif text-2xl text-ink">{section.heading}</h2>
         <p class="mt-2 leading-relaxed text-ink/80">{section.body}</p>
       </section>
     ))}
   </div>
 </div>
+
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  const initLegal = () => {
+    const head = document.querySelector(".js-legal-head")
+    const list = document.querySelector(".js-legal-list")
+    const secs = list ? list.querySelectorAll(".js-legal-sec") : document.querySelectorAll(".js-legal-sec")
+    if (!head && secs.length === 0) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      if (head) {
+        gsap.fromTo(
+          head,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: head,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+
+      if (secs.length > 0) {
+        gsap.fromTo(
+          secs,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            stagger: 0.08,
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: list ?? head,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initLegal)
+  initLegal()
+</script>
