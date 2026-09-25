@@ -98,19 +98,20 @@ const alternateUrls = {
 </section>
 
 {curator && (
-  <section class="bg-paper container-site-canvas py-16 md:py-24 overflow-hidden" transition:animate="none">
+  <section id="sala-curator" class="bg-paper container-site-canvas py-16 md:py-24 overflow-hidden js-sala-curator" transition:animate="none">
     <CuratorCard curator={curator} lang={lang} />
   </section>
 )}
 
-<section id="sala-artworks" class="bg-paper container-site-canvas pt-16 md:pt-24 pb-16 md:pb-24">
-  <div class="mb-10">
+<section id="sala-artworks" class="bg-paper container-site-canvas pt-16 md:pt-24 pb-16 md:pb-24" transition:animate="none">
+  <div class="mb-10 js-sala-header">
     <Title>
       <Headline color="muted" class="block mb-2 tracking-[0.2em]">Explora</Headline>
       {t("global.gallery.works")}
     </Title>
   </div>
 
+  <div class="js-sala-filters">
   <Filters
     client:load
     groups={localizedGroups}
@@ -118,6 +119,7 @@ const alternateUrls = {
     expandLabel={t("global.filters.more")}
     collapseLabel={t("global.filters.less")}
   />
+  </div>
 
   <Artworks
     client:load
@@ -137,6 +139,7 @@ const alternateUrls = {
         ]}
         reverse={i % 2 === 1}
         immersive
+        class="js-sala-row"
         data-artist={artwork.artist.join(" ")}
         data-discipline={artwork.discipline.join(" ")}
         data-technique={artwork.technique.join(" ")}
@@ -147,3 +150,111 @@ const alternateUrls = {
     ))}
   </Artworks>
 </section>
+
+<script>
+  import { gsap, ScrollTrigger } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+  let filterObserver: MutationObserver | undefined
+  let refreshTimer: ReturnType<typeof setTimeout> | undefined
+
+  const initSalaReveals = () => {
+    const curator = document.querySelector("#sala-curator")
+    const section = document.querySelector("#sala-artworks")
+    if (!curator && !section) return
+    mm?.revert()
+    filterObserver?.disconnect()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      if (curator) {
+        gsap.fromTo(
+          curator,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: curator,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+
+      if (!section) return
+      const header = section.querySelector(".js-sala-header")
+      const filters = section.querySelector(".js-sala-filters")
+      if (header || filters) {
+        gsap.fromTo(
+          [header, filters].filter(Boolean),
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            stagger: 0.1,
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+
+      // Immersive rows: one trigger per row, inner cells only —
+      // the sticky info wrapper is never animated.
+      section.querySelectorAll(".js-sala-row").forEach((row) => {
+        const cells = Array.from(row.children)
+        if (cells.length === 0) return
+        gsap.fromTo(
+          cells,
+          { y: 40, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.8,
+            ease: "power2.out",
+            stagger: 0.1,
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: row,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      })
+
+      // Filtering flips row hidden flags at runtime — re-measure below the grid.
+      filterObserver = new MutationObserver(() => {
+        clearTimeout(refreshTimer)
+        refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 150)
+      })
+      filterObserver.observe(section, { attributes: true, attributeFilter: ["hidden"], subtree: true })
+
+      return () => {
+        filterObserver?.disconnect()
+        filterObserver = undefined
+      }
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => {
+    mm?.revert()
+    filterObserver?.disconnect()
+  })
+  document.addEventListener("astro:page-load", initSalaReveals)
+  initSalaReveals()
+</script>

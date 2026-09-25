@@ -42,10 +42,10 @@ const gridPosts = hasFeatured ? posts.slice(1) : posts
   slot="seo"
 />
 
-<section class="bg-paper" transition:animate="none">
+<section class="bg-paper js-blog-section" transition:animate="none">
   <!-- Header: eyebrow + title + description (Eyebrow Rule) -->
   <div class="container-site-canvas pt-16 md:pt-24 pb-10 md:pb-14">
-    <div class="max-w-[720px]">
+    <div class="max-w-[720px] js-blog-header">
       <Headline color="red" class="mb-3 block">{eyebrow}</Headline>
       <h1 class="font-serif text-[42px] md:text-[56px] leading-[0.95] tracking-[-0.02em] text-ink text-balance mb-4">
         {pageTitle}
@@ -63,7 +63,7 @@ const gridPosts = hasFeatured ? posts.slice(1) : posts
 
   {pagination.count === 0 ? (
     <div class="container-site-canvas pb-16 md:pb-24">
-      <div class="border border-border-theme bg-white/40 px-8 py-16 md:py-20 text-center">
+      <div class="js-blog-empty border border-border-theme bg-white/40 px-8 py-16 md:py-20 text-center">
         <Headline color="muted" class="mb-3 block">{eyebrow}</Headline>
         <h2 class="font-serif text-2xl md:text-3xl text-ink mb-3">{t("pages.blog.noPosts")}</h2>
         <p class="text-[14px] leading-relaxed text-description max-w-[44ch] mx-auto mb-8" set:html={renderInline(t("pages.blog.noPostsHint"))} />
@@ -73,30 +73,104 @@ const gridPosts = hasFeatured ? posts.slice(1) : posts
   ) : (
     <div class="container-site-canvas pb-16 md:pb-24">
       <!-- Mosaic grid: 3px gap on desktop per DESIGN gallery mosaic, 16px on mobile -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-[3px] auto-rows-fr">
+      <div class="js-blog-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-[3px] auto-rows-fr">
         {featuredPost && (
-          <PostCard post={featuredPost} lang={lang} href={getLocalizedPostPath(featuredPost.slug, lang)} featured />
+          <PostCard post={featuredPost} lang={lang} href={getLocalizedPostPath(featuredPost.slug, lang)} featured class="js-blog-card" />
         )}
         {gridPosts.map((post) => (
-          <PostCard post={post} lang={lang} href={getLocalizedPostPath(post.slug, lang)} />
+          <PostCard post={post} lang={lang} href={getLocalizedPostPath(post.slug, lang)} class="js-blog-card" />
         ))}
       </div>
 
-      <PaginationNav page={pagination.page} total_pages={pagination.total_pages} lang={lang} />
+      <div class="js-blog-pagination">
+        <PaginationNav page={pagination.page} total_pages={pagination.total_pages} lang={lang} />
+      </div>
     </div>
   )}
 </section>
 
-<style>
-  /* single authored entrance: cards fade + lift once, respects reduced-motion */
-  @media (prefers-reduced-motion: no-preference) {
-    section :global(.group) {
-      animation: blog-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: calc(var(--i, 0) * 40ms);
-    }
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  const initBlogIndex = () => {
+    const section = document.querySelector(".js-blog-section")
+    if (!section) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const header = section.querySelector(".js-blog-header")
+      if (header) {
+        gsap.fromTo(
+          header,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+
+      const cards = section.querySelectorAll(".js-blog-card")
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { y: 40, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.8,
+            ease: "power2.out",
+            stagger: 0.1,
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: section.querySelector(".js-blog-grid") ?? section,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      }
+
+      const pagination = section.querySelector(".js-blog-pagination")
+      const empty = section.querySelector(".js-blog-empty")
+      const footers: Element[] = [pagination, empty].filter((el): el is Element => el !== null)
+      footers.forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 20, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      })
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
   }
-  @keyframes blog-enter {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initBlogIndex)
+  initBlogIndex()
+</script>

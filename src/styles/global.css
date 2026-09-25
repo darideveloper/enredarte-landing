@@ -37,6 +37,20 @@
   background: #C41E3A;
   color: #F2EDE4;
 }
+/* Reduced motion (gsap-scroll-reveals) — neutralize non-GSAP motion for users
+   who request it: Tailwind/CSS transitions, keyframe animations (loader spin,
+   marquee-style loops), and smooth scrolling. GSAP reveals honor the same
+   preference via gsap.matchMedia() no-op branches in each section script. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
 /* Artwork slider (Swiper) — brand the default blue controls via Swiper vars */
 .artwork-slider {
   --swiper-navigation-color: #1A1A1A;

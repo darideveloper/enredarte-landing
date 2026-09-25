@@ -82,10 +82,14 @@ const artistMetadata = [artistYears, artistLocation].filter(Boolean).join(" · "
   <section class="bg-paper container-site-canvas py-16 md:py-24" transition:animate="none">
     <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 lg:gap-16 items-stretch">
       {artist && (
-        <ArtistCard artist={artist} lang={lang} metadata={artistMetadata} class="lg:self-start lg:sticky lg:top-[93px] md:grid-cols-1" />
+        <div class="lg:self-start lg:sticky lg:top-[93px]">
+          <ArtistCard artist={artist} lang={lang} metadata={artistMetadata} class="md:grid-cols-1 js-obra-side" />
+        </div>
       )}
       {slides.length > 0 && (
-        <ArtworkSlider client:visible slides={slides} />
+        <div class="js-obra-slider min-w-0">
+          <ArtworkSlider client:visible slides={slides} />
+        </div>
       )}
     </div>
   </section>
@@ -110,4 +114,51 @@ const artistMetadata = [artistYears, artistLocation].filter(Boolean).join(" · "
   }
 
   document.addEventListener("astro:page-load", fireVisit)
+</script>
+
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  // Light restraint reveals only: info-panel header lines + gallery containers.
+  // The viewer scrub zone, BuyWidget/status badge, and Swiper internals are untouched.
+  const initObraReveals = () => {
+    const head = document.querySelector(".js-obra-info-head")
+    const side = document.querySelector(".js-obra-side")
+    const slider = document.querySelector(".js-obra-slider")
+    if (!head && !side && !slider) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const singles: Element[] = [head, side, slider].filter((el): el is Element => el !== null)
+      singles.forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      })
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initObraReveals)
+  initObraReveals()
 </script>

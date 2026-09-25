@@ -16,7 +16,7 @@ const enTitle = tEn("pages.notFound.title") as string
 <PageSEO lang="es" title={title} description={description} noIndex slot="seo" />
 
 <Layout>
-  <section class="mx-auto grid min-h-[60svh] w-full max-w-3xl place-items-center px-6 py-16 text-center md:px-14">
+  <section class="js-notfound mx-auto grid min-h-[60svh] w-full max-w-3xl place-items-center px-6 py-16 text-center md:px-14" transition:animate="none">
     <div>
       <Headline>{tEs("pages.notFound.eyebrow")}</Headline>
       <p class="mt-6 font-serif text-6xl leading-none text-ink md:text-7xl">404</p>
@@ -32,3 +32,43 @@ const enTitle = tEn("pages.notFound.title") as string
     </div>
   </section>
 </Layout>
+
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  const initNotFound = () => {
+    const block = document.querySelector(".js-notfound")
+    if (!block) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.fromTo(
+        block,
+        { y: 30, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.7,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+          scrollTrigger: {
+            trigger: block,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        }
+      )
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initNotFound)
+  initNotFound()
+</script>

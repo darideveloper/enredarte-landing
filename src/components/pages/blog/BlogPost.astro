@@ -144,13 +144,13 @@ const backHref = getLocalizedBlogPath(lang)
         {description && (
           <Markdown
             content={description}
-            class="text-[18px] leading-[1.7] text-description text-pretty border-l-2 border-crimson pl-5 mb-8 font-sans"
+            class="text-[18px] leading-[1.7] text-description text-pretty border-l-2 border-crimson pl-5 mb-8 font-sans js-post-quote"
             copyLabel={t("pages.blog.copy")}
             copiedLabel={t("pages.blog.copied")}
           />
         )}
 
-        <div class="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-muted mb-8">
+        <div class="js-post-meta flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-muted mb-8">
           <span class="inline-flex items-center gap-2">
             <span class="w-6 h-px bg-crimson"></span>
             {post.author}
@@ -164,7 +164,7 @@ const backHref = getLocalizedBlogPath(lang)
         <div class="h-px bg-border-theme mb-8"></div>
 
         <div
-          class="blog-prose max-w-none text-[15px] leading-[1.85] text-ink hyphens-auto
+          class="js-post-body blog-prose max-w-none text-[15px] leading-[1.85] text-ink hyphens-auto
           prose-headings:font-serif prose-headings:tracking-[-0.015em] prose-headings:text-ink prose-headings:text-balance prose-headings:scroll-mt-24
           prose-h2:text-[26px] prose-h2:md:text-[30px] prose-h2:leading-[1.15] prose-h2:mt-14 prose-h2:mb-4
           prose-h3:text-[20px] prose-h3:leading-[1.25] prose-h3:mt-10 prose-h3:mb-3
@@ -204,6 +204,7 @@ const backHref = getLocalizedBlogPath(lang)
       </div>
 
       <aside class="hidden lg:block sticky top-[88px] self-start">
+        <div class="js-post-aside">
         <div class="border border-border-theme bg-white/40 p-6">
           <Headline color="muted" class="mb-4 block">{t("pages.blog.eyebrow")}</Headline>
           <p class="font-serif text-lg leading-tight text-ink mb-2 text-balance line-clamp-3">{title}</p>
@@ -230,6 +231,7 @@ const backHref = getLocalizedBlogPath(lang)
             />
           </div>
         )}
+        </div>
       </aside>
     </div>
   </div>
@@ -272,4 +274,52 @@ const backHref = getLocalizedBlogPath(lang)
   attachCodeCopy()
   document.addEventListener("astro:page-load", () => { attachShare(); attachCodeCopy() })
   document.addEventListener("DOMContentLoaded", () => { attachShare(); attachCodeCopy() })
+</script>
+
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  // Light restraint reveals only: quote, meta, body as one block, aside inner.
+  // The banner hero (LCP) is frozen.
+  const initPostReveals = () => {
+    const quote = document.querySelector(".js-post-quote")
+    const meta = document.querySelector(".js-post-meta")
+    const body = document.querySelector(".js-post-body")
+    const aside = document.querySelector(".js-post-aside")
+    if (!quote && !meta && !body && !aside) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const blocks: Element[] = [quote, meta, body, aside].filter((el): el is Element => el !== null)
+      blocks.forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        )
+      })
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initPostReveals)
+  initPostReveals()
 </script>

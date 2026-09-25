@@ -54,7 +54,7 @@ const initials = curator.name
       )}
     </div>
 
-    <div class="min-w-0">
+    <div class="min-w-0 js-curador-hero-text">
       <Headline color="muted" class="block mb-3 tracking-[0.2em]">
         {t("global.curator.curator")}
       </Headline>
@@ -93,3 +93,44 @@ const initials = curator.name
     </div>
   </div>
 </section>
+
+<script>
+  import { gsap } from "@/lib/gsap"
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined
+
+  // Header text only — the portrait image (LCP) never animates.
+  const initCuradorHero = () => {
+    const text = document.querySelector(".js-curador-hero-text")
+    if (!text) return
+    mm?.revert()
+    mm = gsap.matchMedia()
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.fromTo(
+        text,
+        { y: 30, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.7,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+          scrollTrigger: {
+            trigger: text,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        }
+      )
+    })
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      // no-op: content is visible by default with fromTo+clearProps
+    })
+  }
+
+  document.addEventListener("astro:after-swap", () => mm?.revert())
+  document.addEventListener("astro:page-load", initCuradorHero)
+  initCuradorHero()
+</script>
