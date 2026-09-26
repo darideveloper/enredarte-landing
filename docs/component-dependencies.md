@@ -22,7 +22,7 @@ src/pages/
 - Calls `buildSiteData()` from `src/data/api.ts` once, which fetches every backend resource
   (galleries, artists, art-curators, the five taxonomies, artworks) via the `src/lib/api/*`
   endpoint modules and `fetchAll` pagination helper, then derives localized filter groups.
-- Emits the route-map pages (`home` + the three legal stubs `aviso-de-privacidad`,
+- Emits the route-map pages (`home` + the three legal pages `aviso-de-privacidad`,
   `terminos-y-condiciones`, `politica-de-cookies`, each es root-level / `en/…`)
   plus the two purchase shells (`compra-exitosa`, `compra-cancelada`, es / `en/…`,
   static shells hosting sales islands — no backend fetch),
@@ -40,11 +40,11 @@ src/pages/
 - Looks up the page component in `COMPONENT_MAP` → `home: Home`, `gallery: GalleryPage`,
   `artwork: ArtworkPage`, `artist: ArtistPage`, `blog: BlogIndex`, `post: BlogPost`, `curator: CuratorPage`,
   `compra-exitosa: SuccessPage`, `compra-cancelada: CancelPage`,
-  `aviso-de-privacidad`/`terminos-y-condiciones`/`politica-de-cookies`: `LegalPage` (generic, `pageKey` selects the `pages.legal.*` copy).
+  `aviso-de-privacidad`/`terminos-y-condiciones`/`politica-de-cookies`: `LegalPage` (generic, `pageKey` + `lang` resolve a `legal` content-collection entry `<slug>.<lang>.md`; body renders via the `Markdown` atom, SEO title/description/`updated` from frontmatter; related-docs nav links the other two pages via `getLocalizedPath`; missing language file fails the build).
 - Wraps the result in `Layout.astro`, passing `localizedPaths` (the en/es gallery/artwork/artist/curator *or*
   blog page/post URLs via `getLocalizedSalaPath`/`getLocalizedArtworkPath`/`getLocalizedArtistPath`/
   `getLocalizedCuratorPath`/`getLocalizedBlogPath`/`getLocalizedBlogPagePath`/`getLocalizedPostPath`; route-map
-  pages like `home` and the legal stubs need none — `LangBtns` falls back to `getLocalizedPath(pageKey)`)
+  pages like `home` and the legal pages need none — `LangBtns` falls back to `getLocalizedPath(pageKey)`)
    to `Layout` → `Header` → `LangBtns`
    so the language switch preserves the slug/page, and `preloadImage` prefers `Post.banner_image` (verbatim absolute URL, no prefix) for post detail.
 
@@ -61,12 +61,18 @@ src/pages/
                               │               ▼          lib/api/* (11 endpoint modules incl. posts, pagination.fetchAll)
                               ▼        lib/i18n/utils (getLocalizedSalaPath/ArtworkPath/ArtistPath/CuratorPath/BlogPath/PagePath/PostPath)
                     ┌───────────────────────────────────────────────────┐
-                    │                    Layout.astro                    │
-                    │  global.css                                        │
-                    │  <body>                                            │
-                    │   ├─ Header.astro (localizedPaths → LangBtns)      │
-                    │   ├─ <slot/> = page content                        │
-                    │   └─ Footer.astro                                  │
+                     │                    Layout.astro                    │
+                     │  global.css                                        │
+                     │  <head> consent-defaults is:inline (Consent Mode v2 │
+                     │   all-denied + wait_for_update, before any tag)     │
+                     │  <body>                                            │
+                     │   ├─ Header.astro (localizedPaths → LangBtns)      │
+                     │   ├─ <slot/> = page content                        │
+                     │   ├─ Footer.astro                                  │
+                     │   └─ ConsentBanner.astro (hidden until no stored   │
+                     │      choice; Btn primary/inverse-outline →         │
+                     │      lib/analytics; page_view tracking; re-opens   │
+                     │      on enredarte:open-consent)                    │
                     └───────────────────────────────────────────────────┘
 ```
 
@@ -156,7 +162,7 @@ ArtworkPage.astro
     ├── ArtworkPurchase.tsx (React island, client:load, owns price/status/conversion slot;
     │   renders baked snapshot identically, then reconciles once via lib/api/artwork-status;
     │   `shippingNote` copy (`pages.purchase.shippingNote`) under price + order summary)
-    │   ├── BuyWidget.tsx (only when reconciled `status == "available"`) ─► lib/api/sales (postBuy), zod email, sessionStorage artwork-stash
+    │   ├── BuyWidget.tsx (only when reconciled `status == "available"`) ─► lib/api/sales (postBuy), zod email, sessionStorage artwork-stash, lib/analytics (trackBeginCheckout on success)
     │   └── status badge (static `<p>`, reserved → in-progress / sold → sold / else unavailable)
     ├── lib/api/artwork-status.ts (getArtworkLiveStatus: fire-and-forget GET :slug/status/,
     │   no auth, ~8s timeout, null on any failure, decimal-string prices → numbers)
@@ -186,7 +192,9 @@ ArtworkPage.astro
     lib/i18n/utils (getLocalizedArtworkPath)
     lib/images (IMAGE_SLOTS.viewer for hero LCP preload, IMAGE_SLOTS.slider for slide sets)
     lib/api/artwork-visits.ts (recordArtworkVisit: astro:page-load fire-and-forget POST :slug/visit/,
-        no body/auth, keepalive, no retry, dev-only console.warn; slug via data-artwork-slug)
+        no body/auth, keepalive, no retry, dev-only console.warn; slug via data-artwork-slug;
+        gated on lib/analytics hasAnalyticsConsent — silent without; granting consent on an
+        artwork page also fires that view's beacon once via the banner accept handler)
 ```
 
 ### ArtistPage.astro tree (per artist, `/artistas/<slug>` + `/en/artistas/<slug>`)
@@ -272,7 +280,7 @@ CuratorPage.astro
 ```
 SuccessPage.astro (static shell, PageSEO noIndex)
 ├── Headline.astro ───────────► lib/utils
-├── OrderFlow.tsx (React island, client:load) ─► lib/api/sales (getOrderSummary), ?order= parse, 3s/×20 poll, timeout+retry, 429-pause; `shippingNote` copy (`pages.purchase.shippingNote`) via OrderSummaryCard `note`
+├── OrderFlow.tsx (React island, client:load) ─► lib/api/sales (getOrderSummary), ?order= parse, 3s/×20 poll, timeout+retry, 429-pause; `shippingNote` copy (`pages.purchase.shippingNote`) via OrderSummaryCard `note`; lib/analytics (trackPurchase value+currency, no PII, once on first `complete` phase)
 │   ├── OrderSummaryCard.tsx ─► lib/format/price (single card owner: ready + complete phases)
 │   └── DeliveryForm.tsx (React, two-step, only when paid_pending_data) ─► lib/api/sales (postDelivery/getOrderSummary, onComplete(summary) → complete phase)
 └── lib/i18n/utils (getLocalizedPath obras for fallback link)
@@ -298,7 +306,7 @@ Layout.astro
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
-└── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug stubs)
+└── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug pages + `#cookie-settings` button re-opening the consent banner via `enredarte:open-consent`)
     ├── Logo.astro (bg-red-circle variant) ──► lib/utils (cn)
     ├── Link.astro (footer variant) ─► lib/utils
     ├── Headline.astro ───────────────► lib/utils
@@ -352,10 +360,11 @@ Everything below is a terminal dependency imported by multiple components:
 - `lib/api/pagination.ts` — `fetchAll` pagination helper
 - `lib/api/{artists,art-curators,locations,galleries,disciplines,techniques,themes,formats,scales,artworks,posts}.ts` — `list`/`detail` endpoint modules (`posts` adds `PostSummary`/`Post` + `pickPostField`)
 - `lib/api/sales.ts` — token-free public sales client (`POST artworks/:slug/buy/`, `GET orders/:slug/`, `POST orders/:slug/delivery/` on `PUBLIC_API_BASE_URL`, no `Authorization`, typed `SalesError` from the `{status,message,data}` envelope, sales types co-located; never reads `API_TOKEN`)
-- `lib/api/artwork-status.ts` — token-free live status check (`GET artworks/:slug/status/`, no auth, ~8s timeout, `null` on any failure so the baked HTML stands; decimal-string prices normalized to numbers)
+- `lib/analytics.ts` — vanilla consent-gated GA4 (no deps): `enredarte-consent` localStorage read/persist, Consent Mode v2 default (head) + update pushes, one-time `gtag.js` injection from `PUBLIC_GA_MEASUREMENT_ID` (silent no-op when unset), `trackPageview` (skips `/compra-*` es/en), `trackBeginCheckout`, `trackPurchase` (value+currency, no PII); `hasAnalyticsConsent` gates the artwork-visit beacon
+- `src/content.config.ts` — `legal` content collection (`glob` over `src/content/legal/*.md` with pinned `<slug>.<lang>` ids — default github-slug ids strip dots; zod `title`/`description`/`updated`), consumed by `LegalPage`
 - `lib/markdown.ts` — `renderMarkdown`/`renderInline` (marked 15 GFM `breaks: true`, BlogPost custom renderer: h1→h2, figure, external ↗, code badge+copy; bare-URL YouTube/Vimeo paragraphs → hardened lazy `figure > iframe` embeds titled via `videoTitle`, trusted, no sanitize) + `stripMarkdown` (plain-text excerpts for SEO)
 - `lib/code-copy.ts` — `attachCodeCopy()` (idempotent code-block copy handler, used by `BlogPost` + `Markdown` atom scripts)
-- `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly
+- `atoms/Markdown.astro` — block markdown atom (`markdown-prose` + shared prose utilities, `compact`/`on-dark` variants, opt-in `dropcap`); inline contexts use `renderInline` directly; `LegalPage` renders collection bodies through it (tables included)
 - `store/catalog.ts` — `GroupKey`, `ArtworkFacets` (array-valued), `matchesArtwork`, `computeViableOptions`
 - `consts.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `LOCALE_MAP`
 - `styles/global.css` — design tokens (`bg-paper`, `text-crimson`, …) + shared `markdown-prose` styles (single source with legacy `blog-prose` selector group) + `figure iframe` zero-margin/border rule so embedded players fill their figure frame + `@media (prefers-reduced-motion: reduce)` guard neutralizing non-GSAP motion + page container contract (`container-site-canvas` full-bleed `px-6 md:px-14` for galleries/grids/hero, `container-site-reading` centered `max-w-6xl` for prose, `container-site-narrow` centered `max-w-3xl` for legal — single source, no hand-rolled page containers)
@@ -365,13 +374,15 @@ Everything below is a terminal dependency imported by multiple components:
 - **Markdown everywhere**: every API text area (`Artist.bio`, `ArtCurator.bio` via `CuratorCard`/`CuratorHero`,
   `Gallery.description` via `GalleryPage`/`Hero`, `Artwork.description` via `ArtworkInfoPanel`,
   `Post.content_*`/`description_*` via `BlogPost`/`PostCard`) and long i18n prose keys render through
-  `lib/markdown` (`breaks: true`, trusted CMS). Titles/names stay plain. `global.banner.*` is authored
+  `lib/markdown` (`breaks: true`, trusted CMS). Legal page bodies (`src/content/legal/*.md`) render
+  through the `Markdown` atom the same way. Titles/names stay plain. `global.banner.*` is authored
   as `**` markdown and rendered via `renderInline` in `BannerBar`. `BaseSEO` strips markdown from all
   meta/og descriptions. `global.filters.noResults` (React island) stays plain text — out of scope.
 - **Eight page components.** The single catch-all `[...path].astro` now serves `Home`
-  (root `/` + `/es`), `LegalPage` for the three Spanish-slug legal stubs
+  (root `/` + `/es`), `LegalPage` for the three Spanish-slug legal pages
   (`/aviso-de-privacidad`, `/terminos-y-condiciones`, `/politica-de-cookies` + `/en/…`;
-  generic component, `pageKey` selects the `pages.legal.*` copy, all sample text pending legal-counsel review), one `GalleryPage` per gallery fetched from the backend API
+  generic component, `pageKey` + `lang` resolve the `legal` content-collection Markdown entry,
+  final copy: Stripe processor, transactional-only, MX retention + email ARCO, explicit cookie tables, GA section), one `GalleryPage` per gallery fetched from the backend API
   (`/salas/<slug>` + `/en/salas/<slug>`),
   one `ArtworkPage` per artwork (`/obras/<slug>` + `/en/obras/<slug>`), one `ArtistPage` per artist
   (`/artistas/<slug>` + `/en/artistas/<slug>`), one `CuratorPage` per curator
@@ -455,8 +466,8 @@ Everything below is a terminal dependency imported by multiple components:
 - **Footer contact (final info, `footer-contact-final-info`)**: phone `+52 624 176 4802`
   (`tel:`), WhatsApp `+52 1 624 176 4802` (`wa.me`, new tab), `info@enredarte.com` (`mailto:`),
   location plain text `Mexico City, Mexico`. `GOOGLE_MAPS` + full `ADDRESS` detail are parked
-  (unrendered) for later map use; `BUSINESS_DATA.url` is `https://enredarte.mx`. Legal stubs are
-  sample copy — flag for legal-counsel review before treating as final.
+   (unrendered) for later map use; `BUSINESS_DATA.url` is `https://enredarte.mx`. Legal pages are
+   final copy (no counsel review; standard MX posture) sourced from `src/content/legal/`.
 - **Design-system page** is a standalone showcase and is intentionally not part of the
   runtime page tree.
 - **404 page** (`404.astro`, `not-found-page` change): static, no `getStaticPaths`, no backend
