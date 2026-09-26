@@ -19,7 +19,6 @@ import {
 import type { SiteData } from "@/data/api"
 import { getTranslations, getLocalizedArtistPath, pickTranslation } from "@/lib/i18n/utils"
 import { IMAGE_SLOTS } from "@/lib/images"
-import { stripUrlScheme } from "@/lib/utils"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -97,18 +96,8 @@ const alternateUrls = {
       {metadata && (
         <p class="text-[12px] text-muted uppercase tracking-[0.14em] font-sans mb-6">{metadata}</p>
       )}
-      {(artist.email || artist.website || artist.social_links.length > 0) && (
+      {artist.social_links.length > 0 && (
         <div class="flex flex-wrap gap-6 text-[11px] tracking-[0.06em] uppercase">
-          {artist.email && (
-            <a href={`mailto:${artist.email}`} class="text-crimson hover:underline">
-              {artist.email}
-            </a>
-          )}
-          {artist.website && (
-            <a href={artist.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
-              {stripUrlScheme(artist.website)}
-            </a>
-          )}
           {artist.social_links.map((link) => (
             <a
               href={link.url}

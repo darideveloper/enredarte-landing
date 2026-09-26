@@ -1,7 +1,7 @@
 ---
 import Image from "@/components/atoms/Image.astro"
 import Markdown from "@/components/atoms/Markdown.astro"
-import { cn, stripUrlScheme } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { IMAGE_SLOTS } from "@/lib/images"
 import type { Artist, Lang } from "@/lib/api/types"
 import { getLocalizedArtistPath, getTranslations, pickTranslation } from "@/lib/i18n/utils"
@@ -56,18 +56,8 @@ const initials = artist.name
       <p class="text-[12px] uppercase tracking-[0.14em] font-sans text-paper/60 mb-4">{metadata}</p>
     )}
     {bio && <Markdown content={bio} variant="on-dark" class="text-[14px] text-paper/80 leading-[1.8] mb-6 max-w-[560px]" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />}
-    {(artist.email || artist.website || artist.social_links.length > 0) && (
+    {artist.social_links.length > 0 && (
       <div class="flex flex-wrap gap-6 text-[11px] tracking-[0.06em] uppercase">
-        {artist.email && (
-          <a href={`mailto:${artist.email}`} class="text-crimson hover:underline">
-            {artist.email}
-          </a>
-        )}
-        {artist.website && (
-          <a href={artist.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
-            {stripUrlScheme(artist.website)}
-          </a>
-        )}
         {artist.social_links.map((link) => (
           <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
             {link.platform}
