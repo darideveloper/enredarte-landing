@@ -2,6 +2,7 @@ import * as React from "react"
 import { z } from "zod"
 import { cn } from "@/lib/utils"
 import { postBuy, SalesError } from "@/lib/api/sales"
+import { trackBeginCheckout } from "@/lib/analytics"
 import type { Currency } from "@/lib/format/price"
 
 export interface BuyCopy {
@@ -65,6 +66,10 @@ export function BuyWidget({
       const { checkout_url } = await postBuy(artworkSlug, {
         currency: currency === "MXN" ? "mxn" : "usd",
         email: email.trim(),
+      })
+      trackBeginCheckout({
+        currency,
+        value: currency === "MXN" ? priceMxn : priceUsd,
       })
       try {
         sessionStorage.setItem(LAST_ARTWORK_KEY, artworkSlug)

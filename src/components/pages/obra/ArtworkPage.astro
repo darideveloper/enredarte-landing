@@ -97,11 +97,13 @@ const artistMetadata = [artistYears, artistLocation].filter(Boolean).join(" · "
 
 <script>
   import { recordArtworkVisit } from "@/lib/api/artwork-visits"
+  import { hasAnalyticsConsent } from "@/lib/analytics"
 
   // Single module-level listener (same pattern as ArtworkImageViewer/Hero):
   // astro:page-load fires once per navigation by framework contract, and the
   // slug is read live from the DOM each time, so one navigation = one POST.
   const fireVisit = () => {
+    if (!hasAnalyticsConsent()) return
     const slug = document
       .querySelector("[data-artwork-slug]")
       ?.getAttribute("data-artwork-slug")

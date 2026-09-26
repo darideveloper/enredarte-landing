@@ -1,9 +1,4 @@
-# artwork-visit-counter Specification
-
-## Purpose
-Records artwork views from the browser against the public visit endpoint (`POST /api/artworks/artworks/:slug/visit/`) — one fire-and-forget call per artwork detail-page mount, only with analytics consent, with no display of the count.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Record one artwork view per detail-page mount
 

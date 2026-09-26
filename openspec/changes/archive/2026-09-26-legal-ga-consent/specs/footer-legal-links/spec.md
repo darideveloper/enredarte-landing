@@ -1,9 +1,4 @@
-# footer-legal-links Specification
-
-## Purpose
-Defines the behavior contract for the footer legal links row (plus cookie-settings re-consent control) and the Spanish-slug legal pages: localized labels with i18n parity, same-tab footer-styled links, and final gallery-contextualized copy.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Footer Legal Links Row
 

@@ -82,6 +82,13 @@ const legalLinks = [
       {legalLinks.map((link) => (
         <Link variant="footer" href={getLocalizedPath(link.pageKey, lang)}>{t(`global.footer.legal.${link.key}`)}</Link>
       ))}
+      <button
+        id="cookie-settings"
+        type="button"
+        class="relative cursor-pointer pb-1 text-[11px] uppercase tracking-[0.1em] text-paper/60 transition-colors hover:text-paper"
+      >
+        {t("global.footer.legal.settings")}
+      </button>
     </nav>
 
     <!-- Bottom Bar -->
@@ -95,6 +102,19 @@ const legalLinks = [
     </div>
   </div>
 </footer>
+
+<script>
+  import { CONSENT_OPEN_EVENT } from "@/lib/analytics"
+
+  const initCookieSettings = () => {
+    document.getElementById("cookie-settings")?.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent(CONSENT_OPEN_EVENT))
+    })
+  }
+
+  document.addEventListener("astro:page-load", initCookieSettings)
+  initCookieSettings()
+</script>
 
 <script>
   import { gsap } from "@/lib/gsap"

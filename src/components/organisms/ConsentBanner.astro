@@ -1,0 +1,80 @@
+---
+import Btn from "@/components/atoms/Btn.astro"
+import { getLangFromUrl, getTranslations } from "@/lib/i18n/utils"
+
+const lang = getLangFromUrl(Astro.url)
+const t = getTranslations(lang)
+---
+
+<div
+  id="consent-banner"
+  hidden
+  class="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-ink text-paper"
+  role="dialog"
+  aria-live="polite"
+  aria-label={t("global.consent.title")}
+>
+  <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 font-sans md:flex-row md:items-center md:justify-between md:px-14">
+    <p class="text-sm text-paper/80">
+      <strong class="font-semibold text-paper">{t("global.consent.title")}</strong>
+      {" — "}{t("global.consent.description")}
+    </p>
+    <div class="flex shrink-0 items-center gap-3">
+      <Btn variant="inverse-outline" size="sm" type="button" id="consent-reject">
+        {t("global.consent.reject")}
+      </Btn>
+      <Btn variant="primary" size="sm" type="button" id="consent-accept">
+        {t("global.consent.accept")}
+      </Btn>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    getConsent,
+    setConsent,
+    applyStoredConsent,
+    trackPageview,
+    CONSENT_OPEN_EVENT,
+  } from "@/lib/analytics"
+  import { recordArtworkVisit } from "@/lib/api/artwork-visits"
+
+  const show = () => {
+    const banner = document.getElementById("consent-banner")
+    if (!banner) return
+    const choice = getConsent()?.analytics
+    document.getElementById("consent-accept")?.setAttribute("aria-pressed", String(choice === true))
+    document.getElementById("consent-reject")?.setAttribute("aria-pressed", String(choice === false))
+    banner.removeAttribute("hidden")
+  }
+
+  const hide = () => document.getElementById("consent-banner")?.setAttribute("hidden", "")
+
+  const initConsent = () => {
+    if (!document.getElementById("consent-banner")) return
+    applyStoredConsent()
+    trackPageview()
+    if (!getConsent()) show()
+  }
+
+  document.getElementById("consent-accept")?.addEventListener("click", () => {
+    const hadConsent = getConsent()?.analytics === true
+    setConsent(true)
+    hide()
+    trackPageview()
+    // Count the granting view itself when newly consenting on an artwork page.
+    if (hadConsent) return
+    const slug = document
+      .querySelector("[data-artwork-slug]")
+      ?.getAttribute("data-artwork-slug")
+    if (slug) recordArtworkVisit(slug).catch(() => {})
+  })
+  document.getElementById("consent-reject")?.addEventListener("click", () => {
+    setConsent(false)
+    hide()
+  })
+  window.addEventListener(CONSENT_OPEN_EVENT, show)
+  document.addEventListener("astro:page-load", initConsent)
+  initConsent()
+</script>

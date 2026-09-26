@@ -1,7 +1,9 @@
 ---
+import { getCollection } from "astro:content"
 import PageSEO from "@/components/seo/PageSEO.astro"
 import Headline from "@/components/atoms/Headline.astro"
-import { getTranslations } from "@/lib/i18n/utils"
+import Markdown from "@/components/atoms/Markdown.astro"
+import { getTranslations, getLocalizedPath } from "@/lib/i18n/utils"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -12,15 +14,27 @@ export interface Props {
 const { lang, pageKey } = Astro.props
 const t = getTranslations(lang)
 
+// Both language files are required per slug — a missing file fails the build.
+const entries = await getCollection("legal")
+const entry = entries.find((e) => e.id === `${pageKey}.${lang}`)
+if (!entry) {
+  throw new Error(`Missing legal entry: ${pageKey}.${lang} (both .es.md and .en.md are required)`)
+}
+const { title, description, updated } = entry.data
+
 const legalKey = pageKey === "aviso-de-privacidad"
   ? "privacy"
   : pageKey === "terminos-y-condiciones"
     ? "terms"
     : "cookies"
 
-const title = t(`pages.legal.${legalKey}.title`) as string
-const description = t(`pages.legal.${legalKey}.description`) as string
-const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; body: string }[]
+const related = (
+  [
+    { key: "privacy", pageKey: "aviso-de-privacidad" },
+    { key: "terms", pageKey: "terminos-y-condiciones" },
+    { key: "cookies", pageKey: "politica-de-cookies" },
+  ] as const
+).filter((r) => r.key !== legalKey)
 ---
 
 <PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
@@ -30,17 +44,23 @@ const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; bod
   <Headline>{t("global.footer.legal.label")}</Headline>
   <h1 class="mt-4 font-serif text-4xl text-ink">{title}</h1>
   <p class="mt-2 text-sm text-muted">{description}</p>
-  <p class="mt-1 text-xs uppercase tracking-[0.1em] text-muted">{t("pages.legal.updated")}</p>
-  <p class="mt-6 border border-crimson/30 bg-crimson/5 px-4 py-3 text-sm text-ink">{t("pages.legal.disclaimer")}</p>
+  <p class="mt-1 text-xs uppercase tracking-[0.1em] text-muted">{updated}</p>
   </div>
-  <div class="js-legal-list mt-10 space-y-8">
-    {sections.map((section) => (
-      <section class="js-legal-sec">
-        <h2 class="font-serif text-2xl text-ink">{section.heading}</h2>
-        <p class="mt-2 leading-relaxed text-ink/80">{section.body}</p>
-      </section>
-    ))}
+  <div class="js-legal-list mt-10">
+    <Markdown content={entry.body} />
   </div>
+  <nav aria-label={t("global.footer.legal.label")} class="mt-12 border-t border-border-theme pt-6">
+    <p class="text-xs uppercase tracking-[0.1em] text-muted">{t("global.footer.legal.label")}</p>
+    <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+      {related.map((r) => (
+        <li>
+          <a class="text-sm text-crimson underline underline-offset-4 hover:decoration-crimson" href={getLocalizedPath(r.pageKey, lang)}>
+            {t(`global.footer.legal.${r.key}`)}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
 </div>
 
 <script>
@@ -51,8 +71,7 @@ const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; bod
   const initLegal = () => {
     const head = document.querySelector(".js-legal-head")
     const list = document.querySelector(".js-legal-list")
-    const secs = list ? list.querySelectorAll(".js-legal-sec") : document.querySelectorAll(".js-legal-sec")
-    if (!head && secs.length === 0) return
+    if (!head && !list) return
     mm?.revert()
     mm = gsap.matchMedia()
 
@@ -76,19 +95,18 @@ const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; bod
         )
       }
 
-      if (secs.length > 0) {
+      if (list) {
         gsap.fromTo(
-          secs,
+          list,
           { y: 30, autoAlpha: 0 },
           {
             y: 0,
             autoAlpha: 1,
             duration: 0.7,
             ease: "power2.out",
-            stagger: 0.08,
             clearProps: "transform,opacity,visibility",
             scrollTrigger: {
-              trigger: list ?? head,
+              trigger: list,
               start: "top 80%",
               toggleActions: "play none none none",
             },

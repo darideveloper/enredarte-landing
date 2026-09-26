@@ -1,5 +1,6 @@
 import * as React from "react"
 import { getOrderSummary, SalesError, type OrderSummary } from "@/lib/api/sales"
+import { trackPurchase } from "@/lib/analytics"
 import { OrderSummaryCard } from "@/components/organisms/OrderSummaryCard"
 import { DeliveryForm, type ConfirmationCopy, type DeliveryCopy } from "@/components/organisms/DeliveryForm"
 
@@ -54,6 +55,14 @@ export function OrderFlow({ obrasHref, copy, delivery, confirmation }: OrderFlow
   }
 
   React.useEffect(() => clearTimer, [])
+
+  const purchased = React.useRef(false)
+  React.useEffect(() => {
+    if (phase.kind === "complete" && !purchased.current) {
+      purchased.current = true
+      trackPurchase({ value: phase.summary.amount, currency: phase.summary.currency.toUpperCase() })
+    }
+  }, [phase])
 
   const poll = React.useCallback(
     async (slug: string, attempts: number, errorStreak: number) => {
