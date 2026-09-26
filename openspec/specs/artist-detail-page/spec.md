@@ -50,7 +50,7 @@ The artist page SHALL render a hero section showing the artist's name as the pag
 - **THEN** it is parsed via `renderMarkdown` and rendered with `set:html` in prose styling
 
 ### Requirement: Render the artist's artworks
-The artist page SHALL render an artworks section showing only the artworks belonging to that artist, as a static editorial list (no filter UI): the featured artwork as an `ImageBanner` followed by the remaining artworks as alternating `ImageRowCard`s, each tagged with its localized discipline, technique, and theme labels. It SHALL reuse `ImageBanner`, `ImageRowCard`, and the artwork view built by `toArtworkView`. The featured artwork SHALL be the artist's first highlighted artwork when any exist, otherwise the first artwork.
+The artist page SHALL render an artworks section showing only the artworks belonging to that artist, as a static editorial list (no filter UI): the featured artwork as an `ImageBanner` followed by the remaining artworks as alternating `ImageRowCard`s in `immersive` mode, each tagged with its localized discipline, technique, and theme labels. It SHALL reuse `ImageBanner`, `ImageRowCard`, and the artwork view built by `toArtworkView`. The featured artwork SHALL be the artist's first highlighted artwork when any exist, otherwise the first artwork. The artworks section SHALL NOT set `overflow:hidden` on any ancestor of the sticky rows, so the immersive `md:sticky md:top-[35svh]` info card keeps sala parity.
 
 #### Scenario: Only the artist's artworks appear
 - **GIVEN** an artist whose artworks are a subset of the full catalog
@@ -66,6 +66,11 @@ The artist page SHALL render an artworks section showing only the artworks belon
 - **GIVEN** an artist with three artworks after the featured one
 - **WHEN** the artworks section renders at desktop width
 - **THEN** the second artwork's row reverses its image/info order relative to the first
+
+#### Scenario: Tall row keeps info card pinned like sala
+- **GIVEN** an immersive row rendering a portrait artwork on a desktop viewport
+- **WHEN** the user scrolls through the row
+- **THEN** the info card remains visible pinned near the middle of the viewport while the image scrolls
 
 ### Requirement: Render the artist's active galleries
 The artist page SHALL render a section listing the galleries where the artist is currently active, derived from the API: the set of galleries referenced by the `gallery_links` of the artist's artworks, deduplicated, restricted to galleries whose `is_active` is true, and ordered primary galleries first then by gallery index. The section SHALL show these galleries as `ImageCard`s built from `toSalaView` (gallery image, localized name, "Sala NN" subtitle, artwork count, and curator line), and SHALL omit the section entirely when no active gallery exists.

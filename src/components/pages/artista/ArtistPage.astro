@@ -132,7 +132,7 @@ const alternateUrls = {
 </section>
 
 {artworks.length > 0 && (
-  <section id="artista-obras" class="bg-paper container-site-canvas pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden">
+  <section id="artista-obras" class="bg-paper container-site-canvas pt-16 md:pt-24 pb-16 md:pb-24">
     <Title class="js-artista-header">
       <Headline color="muted" class="block mb-2 tracking-[0.2em]">Explora</Headline>
       {t("global.artist.works")}
@@ -233,10 +233,13 @@ const alternateUrls = {
       if (works) {
         fade(works.querySelector(".js-artista-header"), works)
         fade(works.querySelector(".js-artista-featured"), works)
-        const rows = works.querySelectorAll(".js-artista-row")
-        if (rows.length > 0) {
+        // Immersive rows: one trigger per row, inner cells only —
+        // the sticky info wrapper is never animated.
+        works.querySelectorAll(".js-artista-row").forEach((row) => {
+          const cells = Array.from(row.children)
+          if (cells.length === 0) return
           gsap.fromTo(
-            rows,
+            cells,
             { y: 40, autoAlpha: 0 },
             {
               y: 0,
@@ -246,13 +249,13 @@ const alternateUrls = {
               stagger: 0.1,
               clearProps: "transform,opacity,visibility",
               scrollTrigger: {
-                trigger: works,
-                start: "top 80%",
+                trigger: row,
+                start: "top 85%",
                 toggleActions: "play none none none",
               },
             }
           )
-        }
+        })
       }
 
       if (salas) {

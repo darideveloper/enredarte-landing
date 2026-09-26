@@ -59,11 +59,15 @@ ArtworkPage SHALL NOT add any trigger inside the scrub/viewer image zone; it SHA
 - **THEN** it appears instantly with no reveal animation.
 
 ### Requirement: Artist and curator reveals
-ArtistPage `#artista-obras` SHALL fade its header, fade the featured ImageBanner once, and stagger editorial rows; `#artista-salas` SHALL stagger its gallery grid. CuratorPage SHALL fade CuratorHero header text only (portrait untouched) and stagger the CuratorSalas grid with its header.
+ArtistPage `#artista-obras` SHALL fade its header, fade the featured ImageBanner once, and reveal each editorial row via its own row trigger animating inner content only (sticky wrapper untouched); `#artista-salas` SHALL stagger its gallery grid. CuratorPage SHALL fade CuratorHero header text only (portrait untouched) and stagger the CuratorSalas grid with its header.
 
 #### Scenario: Artist and curator sections animate
 - **WHEN** each artist/curator section scrolls into view
-- **THEN** headers fade once and cards/rows stagger in; curator/artist portrait images never animate opacity.
+- **THEN** headers fade once and cards/rows animate in; curator/artist portrait images never animate opacity.
+
+#### Scenario: Artista rows reveal per row without breaking sticky
+- **WHEN** each `#artista-obras .js-artista-row` approaches the viewport (`start "top 85%"`, `play none none none`)
+- **THEN** its inner content (image cell and info cell children) fades up (`y:40`, `duration 0.8`, `power2.out`, `clearProps`) while the `md:sticky` info wrapper itself never receives inline `transform`/`opacity`.
 
 ### Requirement: Blog reveals with CSS replacement
 BlogIndex SHALL fade its header, stagger its PostCard grid via GSAP, and fade PaginationNav/empty-state; the existing CSS `@keyframes blog-enter` SHALL be removed in the same change. BlogPost SHALL keep its hero frozen and fade the description quote, meta row, body blocks (light, no per-paragraph stagger), and sticky aside.
