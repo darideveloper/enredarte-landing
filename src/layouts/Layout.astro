@@ -2,6 +2,7 @@
 import "@/styles/global.css"
 import Header from "@/components/organisms/Header.astro"
 import Footer from "@/components/organisms/Footer.astro"
+import Tracking from "@/components/seo/base/Tracking.astro"
 import { getLangFromUrl } from "@/lib/i18n/utils"
 import { ClientRouter } from "astro:transitions"
 
@@ -22,8 +23,13 @@ const lang = getLangFromUrl(Astro.url)
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="generator" content={Astro.generator} />
+    <Tracking />
     <ClientRouter />
+    {lang === "es"
+      ? <link rel="alternate" type="application/rss+xml" title="Revista EnredArte" href="/rss.xml" />
+      : <link rel="alternate" type="application/rss+xml" title="EnredArte Journal" href="/en/rss.xml" />}
     <slot name="seo" />
     {preloadSrcSet
       ? <link rel="preload" as="image" imagesrcset={preloadSrcSet} imagesizes={preloadSizes ?? "100vw"} fetchpriority="high" />

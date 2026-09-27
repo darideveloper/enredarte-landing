@@ -1,7 +1,7 @@
 ---
 import PageSEO from "@/components/seo/PageSEO.astro"
 import Headline from "@/components/atoms/Headline.astro"
-import { getTranslations } from "@/lib/i18n/utils"
+import { getTranslations, getLocalizedPath } from "@/lib/i18n/utils"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -21,9 +21,13 @@ const legalKey = pageKey === "aviso-de-privacidad"
 const title = t(`pages.legal.${legalKey}.title`) as string
 const description = t(`pages.legal.${legalKey}.description`) as string
 const sections = t(`pages.legal.${legalKey}.sections`) as { heading: string; body: string }[]
+const alternateUrls = {
+  en: getLocalizedPath(pageKey, "en"),
+  es: getLocalizedPath(pageKey, "es"),
+}
 ---
 
-<PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
+<PageSEO currentPage={pageKey} lang={lang} title={title} description={description} alternateUrls={alternateUrls} slot="seo" />
 
 <div class="container-site-narrow py-16" transition:animate="none">
   <div class="js-legal-head">

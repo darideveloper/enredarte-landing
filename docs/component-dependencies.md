@@ -329,9 +329,29 @@ design-system.astro
 ```
 PageSEO.astro ─► BaseSEO.astro
                   ├── consts.ts (SITE_TITLE, SITE_DESCRIPTION, LOCALE_MAP)
-                  ├── data/site-config.ts
-                  ├── lib/i18n/utils (getLocalizedPath, getTranslations)
-                  └── lib/markdown (stripMarkdown — meta/og descriptions always plain text)
+                  ├── data/site-config.ts (BUSINESS_DATA — url/logo/ogImage/contact/social)
+                  ├── lib/i18n/utils (getLocalizedPath, getTranslations, getLocalized*Path)
+                  ├── lib/markdown (stripMarkdown — meta/og descriptions always plain text)
+                  └── per-template JSON-LD extraJson via lib/seo/schema.ts
+                      ├── blogPostingSchema / blogSchema (BlogIndex, BlogPost)
+                      ├── visualArtworkSchema (ArtworkPage)
+                      ├── artGallerySchema (GalleryPage)
+                      └── personSchema (ArtistPage, CuratorPage)
+```
+
+### RSS feeds (per-locale, built from published posts)
+
+```
+src/pages/rss.xml.ts (es) ─┐
+src/pages/en/rss.xml.ts ───┴──► lib/seo/rss.ts (buildRssFeed) ─► lib/api/posts (list, pickPostField)
+                                    └── lib/api/pagination (fetchAll)
+```
+
+### Analytics / tracking (production-only)
+
+```
+src/components/seo/base/Tracking.astro ─► Layout.astro (gated by import.meta.env.PROD,
+                                            PUBLIC_GTM_ID / PUBLIC_GA4_ID from env.d.ts)
 ```
 
 ## Shared leaf layer

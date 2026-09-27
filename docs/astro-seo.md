@@ -1,6 +1,6 @@
 ---
 created: 2026-04-18
-updated: 2026-09-09
+updated: 2026-09-27
 tags:
   - astro
   - seo
@@ -11,214 +11,105 @@ status: active
 
 # SEO Implementation & Best Practices
 
-This document outlines the SEO strategy and implementation details for Astro-based projects. It covers metadata rendering, multimedia optimization, accessibility, and performance best practices to be used as a standard.
+This document captures the SEO strategy and implementation details for this Astro project: metadata rendering, URL policy, structured data, multimedia optimization, accessibility, and performance.
 
 ## 0. Prerequisites
 
-Before proceeding, ensure the following infrastructure is in place:
-- **Layout Shell:** Standard `Layout.astro` setup with `<slot name="seo" />` in `<head>`.
-- **i18n (if applicable):** If your project has multiple languages, the i18n system is defined in [[astro-i18n]]. Skip this section if your project is single-language.
-- **Centralized config:** Business data (name, URLs, contact) comes from a single config file → see [[astro-site-config]].
+- **Layout Shell:** Standard `Layout.astro` with `<slot name="seo" />` in `<head>` (plus the tracking block, RSS feed link, and favicon links).
+- **i18n:** The custom i18n system is defined in [[astro-i18n]] (bilingual `es`/`en`).
+- **Centralized config:** Business data lives in a single file → [[astro-site-config]].
 
-## 1. Dependencies
+## 1. Dependencies & Config
 
-Add the following integrations to `astro.config.mjs`:
+Add these to `astro.config.mjs`:
 
 ```text
 @astrojs/sitemap                       # Automatic sitemap generation
-sharp                                  # Image optimization (bundled with Astro)
+@astrojs/rss                           # RSS feed generation
+astro:assets / sharp                   # Image optimization (bundled with Astro)
 ```
-
-Also set `site` and `inlineStylesheets` in config:
 
 ```ts
 export default defineConfig({
-  site: 'https://example.com',
-  build: {
-    inlineStylesheets: "always",       // inline critical CSS, reduces HTTP requests
-  },
-  integrations: [
-    sitemap(),
-    // react(), mdx(), sharp — example list only; add just what your project uses
-  ],
+  // Origin chain: PORTLESS_URL → SITE_URL → prod (never localhost)
+  site: process.env.PORTLESS_URL ?? process.env.SITE_URL ?? "https://enredarte.mx",
+  build: { inlineStylesheets: "always" },
+  integrations: [react(), sitemap({ filter: (page) => !page.includes("/compra-") })],
 })
 ```
 
 ## 2. Favicons & Icons
 
-The project includes multiple favicon formats to ensure compatibility across all browsers and devices, prioritizing vector formats for modern displays.
+Brand icons live in `public/` (all real assets, not placeholders):
 
-### 2.1 Implementation
-
-All brand icons are located in the `public/` directory for reliable root access:
-- `favicon.svg`: **Primary icon.** Scalable vector icon for modern browsers.
-- `favicon.ico`: **Legacy fallback.** A 32x32 MS Windows icon resource.
-- `favicon.png`: **Standard PNG.** A 32x32 PNG version of the icon.
-- `apple-touch-icon.png`: **iOS Home Screen.** A 180x180 PNG version optimized for iOS.
-- `og-image.jpg`: **Open Graph image.** 1200x630px branded image for social sharing.
+- `favicon.svg`: Primary vector icon (also `BUSINESS_DATA.logo`).
+- `favicon.ico`: Legacy 32×32 MS Windows fallback.
+- `favicon.png`: Standard 32×32 PNG.
+- `apple-touch-icon.png`: iOS Home Screen — **180×180 opaque** PNG (no transparency per Apple's rule).
+- `og-image.jpg`: Open Graph image, **1200×630** px.
+- `icon-192.png` / `icon-512.png`: PWA/Android sizes, shipped as versioned assets (manifest wiring deferred to a future change).
 
 **Snippet (`Layout.astro`):**
 ```html
-<link rel="icon" href="/favicon.ico" sizes="32x32" />
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" href="/favicon.ico" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 ```
 
 ## 3. The SEO Component Hierarchy
 
-All SEO metadata is handled by a **4-layer component hierarchy**. Each layer adds specificity while the base handles all the common work.
+A **2-layer hierarchy** — `PageSEO.astro` (thin wrapper) delegates everything to `BaseSEO.astro` (engine).
 
 ```
 BaseSEO.astro (core engine)
-├── Resolves title/desc/keywords: prop → i18n(pageKey) → SITE_TITLE constant → default
-├── Auto-tagline: appends " | Business Name" for non-home pages (controlled by useTagLine)
-├── Canonical URL: computed from routes.ts via getLocalizedPath()
-├── hreflang alternates: auto-generated for all supported languages
-├── Dynamic JSON-LD: switches @type based on jsonType prop
-│   ├── LocalBusiness / TravelAgency → address, geo, openingHours, sameAs, areaServed
-│   ├── TouristDestination → touristType, containedInPlace
-│   ├── Service → provider, serviceType
-│   ├── Blog → minimal blog schema
-│   └── BlogPosting → headline, author, datePublished, image, url
-├── extraJson prop: merges arbitrary schema extensions
-├── OG / Twitter: og:locale from LOCALE_MAP, og:type mapped from jsonType
-└── Robots: noIndex prop, sitemap link
-│
-├── PageSEO.astro (thin wrapper)
-│   └── Props: currentPage, jsonType?, extraJson?, ogImage?
-│
-├── BlogSEO.astro (thin wrapper)
-│   └── Props: currentPage
-│   └── jsonType fixed to "Blog"
-│
-└── BlogPostSEO.astro (full wrapper)
-    └── Props: postTitle, postExcerpt, postAuthor, postDate, postImageUrl, slug, alternateUrls
-    └── Constructs extraJson for BlogPosting schema
+├── Resolves title/desc/keywords: prop → i18n(pageKey) → SITE_TITLE/desc constant → default
+├── Auto-tagline: appends " | Business Name" for non-home pages (useTagLine prop)
+├── Canonical URL: from Astro.site origin via getLocalizedPath() / Astro.url.pathname
+├── Hreflang alternates: en/es auto-generated or via alternateUrls prop (absolutized)
+├── Open Graph / Twitter: og:type map (Blog→blog, BlogPosting→article, else website),
+│   og:site_name, og:image:width/height/alt (when resolvable), twitter:title/description/image
+├── article:published_time / article:author (when jsonType === "BlogPosting")
+├── JSON-LD: per-template @type via jsonType + extension via extraJson
+└── Robots: !PROD guard + noIndex prop; sitemap link (robots.txt)
 ```
 
 ### 3.1 BaseSEO.astro — The Core Engine
 
-Every SEO component delegates to this one. It handles:
+**Origin policy:** All canonical/OG/hreflang/JSON-LD URLs use the resolved origin from `Astro.site` (the `PORTLESS_URL → SITE_URL → prod` chain), matching the sitemap origin per environment. A fallback to `BUSINESS_DATA.url` guards against a missing `Astro.site`. Relative path input is absolutized against the origin so hreflang/OG always emit full URLs.
 
-**Title Resolution Chain:**
-```
-1. Explicit title prop
-2. i18n translation (pages.{currentPage}.title)
-3. SITE_TITLE constant from consts.ts
-4. Default fallback
-```
+**Title resolution chain:** explicit title → i18n `pages.{key}.title` → `SITE_TITLE`.
 
-**Description Resolution Chain:**
-```
-1. Explicit description prop
-2. baseDescription prop
-3. i18n translation (pages.{currentPage}.description)
-4. SITE_DESCRIPTION constant
-```
+**Description resolution chain:** explicit description → i18n `pages.{key}.description` → `SITE_DESCRIPTION`. Descriptions are run through `stripMarkdown` so meta tags are always plain text.
 
-**Auto-Tagline Logic:**
+**Keywords:** resolved and rendered only when non-empty (`keywords` prop or i18n `pages.{key}.keywords`).
+
+**Tagline logic (default on):**
 ```astro
 {useTagLine && resolvedTitle !== BUSINESS_DATA.name && currentPage !== 'home'
-  ? `${resolvedTitle} | ${BUSINESS_DATA.name}`
-  : resolvedTitle}
+  ? `${resolvedTitle} | ${BUSINESS_DATA.name}` : resolvedTitle}
 ```
 
-Controlled by the `useTagLine` prop (defaults to `true`). Set to `false` for blog posts where the title already includes branding.
+**Hreflang alternates:** auto-generated en/es for route-map pages via `getLocalizedPath`, or taken from an `alternateUrls` prop for slug pages (gallery/artwork/artist/curator/blog/legal). No `hreflang="x-default"` is emitted — en/es cover all supported locales.
 
-**Dynamic JSON-LD Generation (`@type` polymorphism):**
-```astro
----
-const isLocalBusiness = jsonType === "LocalBusiness" || jsonType === "TravelAgency"
-const isTouristDestination = jsonType === "TouristDestination"
-const isService = jsonType === "Service"
+**Per-template JSON-LD:** The engine emits `@type` from `jsonType` and merges `extraJson` (which overrides base `name`/`url`/`image`). Template builders live in `src/lib/seo/schema.ts`:
 
-const baseSchema = {
-  "@context": "https://schema.org",
-  "@type": jsonType,
-  "@id": `${BUSINESS_DATA.url}#${jsonType.toLowerCase()}`,
-  name: pageTitle,
-  description: resolvedDescription,
-  url: canonicalUrl,
-  image: socialImageUrl,
-  inLanguage: lang,
-}
+| Template | @type | extraJson fields |
+|----------|-------|------------------|
+| Blog index | `Blog` | — |
+| Blog post | `BlogPosting` | headline, author Person, datePublished, image, url |
+| Gallery | `ArtGallery` | name, description, image |
+| Artwork | `VisualArtwork` | creator Person, dateCreated (year), artMedium (first technique), size (dimensions), offers (when available), image |
+| Artist / Curator | `Person` | name, image, email, website (url), sameAs |
+| Home / legal / index shells | `LocalBusiness` | telephone, address, sameAs (default) |
 
-if (isLocalBusiness) {
-  baseSchema.logo = `${BUSINESS_DATA.url}${BUSINESS_DATA.logo}`
-  baseSchema.telephone = BUSINESS_DATA.contact.phone
-  baseSchema.address = BUSINESS_DATA.contact.address
-  baseSchema.geo = BUSINESS_DATA.contact.geo
-  baseSchema.priceRange = "$$-$$$" // ← placeholder, replace per project
-  baseSchema.openingHoursSpecification = { "@type": "OpeningHoursSpecification", ... }
-  baseSchema.sameAs = [facebook, instagram, ...]
-  baseSchema.areaServed = [{ "@type": "AdministrativeArea", name: "[Your Region]" }]
-}
+### 3.2 PageSEO.astro — Thin Wrapper
 
-if (isTouristDestination) {
-  baseSchema.touristType = "[Audience]"
-  baseSchema.containedInPlace = { "@type": "AdministrativeArea", name: "[Your Area]" }
-}
+Forwards `currentPage`, `lang`, `title`, `description`, `keywords`, `jsonType`, `extraJson`, `ogImage`, `ogImageAlt`, `ogImageWidth`, `ogImageHeight`, `alternateUrls`, `noIndex`, `useTagLine`, `articlePublishedTime`, `articleAuthor` to `BaseSEO`.
 
-if (isService) {
-  baseSchema.provider = { "@type": "LocalBusiness", name: BUSINESS_DATA.name, ... }
-  baseSchema.serviceType = "[Your Service Category]"
-}
+## 4. The Slot Pattern
 
-const jsonLd = { ...baseSchema, ...extraJson }
----
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-```
+SEO components use the Astro slot pattern (`slot="seo"`) to inject metadata into `<head>`:
 
-The `extraJson` prop allows any consumer to extend the schema — `BlogPostSEO` uses it to add `headline`, `author`, `datePublished`, `image`, `url`.
-
-**Hreflang Alternates (auto-generated):**
-```astro
----
-const canonicalPath = currentPage
-  ? getLocalizedPath(currentPage, lang)
-  : Astro.url.pathname
-const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
-
-const alternateUrls = {
-  en: `${BUSINESS_DATA.url}${getLocalizedPath(currentPage, "en")}`,
-  es: `${BUSINESS_DATA.url}${getLocalizedPath(currentPage, "es")}`,
-}
----
-<link rel="canonical" href={canonicalUrl} />
-<link rel="alternate" hreflang="en" href={alternateUrls.en} />
-<link rel="alternate" hreflang="es" href={alternateUrls.es} />
-```
-
-**Open Graph / Twitter:**
-```astro
----
-const ogTypeMap = {
-  LocalBusiness: "website",
-  TravelAgency: "website",
-  Blog: "blog",
-  BlogPosting: "article",
-}
-const ogType = ogTypeMap[jsonType] || "website"
----
-<meta property="og:type" content={ogType} />
-<meta property="og:locale" content={LOCALE_MAP[lang]} />
-<meta name="twitter:card" content="summary_large_image" />
-```
-
-### 3.2 PageSEO.astro — Standard Pages
-
-The simplest wrapper — used by almost every page.
-
-```astro
----
-import BaseSEO from "./base/BaseSEO.astro"
-
-const { currentPage, jsonType = "LocalBusiness", extraJson = {}, ogImage } = Astro.props
----
-<BaseSEO currentPage={currentPage} jsonType={jsonType} extraJson={extraJson} ogImage={ogImage} />
-```
-
-**Usage in a page component:**
 ```astro
 <Layout>
   <PageSEO currentPage={pageKey} slot="seo" />
@@ -226,306 +117,109 @@ const { currentPage, jsonType = "LocalBusiness", extraJson = {}, ogImage } = Ast
 </Layout>
 ```
 
-### 3.3 BlogSEO.astro — Blog Listing (pattern only, not present in enredarte-landing)
-
-```astro
----
-import BaseSEO from "./base/BaseSEO.astro"
----
-<BaseSEO currentPage={currentPage} jsonType="Blog" />
-```
-
-### 3.4 BlogPostSEO.astro — Individual Blog Post (pattern only, not present in enredarte-landing)
-
-Full implementation showing how `extraJson` extends the base schema:
-
-```astro
----
-const extraJson = {
-  headline: postTitle,
-  description: postExcerpt,
-  author: { "@type": "Person", name: postAuthor },
-  datePublished: postDate,
-  image: postImageUrl,
-  url: `${domain}/${lang}/blog/${postSlug}`,
-}
----
-<BaseSEO
-  title={postTitle}
-  description={postExcerpt}
-  baseKeywords={postKeywords}
-  jsonType="BlogPosting"
-  extraJson={extraJson}
-  ogImage={postImageUrl}
-  useTagLine={false}
-  alternateUrls={alternateUrls}
-/>
-```
-
-Note `useTagLine={false}` — blog post titles are standalone and shouldn't have " | Brand Name" appended.
-
-## 4. The Slot Pattern
-
-SEO components use the **Astro slot pattern** (`slot="seo"`) to inject metadata into `<head>` from any page component.
-
-```
-Layout.astro                    Page Component
-┌──────────────────────┐       ┌────────────────┐
-│ <head>               │       │ <Layout>       │
-│   <slot name="seo" />│ ◄──── │   <PageSEO     │
-│ </head>              │       │     slot="seo" │
-│ <body>               │       │   />           │
-│   <slot />           │       │   ...          │
-│ </body>              │       │ </Layout>      │
-└──────────────────────┘       └────────────────┘
-```
-
-This keeps the Layout framework-agnostic about SEO — any page can inject its own metadata without modifying the layout.
-
 ## 5. Sitemap & Robots.txt
 
 ### 5.1 Sitemap
 
-Automatically generated by `@astrojs/sitemap`. Accessible at `/sitemap-index.xml`. The `site` URL in `astro.config.mjs` must be set correctly for the sitemap to use proper absolute URLs.
-
-```ts
-export default defineConfig({
-  site: 'https://example.com',
-  integrations: [sitemap()],
-})
-```
+Generated by `@astrojs/sitemap` at `/sitemap-index.xml`. `site` in `astro.config.mjs` must resolve correctly for absolute URLs. `/compra-*` pages are filtered from the sitemap.
 
 ### 5.2 Dynamic robots.txt
 
-Generate robots.txt dynamically via an Astro API endpoint:
+`src/pages/robots.txt.ts` emits `Allow: /`, the sitemap URL, and the RSS feed URL(s), derived from `site`:
 
 ```ts
-// src/pages/robots.txt.ts
-import type { APIRoute } from 'astro';
-
-const getRobotsTxt = (sitemapURL: URL) => `\
-User-agent: *
-Allow: /
-
-Sitemap: ${sitemapURL.href}
-`;
-
 export const GET: APIRoute = ({ site }) => {
-    const sitemapURL = new URL('sitemap-index.xml', site);
-    return new Response(getRobotsTxt(sitemapURL));
-};
+  const sitemapURL = new URL("sitemap-index.xml", site)
+  const feedURL = new URL("rss.xml", site)
+  return new Response(`User-agent: *\nAllow: /\n\nSitemap: ${sitemapURL.href}\nSitemap: ${feedURL.href}\n`)
+}
 ```
 
-This approach ensures the sitemap URL is always correct, even when the `site` config changes.
+Exclusion of `compra-*` relies on the sitemap filter + `noIndex` meta (shells must still exist as files).
 
 ## 6. Performance & Environment Logic
 
 ### 6.1 Environment-Based Indexing
 
-Prevent dev/staging environments from appearing in search results:
-
 ```astro
----
-const isProd = import.meta.env.PROD;
----
-{!isProd && <meta name="robots" content="noindex, nofollow" />}
+{!import.meta.env.PROD && <meta name="robots" content="noindex, nofollow" />}
 ```
+Gate all index-sensitive output by `import.meta.env.PROD`. Dev/branch builds canonicalize to their own subdomain and are kept out of the index by this guard.
 
 ### 6.2 Multimedia Optimization
 
-Use `astro:assets` `Image` component for automatic optimization (WebP/AVIF conversion, resizing).
+Use `astro:assets` `Image` component (AVIF/WebP conversion, resizing). Slots in `src/lib/images.ts` (`IMAGE_SLOTS`) map widths/sizes to CSS slots.
 
 **Best Practices:**
-- **Eager Loading:** Use `loading="eager"` and `fetchpriority="high"` for hero banners.
-- **Lazy Loading:** Use `loading="lazy"` and `decoding="async"` for everything else.
-
-**Responsive images example (from Home.astro):**
-```astro
----
-import { Image } from 'astro:assets'
----
-<Image
-  src={image}
-  alt={alt}
-  widths={[400, 800, image.width]}
-  sizes="(max-width: 768px) 400px, 800px"
-  quality={60}
-  format="avif"
-  loading="lazy"
-  decoding="async"
-  class="h-full w-full rounded-xl object-cover"
-/>
-```
-
-The `widths` + `sizes` pattern generates multiple resolutions for responsive displays.
+- **Eager:** hero / LCP images — `loading="eager"` + `fetchpriority="high"` + responsive `imagesrcset` preload.
+- **Lazy:** everything else — `loading="lazy"` + `decoding="async"`.
 
 ## 7. Core Web Vitals Optimization
 
-Key optimizations for page speed:
-
-### 7.1 Critical Font Preloading
-```html
-<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="/fonts/metropolis-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
-```
-
-### 7.2 Preconnect to Third-Party Origins
-```html
-<link rel="preconnect" href="https://maps.googleapis.com" />
-<link rel="preconnect" href="https://maps.gstatic.com" />
-```
-
-### 7.3 Hero Image Preload
-```astro
----
-{preloadSrcSet
-  ? <link rel="preload" as="image" imagesrcset={preloadSrcSet} imagesizes={preloadSizes ?? "100vw"} fetchpriority="high" />
-  : preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
----
-```
-
-Pass `preloadImage` plus the responsive set as props to `Layout.astro` (computed in `[...path].astro` via `lcpPreload(url, IMAGE_SLOTS.<slot>)` with the same transform the `Image` atom applies, so preloaded bytes match the rendered variant):
-```astro
-<Layout
-  preloadImage={preloadImage || undefined}
-  preloadSrcSet={preloadSet?.srcSet}
-  preloadSizes={preloadSet?.sizes}
->
-```
-
-### 7.4 Inline CSS
-```ts
-export default defineConfig({
-  build: { inlineStylesheets: "always" }
-})
-```
-
-Eliminates render-blocking CSS requests for small-to-medium sites.
+- `inlineStylesheets: "always"`.
+- LCP preload (`preloadImage` / `preloadSrcSet` / `preloadSizes`) computed in `[...path].astro` via `lcpPreload` with the same transform the `Image` atom applies (no double-download).
+- Preconnect/preload external origins and fonts as needed per page.
 
 ## 8. Island Architecture + SEO
 
-To maintain SEO excellence while using interactive React components, use the [[astro-react-islands#8-the-slot-pattern|Slot Pattern]]. Content inside Astro slots is rendered as static HTML — crawlers see it immediately without waiting for JavaScript hydration.
-
-**Benefits:**
-- **Search Visibility:** Core content is visible to crawlers without JS execution.
-- **Single Source of Truth:** Shared atoms (buttons, links) remain Astro components with consistent SEO attributes (alt text, titles, ARIA labels).
+Content inside Astro slots renders as static HTML — crawlers see it without JS hydration. React islands receive localized copy as props; they never emit index-critical markup pre-hydration. Conversion islands (`OrderFlow`, `BuyWidget`) live on `noIndex` pages where that is acceptable.
 
 ## 9. Internationalization (i18n) + SEO
 
 ### 9.1 Canonical Links & Hreflang
 
-Handled automatically by `BaseSEO.astro` — every page gets:
-```html
-<link rel="canonical" href="https://example.com/path" />
-<link rel="alternate" hreflang="en" href="https://example.com/path" />
-<link rel="alternate" hreflang="es" href="https://example.com/es/ruta" />
-```
+Handled by `BaseSEO`: every route-map page gets absolute en/es alternates (no x-default). Slug pages pass `alternateUrls` via `getLocalized*Path`.
 
-The SEO component calls `getLocalizedPath(pageKey, lang)` from the i18n system to compute the correct URL for each language.
+### 9.2 Internal Linking
 
-### 9.2 Internal Linking Strategy
-
-All internal links use localized paths from [[astro-i18n]]. The `LangLink` atom ensures every link points to the correct language version.
+All internal links use localized paths from [[astro-i18n]] (`LangLink` / `getLocalized*Path`).
 
 ### 9.3 Legacy Redirects
 
-Handle old URL patterns via `astro.config.ts` to preserve SEO authority:
-
-```ts
-const legacyRedirects = Object.values(routes).reduce((acc, route) => {
-  if (route.es === "") {
-    acc['/es'] = '/';
-  } else {
-    acc[`/es/${route.es}`] = `/${route.es}`;
-  }
-  return acc;
-}, {});
-
-export default defineConfig({
-  redirects: { ...legacyRedirects }
-})
-```
+Old `/es/<path>` → `/<path>` mapping in `astro.config.mjs` preserves SEO authority.
 
 ## 10. Headings & Hierarchy
 
-The project follows a strict heading hierarchy:
-- **H1:** Unique per page.
-- **H2-H6:** Used for section titles and subsections. Never skip levels (e.g., don't jump from H2 to H4).
+- One **unique H1** per page (no duplicate/sr-only clones).
+- H2–H6 for sections, never skipping levels.
 
 ## 11. Accessibility (ARIA)
 
-Interactive elements like buttons must use `aria-label` to provide context for screen readers when the text content is not descriptive enough.
-
-```astro
-<ButtonCta
-  aria-label={`Book now - Private Transportation`}
-  ...
-/>
-```
+Interactive elements use descriptive labels / `aria-label` when text is not enough. Decorative images use `alt=""` + `aria-hidden`. Every content image requires an `alt`.
 
 ## 12. 404 Page
 
-- Include links to primary site sections to reduce bounce rate.
-- Use clear messaging about the page not being found.
-- Consider a search box for larger sites.
+Include links to primary sections; clear messaging; `noIndex` (no hreflang needed).
 
 ## 13. Analytics & Tracking
 
-Track SEO performance using Google Tag Manager (GTM) and/or GA4.
+GTM + GA4 snippets live in `src/components/seo/base/Tracking.astro`, injected in `Layout` and **gated by `import.meta.env.PROD`** so dev/noindex pages stay clean. IDs come from typed env vars:
 
-### Layout Pattern
-```html
-<!-- Google Tag Manager -->
-<script is:inline>
-  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-XXXXXXX')
-</script>
-<!-- Google tag (gtag.js) -->
-<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXX"></script>
-<!-- GTM (noscript) - placed after <body> opening -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+```env
+PUBLIC_GTM_ID=GTM-XXXXXXX   # Google Tag Manager container ID
+PUBLIC_GA4_ID=G-XXXXXXX     # GA4 measurement ID
 ```
 
-Use the `is:inline` directive — Astro will not process or bundle these scripts.
+Both snippet forms (GTM container block + noscript fallback, and the gtag.js async tag) use `is:inline` / Async so Astro does not bundle them. When neither ID is set, nothing renders.
 
 ## 14. RSS Feed
 
-Standardized feed for search engines and aggregators:
+Per-locale feeds via `@astrojs/rss`, built from the published blog posts:
 
-```js
-// src/pages/rss.xml.js
-import rss from '@astrojs/rss'
-
-export async function GET(context) {
-  const posts = await getPosts()
-  return rss({
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-    site: context.site,
-    items: posts.map(post => ({
-      title: post.title,
-      description: post.description,
-      pubDate: new Date(post.created_at),
-      author: post.author,
-      link: `/blog/${post.slug}/`,
-    })),
-  })
-}
-```
+- `/rss.xml` (es) and `/en/rss.xml` (en) — `src/pages/rss.xml.ts` + `src/pages/en/rss.xml.ts`, sharing `src/lib/seo/rss.ts` (`buildRssFeed(lang)` reusing `fetchAll(listPosts)`).
+- Each feed carries localized title/description/pubDate/author/link; only published (non-draft) posts.
+- Feed fetch errors fail the build loudly (consistent with blog contract).
+- Feeds are discoverable via `<link rel="alternate" type="application/rss+xml">` in `Layout` and referenced in `robots.txt`.
 
 ## 15. SEO Validation Checklist
 
-Before every deployment, verify the following:
+Before every deployment:
 
-- [ ] **Google PageSpeed Insights:** Score > 90 for Mobile and Desktop.
-- [ ] **Schema Markup Validator:** No errors in JSON-LD.
+- [ ] **Google PageSpeed Insights:** Score > 90 Mobile and Desktop.
+- [ ] **Schema Markup Validator:** No errors in JSON-LD (check Blog/BlogPosting/ArtGallery/VisualArtwork/Person).
 - [ ] **Lighthouse:** Run accessibility and SEO audits.
-- [ ] **Canonical/Hreflang:** Ensure correct cross-linking between languages.
-- [ ] **i18n Sync:** Run `pnpm run validate-i18n` (see [[astro-i18n#9-build-time-validation-mandatory]]) to ensure all translation keys (titles/descriptions) are present in all languages.
-- [ ] **Favicons:** Verify all icons and manifest load correctly with no 404s.
-- [ ] **Robots.txt:** Verify it exists and points to the correct sitemap URL.
-- [ ] **og:image:** Verify the Open Graph image renders correctly on social media preview tools.
+- [ ] **Canonical/Hreflang:** Absolute cross-lingual links, no x-default.
+- [ ] **i18n Sync:** `pnpm run validate-i18n`.
+- [ ] **Favicons:** All icons load with no 404s; `apple-touch-icon` 180×180 opaque.
+- [ ] **Robots.txt:** Exists, points to sitemap + feed.
+- [ ] **og:image:** Renders correctly on social preview tools.

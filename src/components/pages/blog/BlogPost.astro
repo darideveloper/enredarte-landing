@@ -7,6 +7,7 @@ import Headline from "@/components/atoms/Headline.astro"
 import Btn from "@/components/atoms/Btn.astro"
 import { IMAGE_SLOTS } from "@/lib/images"
 import { pickPostField } from "@/lib/api/posts"
+import { blogPostingSchema } from "@/lib/seo/schema"
 import { getLocalizedPostPath, getLocalizedBlogPath } from "@/lib/i18n/utils"
 import { getTranslations } from "@/lib/i18n/utils"
 import type { Lang, Post } from "@/lib/api/types"
@@ -75,6 +76,13 @@ const alternateUrls = {
   es: getLocalizedPostPath(post.slug, "es"),
 }
 const backHref = getLocalizedBlogPath(lang)
+
+const postJsonLd = blogPostingSchema({
+  title,
+  description,
+  author: post.author,
+  datePublished: post.published_at ?? undefined,
+})
 ---
 
 <PageSEO
@@ -83,7 +91,12 @@ const backHref = getLocalizedBlogPath(lang)
   description={description}
   keywords={keywords}
   ogImage={ogImage ?? undefined}
+  ogImageAlt={title}
   alternateUrls={alternateUrls}
+  jsonType="BlogPosting"
+  extraJson={postJsonLd}
+  articlePublishedTime={post.published_at ?? undefined}
+  articleAuthor={post.author}
   slot="seo"
 />
 
@@ -132,12 +145,6 @@ const backHref = getLocalizedBlogPath(lang)
           <div class="mb-8">
             <Headline color="red" class="mb-3 block">{t("pages.blog.eyebrow")} — {formattedDate || post.author}</Headline>
             <h1 class="font-serif text-[32px] md:text-[44px] leading-[0.95] tracking-[-0.02em] text-ink text-balance mb-4">{title}</h1>
-          </div>
-        )}
-
-        {bannerSrc && (
-          <div class="lg:hidden mb-8">
-            <h1 class="sr-only">{title}</h1>
           </div>
         )}
 

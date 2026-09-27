@@ -112,7 +112,8 @@
     },
     "curator": {
       "title": "Curaduría",
-      "description": "Conoce a nuestros curadores de arte"
+      "description": "Conoce a nuestros curadores de arte",
+      "keywords": "curador, curaduría, arte, selección, EnredArte"
     },
     "artwork": {
       "status": {
@@ -128,7 +129,10 @@
         "theme": "Temática",
         "format": "Formato",
         "scale": "Escala"
-      }
+      },
+      "title": "Obra de arte",
+      "description": "Detalles de esta obra única de arte en EnredArte.",
+      "keywords": "obra, arte, artista, colección, EnredArte"
     },
     "purchase": {
       "buy": {
@@ -248,7 +252,8 @@
             "heading": "Derechos ARCO",
             "body": "Usted puede ejercer sus derechos de acceso, rectificación, cancelación y oposición escribiendo a info@enredarte.com. Responderemos conforme a la normativa aplicable."
           }
-        ]
+        ],
+        "keywords": "aviso de privacidad, datos personales, privacidad, EnredArte"
       },
       "terms": {
         "title": "Términos y Condiciones",
@@ -274,7 +279,8 @@
             "heading": "Reservas y devoluciones",
             "body": "Las reservas se confirman por escrito. Si la obra no corresponde a lo descrito, escríbanos a info@enredarte.com o al +52 624 176 4802 para encontrar una solución."
           }
-        ]
+        ],
+        "keywords": "términos y condiciones, compra, obra, EnredArte"
       },
       "cookies": {
         "title": "Política de Cookies",
@@ -296,7 +302,8 @@
             "heading": "Contacto",
             "body": "Para cualquier duda sobre esta política, escríbanos a info@enredarte.com."
           }
-        ]
+        ],
+        "keywords": "política de cookies, cookies, privacidad, EnredArte"
       }
     }
   }

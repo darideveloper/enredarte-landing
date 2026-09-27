@@ -18,6 +18,7 @@ import {
 } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import { getTranslations, getLocalizedArtistPath, pickTranslation } from "@/lib/i18n/utils"
+import { personSchema } from "@/lib/seo/schema"
 import { IMAGE_SLOTS } from "@/lib/images"
 import { stripUrlScheme } from "@/lib/utils"
 import type { Lang } from "@/lib/api/types"
@@ -77,6 +78,14 @@ const alternateUrls = {
   en: getLocalizedArtistPath(artistSlug, "en"),
   es: getLocalizedArtistPath(artistSlug, "es"),
 }
+
+const artistJsonLd = personSchema({
+  name: artist.name,
+  email: artist.email ?? undefined,
+  websiteUrl: artist.website ? (artist.website.startsWith("http") ? artist.website : `https://${artist.website}`) : undefined,
+  sameAs: (artist.social_links ?? []).map((l) => l.url).filter(Boolean),
+  url: new URL(getLocalizedArtistPath(artistSlug, lang), Astro.site).href,
+})
 ---
 
 <PageSEO
@@ -84,7 +93,10 @@ const alternateUrls = {
   title={artist.name}
   description={bio || artist.name}
   ogImage={artist.photo ?? featured?.src}
+  ogImageAlt={artist.name}
   alternateUrls={alternateUrls}
+  jsonType="Person"
+  extraJson={artistJsonLd}
   slot="seo"
 />
 

@@ -5,6 +5,7 @@ import CuratorSalas from "@/components/organisms/CuratorSalas.astro"
 import { resolveCuratorGalleries, toSalaView } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import { getLocalizedCuratorPath, pickTranslation } from "@/lib/i18n/utils"
+import { personSchema } from "@/lib/seo/schema"
 import type { Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -31,6 +32,14 @@ const alternateUrls = {
   en: getLocalizedCuratorPath(curator.slug, "en"),
   es: getLocalizedCuratorPath(curator.slug, "es"),
 }
+
+const curatorJsonLd = personSchema({
+  name: curator.name,
+  email: curator.email ?? undefined,
+  websiteUrl: curator.website ? (curator.website.startsWith("http") ? curator.website : `https://${curator.website}`) : undefined,
+  sameAs: (curator.social_links ?? []).map((l) => l.url).filter(Boolean),
+  url: new URL(getLocalizedCuratorPath(curator.slug, lang), Astro.site).href,
+})
 ---
 
 <PageSEO
@@ -38,7 +47,10 @@ const alternateUrls = {
   title={curator.name}
   description={bio || curator.name}
   ogImage={curator.photo ?? undefined}
+  ogImageAlt={curator.name}
   alternateUrls={alternateUrls}
+  jsonType="Person"
+  extraJson={curatorJsonLd}
   slot="seo"
 />
 

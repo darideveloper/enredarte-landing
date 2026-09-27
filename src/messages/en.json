@@ -112,7 +112,8 @@
     },
     "curator": {
       "title": "Curatorship",
-      "description": "Meet our art curators"
+      "description": "Meet our art curators",
+      "keywords": "curator, curatorship, art, selection, EnredArte"
     },
     "artwork": {
       "status": {
@@ -128,7 +129,10 @@
         "theme": "Theme",
         "format": "Format",
         "scale": "Scale"
-      }
+      },
+      "title": "Artwork",
+      "description": "Details of this one-of-a-kind artwork at EnredArte.",
+      "keywords": "artwork, art, artist, collection, EnredArte"
     },
     "purchase": {
       "buy": {
@@ -248,7 +252,8 @@
             "heading": "Your rights",
             "body": "You may request access, correction, deletion, or objection regarding your data at info@enredarte.com. We respond under applicable law."
           }
-        ]
+        ],
+        "keywords": "privacy notice, personal data, privacy, EnredArte"
       },
       "terms": {
         "title": "Terms and Conditions",
@@ -274,7 +279,8 @@
             "heading": "Reservations and returns",
             "body": "Reservations are confirmed in writing. If a work does not match its description, write to info@enredarte.com or +52 624 176 4802 and we will find a solution."
           }
-        ]
+        ],
+        "keywords": "terms and conditions, purchase, artwork, EnredArte"
       },
       "cookies": {
         "title": "Cookie Policy",
@@ -296,7 +302,8 @@
             "heading": "Contact",
             "body": "Questions about this policy: info@enredarte.com."
           }
-        ]
+        ],
+        "keywords": "cookie policy, cookies, privacy, EnredArte"
       }
     }
   }

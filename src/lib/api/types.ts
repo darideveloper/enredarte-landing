@@ -62,6 +62,7 @@ export interface ArtCurator extends Base {
   website: string | null
   photo: string | null
   translations: Translations<{ bio: string }>
+  social_links: SocialLink[]
 }
 
 export interface Location extends Base {
