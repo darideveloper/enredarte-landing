@@ -17,6 +17,7 @@ import {
 } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import { getTranslations, pickTranslation, getLocalizedSalaPath } from "@/lib/i18n/utils"
+import { artGallerySchema } from "@/lib/seo/schema"
 import { IMAGE_SLOTS } from "@/lib/images"
 import type { Lang } from "@/lib/api/types"
 
@@ -67,6 +68,11 @@ const alternateUrls = {
   en: getLocalizedSalaPath(gallery.slug, "en"),
   es: getLocalizedSalaPath(gallery.slug, "es"),
 }
+
+const galleryJsonLd = artGallerySchema({
+  name: galleryName,
+  description: galleryDescription || undefined,
+})
 ---
 
 <PageSEO
@@ -74,7 +80,10 @@ const alternateUrls = {
   title={galleryName}
   description={galleryDescription}
   ogImage={gallery.logo ?? featured?.src}
+  ogImageAlt={galleryName}
   alternateUrls={alternateUrls}
+  jsonType="ArtGallery"
+  extraJson={galleryJsonLd}
   slot="seo"
 />
 

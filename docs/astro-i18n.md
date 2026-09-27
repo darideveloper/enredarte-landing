@@ -333,11 +333,12 @@ const i18nTitle = currentPage ? t(`pages.${currentPage}.title`) : undefined
 const i18nDesc = currentPage ? t(`pages.${currentPage}.description`) : undefined
 const i18nKeywords = currentPage ? t(`pages.${currentPage}.keywords`) : undefined
 const canonicalPath = getLocalizedPath(currentPage, lang)
-const canonicalUrl = `${BUSINESS_DATA.url}${canonicalPath}`
+// BaseSEO resolves the canonical origin from Astro.site (PORTLESS_URL → SITE_URL → prod),
+// matching the sitemap origin — see [[astro-seo]] §3.1.
 ---
 ```
 
-It also auto-generates `<link rel="alternate" hreflang="..." href="...">` tags using `getLocalizedPath(currentPage, "en")` and `getLocalizedPath(currentPage, "es")`. A `<link rel="alternate" hreflang="x-default">` tag points at the root (`/`), which Spanish now owns.
+It auto-generates absolute `<link rel="alternate" hreflang="...">` tags using `getLocalizedPath(currentPage, "en")` and `getLocalizedPath(currentPage, "es")`, absolutized against the resolved origin. No `hreflang="x-default"` is emitted — en/es cover all supported locales.
 
 ## 9. Build-Time Validation (Mandatory)
 

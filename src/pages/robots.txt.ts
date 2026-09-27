@@ -1,13 +1,18 @@
 import type { APIRoute } from "astro"
+import { BUSINESS_DATA } from "@/data/site-config"
 
-const getRobotsTxt = (sitemapURL: URL) => `\
+const getRobotsTxt = (siteURL: URL) => `\
 User-agent: *
 Allow: /
 
-Sitemap: ${sitemapURL.href}
+Sitemap: ${new URL("sitemap-index.xml", siteURL).href}
+
 `
 
 export const GET: APIRoute = ({ site }) => {
-  const sitemapURL = new URL("sitemap-index.xml", site)
-  return new Response(getRobotsTxt(sitemapURL))
+  // site may be undefined in some contexts; fall back to the business origin.
+  const origin = site ?? new URL(BUSINESS_DATA.url)
+  return new Response(getRobotsTxt(origin), {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  })
 }

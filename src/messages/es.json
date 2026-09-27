@@ -119,7 +119,8 @@
     },
     "curator": {
       "title": "Curaduría",
-      "description": "Conoce a nuestros curadores de arte"
+      "description": "Conoce a nuestros curadores de arte",
+      "keywords": "curador, curaduría, arte, selección, EnredArte"
     },
     "artwork": {
       "status": {
@@ -135,7 +136,10 @@
         "theme": "Temática",
         "format": "Formato",
         "scale": "Escala"
-      }
+      },
+      "title": "Obra de arte",
+      "description": "Detalles de esta obra única de arte en EnredArte.",
+      "keywords": "obra, arte, artista, colección, EnredArte"
     },
     "purchase": {
       "buy": {

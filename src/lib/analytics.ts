@@ -38,7 +38,12 @@ function measurementId(): string {
   return (import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined) || ""
 }
 
+function gtmId(): string {
+  return (import.meta.env.PUBLIC_GTM_ID as string | undefined) || ""
+}
+
 let gaInjected = false
+let gtmInjected = false
 
 /** Inject gtag.js once. Returns false when disabled (no consent / no ID). Silent no-op. */
 export function ensureGaLoaded(): boolean {
@@ -55,7 +60,26 @@ export function ensureGaLoaded(): boolean {
   return true
 }
 
-/** Persist choice, push live consent update, load GA when granted. */
+/** Inject gtm.js once, post-consent. Silent no-op without consent / GTM ID. */
+export function ensureGtmLoaded(): boolean {
+  if (!hasAnalyticsConsent() || gtmInjected) return gtmInjected
+  const id = gtmId()
+  if (!id) return false
+  // Tracking.astro's head loader may have beaten us (stored grant) — never double-inject.
+  if (typeof document !== "undefined" && document.querySelector('script[src*="googletagmanager.com/gtm.js"]')) {
+    gtmInjected = true
+    return true
+  }
+  gtmInjected = true
+  push({ "gtm.start": new Date().getTime(), event: "gtm.js" })
+  const script = document.createElement("script")
+  script.async = true
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(id)}`
+  document.head.appendChild(script)
+  return true
+}
+
+/** Persist choice, push live consent update, load GA/GTM when granted. */
 export function setConsent(analytics: boolean): void {
   try {
     localStorage.setItem(CONSENT_KEY, JSON.stringify({ analytics, ts: Date.now() }))
@@ -63,7 +87,10 @@ export function setConsent(analytics: boolean): void {
     // private mode: consent applies to this page view only
   }
   push("consent", "update", { analytics_storage: analytics ? "granted" : "denied" })
-  if (analytics) ensureGaLoaded()
+  if (analytics) {
+    ensureGaLoaded()
+    ensureGtmLoaded()
+  }
 }
 
 /** Honor a stored grant on page load (defaults in <head> already deny). */
@@ -71,6 +98,7 @@ export function applyStoredConsent(): void {
   if (hasAnalyticsConsent()) {
     push("consent", "update", { analytics_storage: "granted" })
     ensureGaLoaded()
+    ensureGtmLoaded()
   }
 }
 

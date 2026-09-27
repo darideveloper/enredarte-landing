@@ -8,7 +8,8 @@ import { toArtworkDetailView, resolveLocationName } from "@/data/api"
 import type { SiteData } from "@/data/api"
 import type { Lang } from "@/lib/api/types"
 import { IMAGE_SLOTS, slideSet } from "@/lib/images"
-import { getLocalizedArtworkPath } from "@/lib/i18n/utils"
+import { visualArtworkSchema } from "@/lib/seo/schema"
+import { getLocalizedArtworkPath, getLocalizedArtistPath } from "@/lib/i18n/utils"
 
 export interface Props {
   lang: Lang
@@ -51,6 +52,20 @@ const artistYears = artist?.birth_year
     ? String(artist.death_year)
     : ""
 const artistMetadata = [artistYears, artistLocation].filter(Boolean).join(" · ")
+
+const artworkJsonLd = visualArtworkSchema({
+  name: detail.title,
+  description: detail.description || undefined,
+  creatorName: detail.artist || undefined,
+  creatorUrl: detail.artistSlug ? new URL(getLocalizedArtistPath(detail.artistSlug, lang), Astro.site).href : undefined,
+  dateCreated: detail.year || undefined,
+  artMedium: detail.technique[0] || undefined,
+  size: detail.dimensions || undefined,
+  priceMxn: detail.priceMxn,
+  priceUsd: detail.priceUsd,
+  status: detail.status,
+  lang,
+})
 ---
 
 <PageSEO
@@ -58,7 +73,10 @@ const artistMetadata = [artistYears, artistLocation].filter(Boolean).join(" · "
   title={detail.title}
   description={detail.description || detail.artist}
   ogImage={primaryImage}
+  ogImageAlt={detail.title}
   alternateUrls={alternateUrls}
+  jsonType="VisualArtwork"
+  extraJson={artworkJsonLd}
   slot="seo"
 />
 

@@ -119,7 +119,8 @@
     },
     "curator": {
       "title": "Curatorship",
-      "description": "Meet our art curators"
+      "description": "Meet our art curators",
+      "keywords": "curator, curatorship, art, selection, EnredArte"
     },
     "artwork": {
       "status": {
@@ -135,7 +136,10 @@
         "theme": "Theme",
         "format": "Format",
         "scale": "Scale"
-      }
+      },
+      "title": "Artwork",
+      "description": "Details of this one-of-a-kind artwork at EnredArte.",
+      "keywords": "artwork, art, artist, collection, EnredArte"
     },
     "purchase": {
       "buy": {

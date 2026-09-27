@@ -296,6 +296,8 @@ CancelPage.astro (static, PageSEO noIndex, no island)
 ```
 Layout.astro
 ├── styles/global.css
+├── <head> consent-defaults is:inline (Consent Mode v2 all-denied) + Tracking.astro
+│   (PROD-only consent-gated gtm.js) + RSS alternate links + <slot name="seo"/>
 ├── Header.astro
 │   ├── Logo.astro ─────────────► lib/utils (cn)
 │   ├── LangBtns.astro
@@ -306,7 +308,7 @@ Layout.astro
 │   ├── lib/utils
 │   └── lib/i18n/utils
 ├── <slot/> = page content (Home.astro)
-└── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug pages + `#cookie-settings` button re-opening the consent banner via `enredarte:open-consent`)
+├── Footer.astro (dark ink palette; contact: tel phone + wa.me WhatsApp + mailto email + plain-text `Mexico City, Mexico`, no map link; legal nav to the three Spanish-slug pages + `#cookie-settings` button re-opening the consent banner via `enredarte:open-consent`)
     ├── Logo.astro (bg-red-circle variant) ──► lib/utils (cn)
     ├── Link.astro (footer variant) ─► lib/utils
     ├── Headline.astro ───────────────► lib/utils
@@ -316,6 +318,8 @@ Layout.astro
     │   └── lib/i18n/utils
     ├── data/site-config.ts (BUSINESS_DATA, SOCIAL_LINKS, PHONES, WHATSAPP, EMAIL, LOCATION_SHORT)
     └── lib/i18n/utils (getLangFromUrl, getLocalizedPath, getTranslations)
+└── ConsentBanner.astro (hidden until no stored choice; Btn primary/inverse-outline →
+    lib/analytics consent-gated GA4/GTM; re-opens on enredarte:open-consent)
 ```
 
 ### design-system.astro tree (showcase, imports the component library directly)
@@ -337,9 +341,34 @@ design-system.astro
 ```
 PageSEO.astro ─► BaseSEO.astro
                   ├── consts.ts (SITE_TITLE, SITE_DESCRIPTION, LOCALE_MAP)
-                  ├── data/site-config.ts
-                  ├── lib/i18n/utils (getLocalizedPath, getTranslations)
-                  └── lib/markdown (stripMarkdown — meta/og descriptions always plain text)
+                  ├── data/site-config.ts (BUSINESS_DATA — url/logo/ogImage/contact/social)
+                  ├── lib/i18n/utils (getLocalizedPath, getTranslations, getLocalized*Path)
+                  ├── lib/markdown (stripMarkdown — meta/og descriptions always plain text)
+                  └── per-template JSON-LD extraJson via lib/seo/schema.ts
+                      ├── blogPostingSchema / blogSchema (BlogIndex, BlogPost)
+                      ├── visualArtworkSchema (ArtworkPage)
+                      ├── artGallerySchema (GalleryPage)
+                      └── personSchema (ArtistPage, CuratorPage)
+```
+
+### RSS feeds (per-locale, built from published posts)
+
+```
+src/pages/rss.xml.ts (es) ─┐
+src/pages/en/rss.xml.ts ───┴──► lib/seo/rss.ts (buildRssFeed) ─► lib/api/posts (list, pickPostField)
+                                    └── lib/api/pagination (fetchAll)
+```
+
+### Analytics / tracking (consent-gated, production-only)
+
+```
+src/components/seo/base/Tracking.astro ─► Layout.astro (PROD-only, injects gtm.js
+                                            solely on stored enredarte-consent grant;
+                                            PUBLIC_GTM_ID optional from env.d.ts;
+                                            no noscript fallback — would bypass consent)
+lib/analytics.ts (vanilla consent-gated GA4: PUBLIC_GA_MEASUREMENT_ID canonical,
+                    ensureGaLoaded + ensureGtmLoaded post-grant, Consent Mode v2
+                    defaults in Layout head, ConsentBanner accept/reject)
 ```
 
 ## Shared leaf layer

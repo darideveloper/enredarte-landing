@@ -108,15 +108,16 @@ All SEO metadata and JSON-LD generation consumes `BUSINESS_DATA` — it bundles 
 
 ### `SITE_URL` resolution chain (dev canonical)
 
-`BUSINESS_DATA.url` is the **production** canonical origin. The **dev** canonical resolves per checkout so worktrees don't fight over one URL:
+`BUSINESS_DATA.url` is the **production** canonical origin, used as a fallback. The SEO canonical (canonical/hreflang/OG/JSON-LD) resolves from `Astro.site` per checkout so worktrees don't fight over one URL:
 
 ```
 PORTLESS_URL → SITE_URL → https://enredarte.mx fallback (prod domain — dev never reaches it since Portless always injects PORTLESS_URL)
 ```
 
 - `astro.config.mjs`: `site: process.env.PORTLESS_URL ?? process.env.SITE_URL ?? "https://enredarte.mx"`
+- `BaseSEO` reads `Astro.site` (this chain) for canonical/OG/hreflang/JSON-LD, falling back to `BUSINESS_DATA.url`; relative inputs are absolutized against the resolved origin — see [[astro-seo]] §3.1.
 - App consumers (redirects, canonical links, SEO) read the same order — never hardcode the dev origin.
-- Each worktree therefore resolves its own branch-subdomain URL automatically; override `SITE_URL` per worktree only when canonicals must differ explicitly. Full pattern → see [[astro-worktrees]].
+- Each worktree therefore resolves its own branch-subdomain URL automatically; override `SITE_URL` per worktree only when canonicals must differ explicitly. Dev builds emit their own subdomain canonicals and are kept out of the index by the `!PROD → noindex` guard. Full pattern → see [[astro-worktrees]].
 
 ## 2. Other Data Files
 
@@ -169,17 +170,17 @@ export const LOCALE_MAP: Record<string, string> = {
 ### Layout.astro
 ```astro
 ---
-import { BUSINESS_DATA } from '@/data/site-config'
 import { SITE_TITLE } from '@/consts'
 ---
 <html lang={lang}>
   <head>
-    <link rel="canonical" href={BUSINESS_DATA.url} />
+    <!-- canonical/SEO handled by BaseSEO via the <slot name="seo"/>; not hardcoded here -->
     <title>{SITE_TITLE}</title>
   </head>
 ```
 
 ### BaseSEO.astro (JSON-LD generation)
+Canonical/OG/hreflang/JSON-LD origin resolves from `Astro.site` (`PORTLESS_URL → SITE_URL → prod`), falling back to `BUSINESS_DATA.url`; relative path inputs are absolutized against the resolved origin. `BUSINESS_DATA` supplies business identity fields:
 ```astro
 ---
 import { BUSINESS_DATA } from '@/data/site-config'
@@ -188,7 +189,7 @@ import { BUSINESS_DATA } from '@/data/site-config'
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": BUSINESS_DATA.name,
-  "url": BUSINESS_DATA.url,
+  "url": canonicalUrl,          // resolved from Astro.site (see astro-seo §3.1)
   "telephone": BUSINESS_DATA.contact.phone,
   "address": BUSINESS_DATA.contact.address,
   "geo": BUSINESS_DATA.contact.geo,

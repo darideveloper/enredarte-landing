@@ -1,7 +1,7 @@
 ---
 import BaseSEO from "@/components/seo/base/BaseSEO.astro"
 
-const { currentPage, lang, jsonType, extraJson, ogImage, title, description, alternateUrls, noIndex, useTagLine } = Astro.props
+const { currentPage, lang, jsonType, extraJson, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, title, description, keywords, alternateUrls, noIndex, useTagLine, articlePublishedTime, articleAuthor } = Astro.props
 ---
 <BaseSEO
   currentPage={currentPage}
@@ -9,9 +9,15 @@ const { currentPage, lang, jsonType, extraJson, ogImage, title, description, alt
   jsonType={jsonType}
   extraJson={extraJson}
   ogImage={ogImage}
+  ogImageAlt={ogImageAlt}
+  ogImageWidth={ogImageWidth}
+  ogImageHeight={ogImageHeight}
   title={title}
   description={description}
+  keywords={keywords}
   alternateUrls={alternateUrls}
   noIndex={noIndex}
   useTagLine={useTagLine}
+  articlePublishedTime={articlePublishedTime}
+  articleAuthor={articleAuthor}
 />

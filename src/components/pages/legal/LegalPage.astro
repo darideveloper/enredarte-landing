@@ -35,9 +35,14 @@ const related = (
     { key: "cookies", pageKey: "politica-de-cookies" },
   ] as const
 ).filter((r) => r.key !== legalKey)
+
+const alternateUrls = {
+  en: getLocalizedPath(pageKey, "en"),
+  es: getLocalizedPath(pageKey, "es"),
+}
 ---
 
-<PageSEO currentPage={pageKey} lang={lang} title={title} description={description} slot="seo" />
+<PageSEO currentPage={pageKey} lang={lang} title={title} description={description} alternateUrls={alternateUrls} slot="seo" />
 
 <div class="container-site-narrow py-16" transition:animate="none">
   <div class="js-legal-head">

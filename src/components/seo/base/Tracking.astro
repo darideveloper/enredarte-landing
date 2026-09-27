@@ -1,0 +1,33 @@
+---
+// Consent-gated GTM loader, production-only. Emits nothing when
+// `import.meta.env.PROD` is false (keeps dev/noindex pages clean) or when no
+// GTM ID is configured. Unlike stock GTM snippets, gtm.js is injected only
+// when the visitor already granted analytics (stored `enredarte-consent`
+// choice) — Consent Mode v2 defaults in Layout.astro deny everything until
+// then. Grants made after page load are handled by `ensureGtmLoaded()` in
+// `lib/analytics.ts` (same localStorage contract, DOM-guarded, no doubles).
+// GA4 (`PUBLIC_GA_MEASUREMENT_ID`) stays owned by `lib/analytics.ts`
+// `ensureGaLoaded()` — never emitted here, so no tag fires pre-consent.
+const gtmId = import.meta.env.PUBLIC_GTM_ID
+const enabled = import.meta.env.PROD && !!gtmId
+---
+
+{enabled && (
+  <script is:inline data-gtm-id={gtmId}>
+    (function(){
+      try {
+        var raw = localStorage.getItem("enredarte-consent");
+        if (!raw || !JSON.parse(raw).analytics) return;
+      } catch (e) { return; }
+      if (document.querySelector('script[src*="googletagmanager.com/gtm.js"]')) return;
+      var id = document.currentScript && document.currentScript.getAttribute("data-gtm-id");
+      if (!id) return;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({"gtm.start": new Date().getTime(), event: "gtm.js"});
+      var j = document.createElement("script");
+      j.async = true;
+      j.src = "https://www.googletagmanager.com/gtm.js?id=" + encodeURIComponent(id);
+      document.head.appendChild(j);
+    })();
+  </script>
+)}
