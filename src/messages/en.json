@@ -29,7 +29,7 @@
     "consent": {
       "title": "We use cookies",
       "description": "We only enable analytics with your consent. You can change your choice at any time.",
-      "accept": "Accept analytics",
+      "accept": "Accept cookies",
       "reject": "Reject"
     },
     "gallery": {
