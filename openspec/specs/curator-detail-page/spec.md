@@ -24,24 +24,30 @@ The system SHALL generate a dedicated curator detail page for every active art c
 - **THEN** no curator page is emitted for that slug
 
 ### Requirement: Render the curator profile hero layout
-The curator page SHALL render an editorial profile hero organism (`CuratorHero.astro`) displaying the curator's portrait photo (or initials monogram fallback if no photo exists), localized name, localized biography text meeting WCAG AA contrast (minimum 4.5:1 against the paper background), accessible touch targets of at least 44px for contact links, accessible monogram markup with `aria-hidden="true"`, and external link indicators.
+The curator page SHALL render an editorial profile hero organism (`CuratorHero.astro`) displaying the curator's portrait photo (or initials monogram fallback if no photo exists), localized name, localized biography text meeting WCAG AA contrast (minimum 4.5:1 against the paper background), social links from `social_links` only (email and website SHALL NOT be rendered visibly), accessible touch targets of at least 44px for social links, accessible monogram markup with `aria-hidden="true"`, and external link indicators. Email and website data SHALL still be passed to `personSchema` for SEO JSON-LD (hidden for humans, kept for machines).
 
-#### Scenario: Profile shows portrait, name, bio, and contact links
-- **GIVEN** a curator with a photo, bio, email, and website
+#### Scenario: Profile shows portrait, name, bio, and social links
+- **GIVEN** a curator with a photo, bio, and social links (e.g. `hugo-salinas` with instagram)
 - **WHEN** the curator detail page renders
-- **THEN** the portrait is displayed alongside the name, biography, email link, and website link
+- **THEN** the portrait is displayed alongside the name, biography, and social links only
+- **AND** no email or website link is visible
 - **AND** the biography text color achieves WCAG AA contrast ratio (>= 4.5:1) against the paper surface
-- **AND** the contact links have a minimum touch target height of 44px
+- **AND** the social links have a minimum touch target height of 44px
 
 #### Scenario: Curator without photo shows initials fallback
 - **GIVEN** a curator with `photo: null`
 - **WHEN** the curator detail page renders
 - **THEN** an elegant monogram of the curator's name initials is displayed in place of the photo with `aria-hidden="true"` and an accessible container label
 
-#### Scenario: Missing contact channels are omitted
-- **GIVEN** a curator with no email or website
+#### Scenario: Missing social links are omitted
+- **GIVEN** a curator with empty `social_links` (e.g. `renata-ortega`)
 - **WHEN** the curator detail page renders
-- **THEN** no broken or empty contact links are displayed
+- **THEN** no contact row or divider is displayed and no broken or empty social links appear
+
+#### Scenario: Social platform labels are localized with fallback
+- **GIVEN** a curator social link with platform `instagram`
+- **WHEN** the hero renders the link
+- **THEN** the visible label uses `global.footer.social.<platform>` when the key exists, else the raw platform string
 
 ### Requirement: Render the curated galleries section
 The curator page SHALL render a dedicated curated galleries organism (`CuratorSalas.astro`) displaying all galleries (*salas*) curated by this curator, linking directly to each gallery's detail page (`/salas/<slug>` in Spanish and `/en/salas/<slug>` in English) with its title, artwork count, and cover image. The section eyebrow SHALL be fully localized in Spanish ("Explora") and English ("Explore"), and individual gallery card titles SHALL render as `<h3>` elements to preserve semantic document heading hierarchy.

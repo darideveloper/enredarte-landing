@@ -4,7 +4,7 @@ import Markdown from "@/components/atoms/Markdown.astro"
 import Image from "@/components/atoms/Image.astro"
 import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
 import { IMAGE_SLOTS } from "@/lib/images"
-import { stripUrlScheme, cn } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import type { ArtCurator, Lang } from "@/lib/api/types"
 
 export interface Props {
@@ -24,6 +24,11 @@ const initials = curator.name
   .join("")
   .slice(0, 2)
   .toUpperCase()
+
+const socialLabel = (platform: string) => {
+  const label = t(`global.footer.social.${platform.toLowerCase()}`)
+  return typeof label === "string" && !label.startsWith("MISSING:") ? label : platform
+}
 ---
 
 <section class={cn("bg-paper container-site-canvas pt-16 md:pt-24 pb-12 overflow-hidden", className)} transition:animate="none">
@@ -66,28 +71,19 @@ const initials = curator.name
         <Markdown content={bio} class="text-[15px] text-ink/85 leading-[1.85] mb-8 max-w-2xl" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />
       )}
 
-      {(curator.email || curator.website) && (
+      {curator.social_links.length > 0 && (
         <div class="flex flex-wrap gap-6 text-[12px] tracking-[0.06em] uppercase pt-2 border-t border-border-theme">
-          {curator.email && (
+          {curator.social_links.map((link) => (
             <a
-              href={`mailto:${curator.email}`}
-              class="text-crimson hover:underline font-medium transition-colors inline-flex items-center min-h-[44px] py-2.5"
-              aria-label={`${lang === "es" ? "Enviar correo a" : "Send email to"} ${curator.email}`}
-            >
-              {curator.email}
-            </a>
-          )}
-          {curator.website && (
-            <a
-              href={curator.website}
+              href={link.url}
               target="_blank"
               rel="noopener noreferrer"
               class="text-crimson hover:underline font-medium transition-colors inline-flex items-center min-h-[44px] py-2.5"
             >
-              <span>{stripUrlScheme(curator.website)}</span>
+              <span>{socialLabel(link.platform)}</span>
               <span class="sr-only">({lang === "es" ? "se abre en una nueva pestaña" : "opens in a new tab"})</span>
             </a>
-          )}
+          ))}
         </div>
       )}
     </div>

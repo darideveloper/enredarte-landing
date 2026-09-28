@@ -36,24 +36,19 @@ The gallery page SHALL render a hero section showing the gallery's localized nam
 - **THEN** it is parsed via `renderMarkdown` and rendered with `set:html` in prose styling
 
 ### Requirement: Render the curator block
-The gallery page SHALL render the full curator data — photo, name, localized bio, email, and website — using a `CuratorCard` molecule composed from the existing `Image` atom and the card styling already used by `CardSummary`. The curator localized bio (from `ArtCurator.translations[lang].bio` via `pickTranslation`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{bio}</p>`. The website SHALL be displayed as a link whose visible text is the website URL without its scheme (leading `http://` or `https://` removed), while the link target remains the full original URL.
+The gallery page SHALL render the curator data — photo, name, localized bio, and social links only (email and website SHALL NOT be rendered visibly) — using a `CuratorCard` molecule composed from the existing `Image` atom and the card styling already used by `CardSummary`. The curator localized bio (from `ArtCurator.translations[lang].bio` via `pickTranslation`) SHALL be rendered as markdown via the shared `markdown-rendering` renderer inside the `Markdown` atom (GFM, `breaks: true`, trusted CMS), not as escaped plain `<p>{bio}</p>`. Each social link SHALL render as an external link whose visible text is the localized platform label (`global.footer.social.<platform>` when present, else raw platform).
 
 #### Scenario: Curator information is displayed
-- **GIVEN** a gallery whose curator has a photo, bio, email, and website
+- **GIVEN** a gallery whose curator has a photo, bio, and social links
 - **WHEN** the gallery page renders
-- **THEN** the curator's photo, name, bio, email, and website are visible
+- **THEN** the curator's photo, name, bio, and social links are visible
+- **AND** no email or website is visible
 - **AND** the bio is shown in the active language and rendered as markdown via `renderMarkdown` (e.g. `**` → `<strong>`, `\n` → `<br>`) in prose styling
 
-#### Scenario: Website link hides the URL scheme
-- **GIVEN** a curator whose website is `https://www.example.com/`
-- **WHEN** the curator card renders the website link
-- **THEN** the visible text reads `www.example.com` (no `https://` prefix and no trailing slash)
-- **AND** the link's `href` is the full `https://www.example.com/`
-
-#### Scenario: Email is unaffected
-- **GIVEN** a curator with an email address
+#### Scenario: Curator without social links shows no contact row
+- **GIVEN** a curator with empty `social_links`
 - **WHEN** the curator card renders
-- **THEN** the email is displayed unchanged as a `mailto:` link
+- **THEN** no contact row is displayed and no broken or empty links appear
 
 ### Requirement: Restrict the artworks section to the gallery's artworks
 The gallery page SHALL render an artworks section that shows only the artworks belonging to that gallery, using the existing `Filters` and `Artworks` React islands with only this gallery's artworks passed as facets and children.

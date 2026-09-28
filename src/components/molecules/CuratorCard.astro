@@ -1,7 +1,7 @@
 ---
 import Image from "@/components/atoms/Image.astro"
 import Markdown from "@/components/atoms/Markdown.astro"
-import { cn, stripUrlScheme } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { IMAGE_SLOTS } from "@/lib/images"
 import type { ArtCurator, Lang } from "@/lib/api/types"
 import { getTranslations, pickTranslation } from "@/lib/i18n/utils"
@@ -21,6 +21,11 @@ const initials = curator.name
   .join("")
   .slice(0, 2)
   .toUpperCase()
+
+const socialLabel = (platform: string) => {
+  const label = t(`global.footer.social.${platform.toLowerCase()}`)
+  return typeof label === "string" && !label.startsWith("MISSING:") ? label : platform
+}
 ---
 
 <div
@@ -50,18 +55,13 @@ const initials = curator.name
     </p>
     <h3 class="font-serif text-3xl text-paper mb-4">{curator.name}</h3>
     {bio && <Markdown content={bio} variant="on-dark" class="text-[14px] text-paper/80 leading-[1.8] mb-6 max-w-[560px]" copyLabel={t("pages.blog.copy")} copiedLabel={t("pages.blog.copied")} />}
-    {(curator.email || curator.website) && (
+    {curator.social_links.length > 0 && (
       <div class="flex flex-wrap gap-6 text-[11px] tracking-[0.06em] uppercase">
-        {curator.email && (
-          <a href={`mailto:${curator.email}`} class="text-crimson hover:underline">
-            {curator.email}
+        {curator.social_links.map((link) => (
+          <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
+            {socialLabel(link.platform)}
           </a>
-        )}
-        {curator.website && (
-          <a href={curator.website} target="_blank" rel="noopener noreferrer" class="text-crimson hover:underline">
-            {stripUrlScheme(curator.website)}
-          </a>
-        )}
+        ))}
       </div>
     )}
   </div>
