@@ -69,12 +69,23 @@ export function parseVideoUrl(href: string): ParsedVideo | null {
 function buildRenderer(copyLabel: string, copiedLabel: string, videoTitle: string, enableVideo: boolean) {
   // Custom renderer — ids, lazy images, external link affordance, code lang badge (marked 15 token API)
   const renderer = new marked.Renderer() as any
+  // Per-document slug counts for uniqueness (buildRenderer runs once per render call).
+  const slugCounts = new Map<string, number>()
   renderer.heading = (token: any) => {
     const text: string = token.text ?? ""
     const raw: string = token.raw ?? text
     const depth: number = token.depth ?? 1
     const lvl = depth === 1 ? 2 : depth
-    const slug = String(raw).toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || `h-${lvl}`
+    // Normalize Spanish diacritics to ASCII so ES anchors work (Política → politica).
+    const base = String(raw)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^\w]+/g, "-")
+      .replace(/^-|-$/g, "") || `h-${lvl}`
+    const seen = slugCounts.get(base) ?? 0
+    slugCounts.set(base, seen + 1)
+    const slug = seen === 0 ? base : `${base}-${seen + 1}`
     return `<h${lvl} id="${slug}" class="scroll-mt-24"><a href="#${slug}" class="no-underline hover:text-crimson transition-colors">${text}</a></h${lvl}>\n`
   }
   renderer.image = (token: any) => {
@@ -87,6 +98,37 @@ function buildRenderer(copyLabel: string, copiedLabel: string, videoTitle: strin
       return `<figure>${img}<figcaption>${text}</figcaption></figure>`
     }
     return img
+  }
+  // Tables render inside a keyboard-scrollable frame (styling lives in
+  // `.table-scroll`); header cells carry scope for assistive tech.
+  // `function` (not arrow) to keep marked's `this` (tablecell/tablerow/parser).
+  renderer.tablecell = function (token: any) {
+    const content: string = this.parser.parseInline(token.tokens)
+    if (token.header) {
+      const align = token.align ? ` align="${token.align}"` : ""
+      return `<th scope="col"${align}>${content}</th>\n`
+    }
+    const align = token.align ? ` align="${token.align}"` : ""
+    return `<td${align}>${content}</td>\n`
+  }
+  renderer.table = function (token: any) {
+    let header = ""
+    let cell = ""
+    for (let j = 0; j < token.header.length; j++) {
+      cell += this.tablecell(token.header[j])
+    }
+    header += this.tablerow({ text: cell })
+    let body = ""
+    for (let j = 0; j < token.rows.length; j++) {
+      const row = token.rows[j]
+      cell = ""
+      for (let k = 0; k < row.length; k++) {
+        cell += this.tablecell(row[k])
+      }
+      body += this.tablerow({ text: cell })
+    }
+    if (body) body = `<tbody>${body}</tbody>`
+    return `<div class="table-scroll" tabindex="0"><table>\n<thead>\n${header}</thead>\n${body}</table>\n</div>\n`
   }
   renderer.link = (token: any) => {
     const href: string | null = token.href ?? null
