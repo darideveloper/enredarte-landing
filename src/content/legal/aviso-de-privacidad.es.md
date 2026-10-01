@@ -6,7 +6,7 @@ updated: "Última actualización: septiembre de 2026"
 
 ## Responsable del tratamiento
 
-EnredArte, con domicilio en Ciudad de México, México, es responsable del tratamiento de sus datos personales. Contacto: info@enredarte.com y +52 624 176 4802.
+EnredArte, con domicilio en Ciudad de México, México, es responsable del tratamiento de sus datos personales. Contacto: info@enredarte.mx y +52 624 176 4802.
 
 ## Datos que recabamos
 
@@ -35,7 +35,7 @@ Conservamos sus datos durante la relación comercial y, después, solo por los p
 
 ## Derechos ARCO
 
-Usted puede ejercer sus derechos de acceso, rectificación, cancelación y oposición escribiendo a info@enredarte.com. Indique su nombre, un medio para responderle, qué derecho ejerce y sobre qué datos, y adjunte una identificación. Responderemos dentro de los 20 días hábiles siguientes a su solicitud completa. Si considera que no atendimos su solicitud, puede acudir al INAI (www.inai.org.mx).
+Usted puede ejercer sus derechos de acceso, rectificación, cancelación y oposición escribiendo a info@enredarte.mx. Indique su nombre, un medio para responderle, qué derecho ejerce y sobre qué datos, y adjunte una identificación. Responderemos dentro de los 20 días hábiles siguientes a su solicitud completa. Si considera que no atendimos su solicitud, puede acudir al INAI (www.inai.org.mx).
 
 ## Cookies
 

@@ -26,7 +26,7 @@ Shipping is insured via DHL or FedEx, using the delivery details you provide aft
 
 ## Reservations and returns
 
-Reservations are confirmed in writing. If a work does not match its description, write to info@enredarte.com or +52 624 176 4802 within 7 calendar days of delivery and we will find a solution, including a return where applicable. We do not offer returns for change of mind.
+Reservations are confirmed in writing. If a work does not match its description, write to info@enredarte.mx or +52 624 176 4802 within 7 calendar days of delivery and we will find a solution, including a return where applicable. We do not offer returns for change of mind.
 
 ## Acceptance and age
 
@@ -42,4 +42,4 @@ These terms are governed by the laws of Mexico. Any dispute is subject to the co
 
 ## Contact
 
-Questions about these terms: info@enredarte.com, +52 624 176 4802, Mexico City, Mexico.
+Questions about these terms: info@enredarte.mx, +52 624 176 4802, Mexico City, Mexico.

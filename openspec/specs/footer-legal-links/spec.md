@@ -28,7 +28,7 @@ The site SHALL expose final (non-sample) legal pages at Spanish slugs with galle
 #### Scenario: Visiting aviso-de-privacidad
 
 - **WHEN** the user visits the Aviso de Privacidad page (Spanish slug)
-- **THEN** the page renders a title, last-updated line, and final sections covering: data controller (EnredArte, Mexico City, Mexico), contact (`info@enredarte.com`, `+52 624 176 4802`), data collected for art inquiries / purchases (including Stripe processing), transactional-only purposes, retention, ARCO rights process, and no sample-content disclaimer
+- **THEN** the page renders a title, last-updated line, and final sections covering: data controller (EnredArte, Mexico City, Mexico), contact (`info@enredarte.mx`, `+52 624 176 4802`), data collected for art inquiries / purchases (including Stripe processing), transactional-only purposes, retention, ARCO rights process, and no sample-content disclaimer
 
 #### Scenario: Visiting terminos-y-condiciones
 

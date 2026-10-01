@@ -34,4 +34,4 @@ Use the cookie notice or "Cookie settings" in the footer to change your choice, 
 
 ## Contact
 
-Questions about this policy: info@enredarte.com.
+Questions about this policy: info@enredarte.mx.

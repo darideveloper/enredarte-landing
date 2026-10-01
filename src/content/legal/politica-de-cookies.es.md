@@ -34,4 +34,4 @@ Use el aviso de cookies o "Configurar cookies" en el pie para cambiar su decisi�
 
 ## Contacto
 
-Para cualquier duda sobre esta política: info@enredarte.com.
+Para cualquier duda sobre esta política: info@enredarte.mx.

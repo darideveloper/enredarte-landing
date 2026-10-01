@@ -26,7 +26,7 @@ El envío es asegurado vía DHL o FedEx, usando los datos de entrega que usted n
 
 ## Reservas y devoluciones
 
-Las reservas se confírman por escrito. Si la obra no corresponde a lo descrito, escríbanos a info@enredarte.com o al +52 624 176 4802 dentro de los 7 días naturales siguientes a la entrega y encontraremos una solución, incluyendo la devolución cuando proceda. No hay devoluciones por cambio de opinión.
+Las reservas se confírman por escrito. Si la obra no corresponde a lo descrito, escríbanos a info@enredarte.mx o al +52 624 176 4802 dentro de los 7 días naturales siguientes a la entrega y encontraremos una solución, incluyendo la devolución cuando proceda. No hay devoluciones por cambio de opinión.
 
 ## Aceptación y edad
 
@@ -42,4 +42,4 @@ Estos términos se rigen por las leyes de México. Cualquier controversia se som
 
 ## Contacto
 
-Para cualquier duda sobre estos términos: info@enredarte.com, +52 624 176 4802, Ciudad de México, México.
+Para cualquier duda sobre estos términos: info@enredarte.mx, +52 624 176 4802, Ciudad de México, México.

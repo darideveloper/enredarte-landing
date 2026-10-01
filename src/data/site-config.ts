@@ -13,8 +13,8 @@ export const WHATSAPP = {
 } as const
 
 export const EMAIL = {
-  address: "info@enredarte.com",
-  href: "mailto:info@enredarte.com",
+  address: "info@enredarte.mx",
+  href: "mailto:info@enredarte.mx",
 } as const
 
 // Parked for future map integration: full street-level detail + coordinates

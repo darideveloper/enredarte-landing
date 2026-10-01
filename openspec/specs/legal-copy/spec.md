@@ -26,7 +26,7 @@ The system SHALL source all three legal page bodies from a `legal` content colle
 
 ### Requirement: Final privacy-notice copy
 
-The system SHALL render a final (non-sample) privacy notice in ES and EN covering: data controller (EnredArte, Mexico City, Mexico) with contact `info@enredarte.com` / `+52 624 176 4802`; the exact data collected (buy email + currency; delivery name/phone/full address; artwork-visit metadata; contact-channel inquiries); no card/bank data and no biometric data; transactional-only purposes with an explicit no-marketing statement; Stripe named as payment processor with buyer-data sharing disclosed; per-type retention under standard MX practice; email ARCO process with 20-day response plus INAI referral; third-party responsibility limit. The sample-content disclaimer SHALL be gone.
+The system SHALL render a final (non-sample) privacy notice in ES and EN covering: data controller (EnredArte, Mexico City, Mexico) with contact `info@enredarte.mx` / `+52 624 176 4802`; the exact data collected (buy email + currency; delivery name/phone/full address; artwork-visit metadata; contact-channel inquiries); no card/bank data and no biometric data; transactional-only purposes with an explicit no-marketing statement; Stripe named as payment processor with buyer-data sharing disclosed; per-type retention under standard MX practice; email ARCO process with 20-day response plus INAI referral; third-party responsibility limit. The sample-content disclaimer SHALL be gone.
 
 #### Scenario: Visiting aviso-de-privacidad shows final copy
 

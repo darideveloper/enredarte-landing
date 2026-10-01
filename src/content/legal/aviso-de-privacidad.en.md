@@ -6,7 +6,7 @@ updated: "Last updated: September 2026"
 
 ## Data controller
 
-EnredArte, based in Mexico City, Mexico, controls your personal data. Contact: info@enredarte.com and +52 624 176 4802.
+EnredArte, based in Mexico City, Mexico, controls your personal data. Contact: info@enredarte.mx and +52 624 176 4802.
 
 ## Data we collect
 
@@ -35,7 +35,7 @@ We keep your data for the duration of the commercial relationship and afterwards
 
 ## Your rights
 
-You may exercise your rights of access, correction, deletion, and objection by writing to info@enredarte.com. Include your name, a reply channel, which right you exercise and over which data, and attach an ID. We respond within 20 business days of your complete request. If you consider your request unaddressed, you may contact INAI (www.inai.org.mx).
+You may exercise your rights of access, correction, deletion, and objection by writing to info@enredarte.mx. Include your name, a reply channel, which right you exercise and over which data, and attach an ID. We respond within 20 business days of your complete request. If you consider your request unaddressed, you may contact INAI (www.inai.org.mx).
 
 ## Cookies
 
